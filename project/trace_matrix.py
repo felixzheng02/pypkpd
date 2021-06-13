@@ -1,5 +1,7 @@
 """
 Function written to match MATLAB function
+
+Author: Caiya Zhang, Yuchen Zheng
 """
 
 

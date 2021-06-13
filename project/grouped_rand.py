@@ -1,5 +1,7 @@
 """
 grouped_rand.R
+
+Author: Caiya Zhang, Yuchen Zheng
 """
 
 

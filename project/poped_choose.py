@@ -1,3 +1,8 @@
+"""
+
+Author: Caiya Zhang, Yuchen Zheng
+"""
+
 def poped_choose(arg1, arg2, exp):
 	if arg1 != None:
 		return arg1

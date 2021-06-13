@@ -285,6 +285,8 @@ User defined data structure that, for example could be used to send in data to t
 @param bParallelLS If the line search is going to be executed in parallel 
 
 @return A PopED database
+
+Author: Caiya Zhang, Yuchen Zheng
 """
 
 

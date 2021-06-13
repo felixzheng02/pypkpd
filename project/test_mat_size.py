@@ -1,10 +1,11 @@
 """
 Test if the size of a matrix (m*n) is correct
-
 @param correct_size -> array The correct size of a matrix
 @param mat The matrix being tested
 @param name The name of the matrix
 @return A boolean
+
+Author: Caiya Zhang, Yuchen Zheng
 """
 
 

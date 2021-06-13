@@ -1,4 +1,8 @@
-## Function written to match MATLAB function
+"""
+Function written to match MATLAB function
+
+Author: Caiya Zhang, Yuchen Zheng
+"""
 
 
 import project.all_modules as am

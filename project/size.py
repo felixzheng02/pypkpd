@@ -2,6 +2,8 @@
 @param obj An object you want to know the various dimensions of. Typically a matrix.
 @param dimension_index Which dimension you are interested in.
 @return The dimensions of the object or specific dimension you are interested in. 
+
+Author: Caiya Zhang, Yuchen Zheng
 """
 
 

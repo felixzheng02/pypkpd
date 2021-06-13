@@ -25,9 +25,9 @@ def create_design(
 		xt = am.np.array(xt_)
 
 	if m is None: 
-		m = xt.shape[0] # get xt row
+		m = am.size.size(xt, 1) # get xt row
 
-	if xt.shape[0] == 1 and m != 1:
+	if am.size.size(xt, 1) == 1 and m != 1:
 		xt = am.np.tile(xt.flatten(), m).reshape(m, xt.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
 # 没写！！！if(!is.matrix(xt)) xt <- rbind(xt)
@@ -46,14 +46,14 @@ def create_design(
 
 	### for ni ###
 	if ni is None:
-		ni = am.np.sum(xt, axis=1) # ni -> list
+		ni = am.np.array([xt.shape[1]] * xt.shape[0]).reshape(xt.shape[0], 1) # ni -> list
 	
 	if type(ni) != am.np.ndarray:
-		ni = am.np.array(ni).reshape(1, len(ni)) # ni -> (1*n) array
-	if am.test_mat_size(am.np.array([m, 1]), ni, "ni") == 1:
+		ni = am.np.array(ni).reshape(len(ni), 1)
+	if am.test_mat_size.test_mat_size(am.np.array([m, 1]), ni, "ni") == 1:
 		ni = am.pd.DataFrame(ni, 
 					   index=["grp_"+str(i) for i in range(1, m+1)], 
-					   columns=list(am.itertools.repeat("n_obs", xt.shape[1])))
+					   columns=list(am.itertools.repeat("n_obs", ni.shape[1])))
 		design["ni"] = ni
 
 
@@ -66,7 +66,7 @@ def create_design(
 	if model_switch.shape[0] == 1 and m != 1:
 		model_switch  = am.np.tile(model_switch.flatten(), m).reshape(m, model_switch.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 # 没写！！！if(!is.matrix(model_switch)) model_switch <- rbind(model_switch)
-	if am.test_mat_size(am.np.array(xt.shape), model_switch, "model_switch") == 1:
+	if am.test_mat_size.test_mat_size(am.np.array(xt.shape), model_switch, "model_switch") == 1:
 		model_switch = am.pd.DataFrame(model_switch, 
 					   index=["grp_"+str(i) for i in range(1, m+1)], 
 					   columns=["obs_"+str(i) for i in range(1, model_switch.shape[1]+1)])
@@ -118,7 +118,7 @@ def create_design(
 
 
 	### for groupsize ###
-	if max(groupsize.shape) == 1 and m != 1:
+	if max(am.size.size(groupsize)) == 1 and m != 1:
 		groupsize_ = []
 		for i in range(0, groupsize.shape[1]):
 			for j in range(0, groupsize.shape[0]):

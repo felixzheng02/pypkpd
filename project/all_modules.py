@@ -11,5 +11,6 @@ import project.create_design as create_design
 import project.creat_design_space as create_design_space
 import project.fprintf as fprintf
 import project.fileparts as fileparts
+import project.size as size
 
 

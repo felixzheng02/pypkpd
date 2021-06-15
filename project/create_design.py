@@ -68,7 +68,7 @@ def create_design(
 	if type(model_switch) is list:
 		length = max([len(i) for i in model_switch])
 		model_switch = am.np.array([am.np.pad(i, (0, length-len(i)), 'constant', constant_values=am.np.nan) for i in model_switch]) # convert a list of vectors to an array
-	if model_switch == None:
+	if model_switch is None:
 		model_switch = xt * 0 + 1
 	if am.size.size(model_switch, 1) == 1 and m != 1:
 		model_switch  = am.np.tile(model_switch.flatten(), m).reshape(m, model_switch.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
@@ -81,24 +81,27 @@ def create_design(
 
 
 	### for a ###
-	if a != None:
+	if a is not None:
 		if type(a) == list:
 			a = am.pd.DataFrame(a)
-		colnam = a.columns.values.tolist()
+		elif len(a.shape) == 1:
+			a = am.np.array([a])
+		colnam = None
 		if am.size.size(a, 1) == 1 and m != 1:
 			a_ = []
 			for i in range(0, a.shape[1]):
 				for j in range(0, a.shape[0]):
-					a_.append(a[i][j])
+					a_.append(a[j][i])
 			a = am.pd.DataFrame(am.np.tile(a_, m).reshape(m, a.size),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
 # 没写！！！if(!is.matrix(a)) a <- rbind(a)
+		a = am.pd.DataFrame(a)
 		if am.size.size(a, 1) != m:
-			raise Exception("The number of rows in a (" + str(am.size.size(a, 1)) + "is not the same as the number of groups m (" + str(m) + ")")
+			raise Exception("The number of rows in a (" + str(am.size.size(a, 1)) + ") is not the same as the number of groups m (" + str(m) + ")")
 		a.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
 		count = 0
 		for i in range(0, a.shape[1]):
-			if am.re.match(r'^X\d*$', a.columns[i]) != None:
+			if am.re.match(r'^X\d*$', str(a.columns[i])) != None:
 				count += 1
 		if count == am.size.size(a, 2):
 			a.set_axis([None] * a.shape[1], axis="column")

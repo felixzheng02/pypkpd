@@ -10,11 +10,11 @@ import project.all_modules as am
 def create_design(
 				  xt, # Matrix defining the initial sampling schedule row major, can also be a list of vectors
 				  groupsize, # Vector defining the size of the different groups (num individuals in each group)
-				  m = None, # Number of groups, computed from xt if not defined
-				  x = None, # Matrix defining the initial discrete values
-				  a = None,
-				  ni = None, # Vector defining the number of samples for each group, computed as all elements of xt by default
-				  model_switch = None # Vector defining which response a certain sampling time belongs to, defaults to one for all elements of xt
+				  m=None, # Number of groups, computed from xt if not defined
+				  x=None, # Matrix defining the initial discrete values
+				  a=None,
+				  ni=None, # Vector defining the number of samples for each group, computed as all elements of xt by default
+				  model_switch=None # Vector defining which response a certain sampling time belongs to, defaults to one for all elements of xt
 ):
 
 	design = {}

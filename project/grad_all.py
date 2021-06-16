@@ -6,11 +6,17 @@ Author: Caiya Zhang, Yuchen Zheng
 ##!!!!f
 
 import project.zeros as zeros
+import project.
 
-def grad_all (func, select_par, nRow, ..., subset=None, currentOcc=None, noPopED=False, offdiag=False):
-    arg_list = list(...)
+def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPopED=False, offdiag=False):
+    
+    for arg in args:
+        for i in range(len(args)):
+            arg_list = []
+            arg_list[i] = arg
     def0 = arg_list[[select_par]]
-    if currentOcc == None:
+    
+    if currentOcc is None:
 
         idx = idx0 = seq_along(def0)
         if subset != None:
@@ -44,9 +50,9 @@ def grad_all (func, select_par, nRow, ..., subset=None, currentOcc=None, noPopED
     if grad_all_switch == 1:
         for i in idx:
             arg_list[[select_par]] = def0 + (idx0 == i)*hlf
-            def_plus <- do.call(func, arg_list)
+            def_plus <- do_call(func, arg_list)
             arg_list[[select_par]] = def0 - (idx0 == i)*hlf
-            def_minus <- do.call(func, arg_list)
+            def_minus <- do_call(func, arg_list)
             if (noPopED == FALSE) {
                 def_plus = def_plus[[1]]        
                 def_minus = def_minus[[1]]        

@@ -467,7 +467,7 @@ def create_poped_database(
 	## -- Number of occassions --
 	NumOcc = popedInput['parameters']['NumOcc']
 	## -- The length of the g parameter vector --
-	#ng=popedInput$parameters$ng,
+	#ng=popedInput["parameters"]ng,
 
 	## -- Matrix defining the fixed effects, per row (row number = parameter_number),
 	## the type of the distribution for E-family designs (0 = Fixed, 1 = Normal, 2 = Uniform,
@@ -500,7 +500,7 @@ def create_poped_database(
 	## -- Vector defining if a covariance IIV is fixed or not (1=not fixed, 0=fixed) --
 	notfixed_covd = popedInput['parameters']['notfixed_covd']
 	## -- Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed) --
-	notfixed_docc = popedInput['$parameters$']['notfixed_docc']
+	notfixed_docc = popedInput['["parameters"]']['notfixed_docc']
 	## -- Vector row major order for lower triangular matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
 	notfixed_covdocc = am.poped_choose(popedInput['parameters']['notfixed_covdocc'], am.zeros(1, len(covdocc)), 0)
 	## -- Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) --
@@ -639,7 +639,7 @@ def create_poped_database(
 	bEANoReplicates = am.poped_choose(popedInput['settings']['bEANoReplicates'], False, 0)
 	## -- BFGS Minimizer Convergence Criteria Minimum Step --
 	BFGSConvergenceCriteriaMinStep = None,
-	#poped.choose(popedInput$settings$BFGSConvergenceCriteriaMinStep,1e-08),
+	#poped.choose(popedInput["settings"]BFGSConvergenceCriteriaMinStep,1e-08),
 	## -- BFGS Minimizer Convergence Criteria Normalized Projected Gradient Tolerance --
 	BFGSProjectedGradientTol = am.poped_choose(popedInput['settings']['BFGSProjectedGradientTol'], 0.0001, 0)
 	## -- BFGS Minimizer Line Search Tolerance f --
@@ -671,7 +671,7 @@ def create_poped_database(
 	iUseParallelMethod = am.poped_choose(popedInput['settings']['parallel']['iUseParallelMethod'], 1, 0)
 	## -- Additional dependencies used in MCC compilation (mat-files), if several space separated --
 	MCC_Dep = None,
-	#poped.choose(popedInput$settings$parallel$strAdditionalMCCCompilerDependencies, ''),
+	#poped.choose(popedInput["settings"]parallel$strAdditionalMCCCompilerDependencies, ''),
 	## -- Compilation output executable name --
 	strExecuteName = am.poped_choose(popedInput['settings']['parallel']['strExecuteName'], 'calc_fim.exe', 0)
 	## -- Number of processes to use when running in parallel (e.g. 3 = 2 workers, 1 job manager) --
@@ -680,7 +680,7 @@ def create_poped_database(
 	iNumChunkDesignEvals = am.poped_choose(popedInput['settings']['parallel']['iNumChunkDesignEvals'], -2, 0)
 	## -- The prefix of the input mat file to communicate with the executable --
 	#strMatFileInputPrefix = poped.choose(
-	#   popedInput$settings$parallel$strMatFileInputPrefix,
+	#   popedInput["settings"]parallel$strMatFileInputPrefix,
 	#   'parallel_input'),
 	## -- The prefix of the output mat file to communicate with the executable --
 	Mat_Out_Pre = am.poped_choose(popedInput['settings']['parallel']['strMatFileOutputPrefix'], 'parallel_output', 0)
@@ -732,10 +732,10 @@ def create_poped_database(
 	poped_db["settings"] = {}
 	poped_db["settings"]["poped_version"] = poped_version
 
-	if BFGSConvergenceCriteriaMinStep == None:
+	if BFGSConvergenceCriteriaMinStep is None:
 		BFGSConvergenceCriteriaMinStep = am.poped_choose(popedInput["settings"]["BFGSConvergenceCriteriaMinStep"], 1e-08, 0)
 	
-	if MCC_Dep == None:
+	if MCC_Dep is None:
 		MCC_Dep = am.poped_choose(popedInput["settings"]["parallel"]["strAdditionalMCCCompilerDependencies"], "", 0)
 	
 	poped_db["model"] = {}
@@ -832,14 +832,14 @@ def create_poped_database(
     #design_space$minni <- min(design_space$minni)	
 	
 	#should be removed
-	if design[["x"]] == None:
+	if design[["x"]] is None:
 		design["x"] = am.zeros(design["m"], 0)
 		design_space["G_x"] = design["x"]
 		design_space["bUseGrouped_x"] = False
 		design_space["discrete_x"] = am.cell(design["m"],0)
 	
 	#should be removed
-	if design[["a"]] == None:
+	if design[["a"]] is None:
 		design["a"] = am.zeros(design["m"], 0)
 		design_space["G_a"] = design["a"]
 		design_space["bUseGrouped_a"] = False
@@ -981,12 +981,12 @@ def create_poped_database(
 
 
 	# if(is.null(ofv_fun) || is.function(ofv_fun)){
-    #   poped.db$settings$ofv_fun = ofv_fun
+    #   poped.db["settings"]ofv_fun = ofv_fun
     # } else {
     #   stop("ofv_fun must be a function or NULL")
     # }
 
-	if ofv_fun == None or callable(ofv_fun):
+	if ofv_fun is None or callable(ofv_fun):
 		poped_db["settings"]["ofv_fun"] = ofv_fun
 	else:
 		# source explicit file
@@ -999,9 +999,9 @@ def create_poped_database(
 
 	
 	# if(is.function(ofv_fun)){
-    #   poped.db$settings$ofv_fun = ofv_fun 
+    #   poped.db["settings"]ofv_fun = ofv_fun 
     # } else if(exists(ofv_fun)){
-    #   poped.db$settings$ofv_fun = ofv_fun 
+    #   poped.db["settings"]ofv_fun = ofv_fun 
     # } else {
     #   source(ofv_fun)
     #   returnArgs <-  fileparts(ofv_fun) 
@@ -1010,7 +1010,7 @@ def create_poped_database(
     #   ## if (~strcmp(strffModelFilePath,''))
     #   ##    cd(strffModelFilePath);
     #   ## end
-    #   poped.db$settings$ofv_fun = strffModelFilename
+    #   poped.db["settings"]ofv_fun = strffModelFilename
     # }
  
 	poped_db["model"]["auto_pointer"] = am.zeros(1,0)
@@ -1057,7 +1057,7 @@ def create_poped_database(
         ##         if (~strcmp(strffModelFilePath,''))
         ##             cd(strffModelFilePath);
         ##         end
-        poped.db$model$subffPointers[paste('ff_pointer',i,sep='')] = strffModelFilename
+        poped.db["model"]subffPointers[paste('ff_pointer',i,sep='')] = strffModelFilename
         i = i+1
 
 	

@@ -16,9 +16,9 @@ def size(obj, dimension_index=None):
 		dim_obj = None
 	elif type(obj) == np.ndarray or type(obj) == pd.DataFrame:
 		dim_obj = obj.shape
-	if dim_obj == None:
+	if dim_obj is None:
 		dim_obj = np.array([1, 1])
-	if dimension_index == None:
+	if dimension_index is None:
 		return dim_obj
 	else:
 		return dim_obj[dimension_index - 1]

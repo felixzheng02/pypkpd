@@ -8,9 +8,10 @@ Author: Caiya Zhang, Yuchen Zheng
 
 import project.grad_all as grad_all
 import project.zeros as zeros
+import project.feval as feval
 import project.ind_estimates as ind_estimates
 
-def grad_bpop (func,select_par,nout,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db,subset=poped_db["parameters"]["notfixed_bpop"], offdiag = False):
+def grad_bpop (func,select_par,nout,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db,subset = poped_db["parameters"]["notfixed_bpop"], offdiag = False):
   #----------Model linearization with respect to pop parameters
   #
   # use helper function to check for/include EBEs

@@ -15,7 +15,7 @@ import project.all_modules as am
 
 
 def ones(dim1, dim2 = None):
-	if dim2 == None:
+	if dim2 is None:
 		if len(dim1) == 2:
 			tmp = dim1
 			dim1 = tmp[0]

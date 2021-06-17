@@ -7,11 +7,11 @@
 
 """
 
-
-import zeros
-import feval
-import grad_all
 import numpy as np
+from project.zeros import zeros
+from project.feval import feval
+from project.grad_all import grad_all
+
 
 #' @inheritParams mftot
 #' @inheritParams RS_opt
@@ -41,7 +41,7 @@ def LinMatrixH (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
   # derivative of model w$r.t. eps eval at e=0
   #
     NumEPS = poped_db["parameters"]["sigma"].shape[0]
-    if NumEPS==0:
+    if NumEPS == 0:
         y=0
     else:
         returnArgs = gradf_eps(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,NumEPS,poped_db) 
@@ -80,13 +80,13 @@ def gradf_eps (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,num_eps,poped_db):
   #
   #
   
-    if poped_db["settings"]["iApproximationMethod"]==0 or poped_db["settings"]["iApproximationMethod"]==1:#No interaction
-        fg0=feval(poped_db["model"]["fg_pointer"],x,a,bpop,zeros(b_ind.shape[0],b_ind.shape[1]), zeros(bocc_ind.shape[0],bocc_ind.shape[1]))
+    if poped_db["settings"]["iApproximationMethod"] == 0 or poped_db["settings"]["iApproximationMethod"] == 1:#No interaction
+        fg0b = feval(poped_db["model"]["fg_pointer"],x,a,bpop,zeros(b_ind.shape[0],b_ind.shape[1]), zeros(bocc_ind.shape[0],bocc_ind.shape[1]))
     
     else:
-        fg0=feval(poped_db["model"]["fg_pointer"],x,a,bpop,b_ind,bocc_ind) #Interaction
+        fg0 = feval(poped_db["model"]["fg_pointer"],x,a,bpop,b_ind,bocc_ind) #Interaction
   
-    e0=zeros(1,num_eps)
+    e0 = zeros(1,num_eps)
     dfeps_de0 = grad_all(poped_db["model"]["ferror_pointer"],4,xt_ind.shape[0],model_switch,xt_ind,fg0,e0,poped_db)
   
     return [dfeps_de0, poped_db]

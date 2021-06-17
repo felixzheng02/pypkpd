@@ -27,10 +27,10 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-import feval
-import LinMatrixH
-import diag_matlab
 import numpy as np
+from feval import feval
+from LinMatrixH import LinMatrixH
+from diag_matlab import diag_matlab
 
 
 def ind_likelihood(data,bpop,d,sigma,bInter,bUDDLike,model_switch,xt_ind,x,a,bocc_ind,poped_db,lC,det_res_var,b_ind):

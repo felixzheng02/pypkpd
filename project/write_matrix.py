@@ -5,10 +5,11 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-import project.all_modules as am
+import numpy as np
+from project.fprintf import fprintf
 
-def write_matrix(f, x: am.np.ndarray):
+def write_matrix(f, x: np.ndarray):
 	for i in range(0, x.shape[0]):
-		am.fprintf(f,"%6e",x[i, :])
-        am.fprintf(f,"\n")
+		fprintf(f,"%6e",x[i, :])
+        fprintf(f,"\n")
 	return

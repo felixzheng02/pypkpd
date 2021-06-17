@@ -7,10 +7,10 @@ AUTHOR: Caiya Zhang, Yuchen Zheng
 
 import numpy as np
 import scipy as sp
-import zeros
-import diag_matlab
-import LinMatrixH
-import ind_likelihood
+from project.zeros import zeros
+from project.diag_matlab import diag_matlab
+from project.LinMatrixH import LinMatrixH
+from project.ind_likelihood import ind_likelihood
 
 
 #This is the function that should be minimized, w$r.t eta

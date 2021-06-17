@@ -11,7 +11,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-import project.all_modules as am
+import numpy as np
 
 
 def ones(dim1, dim2 = None):
@@ -25,5 +25,5 @@ def ones(dim1, dim2 = None):
 		else: # stop("first argument can only have one or two values")
 			print("first argument can only have one or two values")
 			return
-	mat = am.np.ones([dim1, dim2])
+	mat = np.ones([dim1, dim2])
 	return mat

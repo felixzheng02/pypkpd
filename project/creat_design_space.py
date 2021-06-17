@@ -63,8 +63,11 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import numpy as np
+import pandas as pd
 import inspect
 from project.size import size
+from project.test_mat_size import test_mat_size
+from project.ones import ones
 
 
 def create_design_space(design,
@@ -91,7 +94,7 @@ def create_design_space(design,
 						grouped_x=None,
 						our_zero=None):
 
-	args = inspect.getargspec(create_design_space).args
+	called_args = inspect.getargspec(create_design_space).args
 
 	# assign defaults if not supplied
 	if maxni is None:
@@ -122,16 +125,90 @@ def create_design_space(design,
 	design_space = []
 	design_new = design
 
-	for key, value in design.items():
-		# rules:
-		# 1. set default if not already defined
-		# 2. read in value and translate to correct format
-		# 3. check that size of object is correct
-		# 4. add row and column names
-		# 4. check that max is greater than min
-		# 5. check that design value is wihin range of design_space
-		if size(maxni, 1) == 1 and m != 1:
-			...
+	# rules:
+	# 1. set default if not already defined
+	# 2. read in value and translate to correct format
+	# 3. check that size of object is correct
+	# 4. add row and column names
+	# 4. check that max is greater than min
+	# 5. check that design value is wihin range of design_space
+
+	# maxni
+	if size(maxni, 1) == 1 and design["m"] != 1:
+		maxni = np.array([maxni] * design["m"]).reshape([design["m"], 1])
+	if type(maxni) is not np.ndarray:
+		maxni = np.array(maxni)
+	if test_mat_size(np.array([design["m"], 1]), maxni, "maxni") == 1:
+		maxni = pd.DataFrame(maxni,
+							 index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+							 columns="n_obs"*maxni.shape[1])
+
+	# minni
+	if size(minni, 1) == 1 and design["m"] != 1:
+		minni = np.array([minni] * design["m"]).reshape([design["m"], 1])
+	if type(minni) is not np.ndarray:
+		minni = np.array(minni)
+	if test_mat_size(np.array([design["m"], 1]), minni, "minni") == 1:
+		minni = pd.DataFrame(minni,
+							 index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+							 columns="n_obs"*minni.shape[1])
+	
+	# make sure min is smaller than max
+	ret = comp_max_min(maxni, minni, called_args)
+	maxni = ret["max_val"]
+	minni = ret["min_val"]
+
+	# check ni given max and min
+	if any(design["ni"] < minni):
+		raise Exception("ni is less than minni")
+	if any(design["ni"] > maxni):
+		raise Exception("ni is greater than maxni")
+	
+	# maxtotni and mintotni
+	if maxtotni is None:
+		maxtotni = np.sum(maxni)
+	if mintotni is None:
+		mintotni = np.sum(minni)
+	test_mat_size(np.array([1, 1]), maxtotni, "maxtotni")
+	test_mat_size(np.array([1, 1]), mintotni, "mintotni")
+	ret = comp_max_min(maxtotni, mintotni, called_args)
+	maxtotni = ret["max_val"]
+	mintotni = ret["min_val"]
+	if any(np.sum(design["ni"]) < mintotni):
+		raise Exception("sum of ni is less than mintotni")
+	if any(np.sum(design["ni"]) > maxtotni):
+		raise Exception("sum of ni is greater than maxtotni")
+
+	# update xt and model_switch given maxni
+	if np.amax(maxni) > size(design["xt"], 2):
+
+		# xt has to increase
+		xt_full = ones(design["m"], np.amax(maxni)) * np.nan
+		xt_full[0:design["m"], 0:size(design["xt"], 2)] = design["xt"]
+		xt_full = pd.DataFrame(xt_full,
+							   index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+							   columns=["obs_"+str(i) for i in range(1, size(xt_full, 2)+1)])
+		design["xt"] = xt_full
+		design_new["xt"] = design["xt"]
+
+		# model switch has to increase
+		model_switch_full = ones(design["m"], np.amax(maxni)) * np.nan
+		model_switch_full[0:design["m"], 0:size(design["model_switch"], 2)] = design["model_switch"]
+		model_switch_full = pd.DataFrame(model_switch_full,
+							   index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+							   columns=["obs_"+str(i) for i in range(1, size(model_switch_full, 2)+1)])
+		design["model_switch"] = model_switch_full
+		for i in range(1, design["model_switch"].shape[0]+1):
+			x_tmp = design["model_switch"][i, :]
+			_, idx = np.unique(x_tmp[~np.isnan(x_tmp)], return_index=True) # remove duplicated and nan values but keep order
+			if len([x_tmp[~np.isnan(x_tmp)][index] for index in sorted(idx)]) == 1:
+				x_tmp[np.isnan(x_tmp)] = [x_tmp[~np.isnan(x_tmp)][index] for index in sorted(idx)]
+			else:
+				raise Exception("Unable to determine the model_switch values needed for group " + str(i)
+								+ "\n Please supply them as input.")
+			design["model_switch"][i, :] = x_tmp
+		design_new["model_switch"] = design["model_switch"]
+	...
 
 
 def comp_max_min(max_val, min_val, called_args):
@@ -139,3 +216,4 @@ def comp_max_min(max_val, min_val, called_args):
 	if any(np.greater(min_val, max_val)):
 		 min_val_sup = args[3] in called_args
 		 ...
+	...

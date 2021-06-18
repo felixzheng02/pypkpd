@@ -1051,20 +1051,19 @@ def create_poped_database(
 		poped_db["model"]["ff_pointer"] = strffModelFilename
 
 	#Check if there is any sub models defined
-	if any(names(popedInput) == "SubModels"):
-      	i = 1
-      	while any(names(popedInput["SubModels"])==sprintf("ff_file%d",i)):
-        	source(eval(sprintf('popedInput$SubModels$ff_file%d',i))) ##ok<NASGU> 
-       		returnArgs <-  fileparts(eval(sprintf('popedInput$SubModels$ff_file%d',i))) ##ok<NASGU> 
-        strffModelFilePath = returnArgs[[0]]
-        strffModelFilename  = returnArgs[[1]]
-        ##         if (~strcmp(strffModelFilePath,''))
-        ##             cd(strffModelFilePath);
-        ##         end
-        poped.db["model"]subffPointers[paste('ff_pointer',i,sep='')] = strffModelFilename
-        i = i+1
-
-	
+	for key in popedInput:
+		if "SubModels" in popedInput.keys():
+			i = 1
+			while any(names(popedInput["SubModels"]) == print("ff_file%d", i)):
+				exec(open(eval(print('popedInput["SubModels"]["ff_file"]%d', i)))) ##ok<NASGU> 
+				returnArgs <-  fileparts(eval(print('popedInput["SubModels"]["ff_file"]%d', i))) ##ok<NASGU> 
+				strffModelFilePath = returnArgs[[0]]
+				strffModelFilename  = returnArgs[[1]]
+				##         if (~strcmp(strffModelFilePath,''))
+				##             cd(strffModelFilePath);
+				##         end
+				poped_db["model"]["subffPointers"][paste('ff_pointer',i,sep='')] = strffModelFilename
+				i = i + 1
       
     
         

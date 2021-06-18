@@ -28,9 +28,9 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import numpy as np
-from feval import feval
-from LinMatrixH import LinMatrixH
-from diag_matlab import diag_matlab
+from project.feval import feval
+from project.LinMatrixH import LinMatrixH
+from project.diag_matlab import diag_matlab
 
 
 def ind_likelihood(data,bpop,d,sigma,bInter,bUDDLike,model_switch,xt_ind,x,a,bocc_ind,poped_db,lC,det_res_var,b_ind):

@@ -35,7 +35,7 @@ def LinMatrixL_occ(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,iCurrentOcc,poped
         returnArgs = gradff(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db) 
         grad_ff_tmp = returnArgs[[1]]
         poped_db = returnArgs[[2]]
-        y = np.maxmul(grad_ff_tmp, gradfg_occ(x,a,bpop,b_ind,bocc_ind,iCurrentOcc,poped_db))
+        y = np.matmul(grad_ff_tmp, gradfg_occ(x,a,bpop,b_ind,bocc_ind,iCurrentOcc,poped_db))
     
     return [y, poped_db]
 

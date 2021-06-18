@@ -7,5 +7,4 @@ Learn more in this https://andrewhooker.github.io/PopED/articles/intro-poped.htm
 
 ## Contact  
 You are welcome to compose a friendly e-mail to:  
-felix02@email.unc.edu
-czhan685@uwo.ca
+felix02@email.unc.edu and czhan685@uwo.ca

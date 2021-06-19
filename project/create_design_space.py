@@ -396,6 +396,58 @@ def create_design_space(design,
 					raise Exception("x value for group " + str(i) + " (column " + str(j) + ") is not in the design space")
 	
 	# for xt_space
+	if xt_space is not None:
+		if type(xt_space) is list:  # then it is a list with no dimensions, need to convert to a cell
+			nspace = len(xt_space)
+			nrow_xt = design["xt"].shape[0]
+			ncol_xt = design["xt"].shape[1]
+			if nspace == 1: # all time points in all groups have the same space
+				xt_space_tmp = design["xt"]
+				xt_space = cell(size(design["xt"]))
+				xt_space = xt_space_tmp
+			elif nspace == ncol_xt: # we assume that all groups have the same space
+				xt_space_tmp = xt_space
+				xt_space = cell(size(design["xt"]))
+				for i in range(1, nrow_xt+1):
+					xt_space[i, :] = xt_space_tmp
+			elif nspace == (ncol_xt * nrow_xt): # we assume that spaces are entered in row major form
+				xt_space_tmp = xt_space
+				xt_space = np.array(xt_space_tmp).reshape([int((xt_space_tmp.size)/nrow_xt), nrow_xt])
+		else: # then it is a vector, assume the vector is the same for all xt's
+			tmp_lst = xt_space.tolist()
+			xt_space = cell(size(design["xt"]))
+			xt_space = tmp_lst
+		if size(xt_space, 1) == 1 and design["m"] != 1:
+			xt_space = np.tile(xt_space.flatten(), design["m"]).reshape(design["m"], xt_space.size)
+		if size(xt_space, 2) == 1 and size(design["xt"], 2) != 1:
+			xt_space = np.transpose(np.tile(xt_space.flatten(), size(design["xt"], 2)).reshape(design["m"], size(design["xt"], 2)))
+		if test_mat_size(np.array(size(design["xt"])), np.array(xt_space), "xt_space") == 1:
+			xt_space = pd.DataFrame(xt_space,
+									index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+									columns=design["xt"].columns.values.tolist())
+		
+		for i in range(1, design["xt"].shape[0]+1):
+			for j in range(1, design["xt"].shape[1]+1):
+				if design["xt"][i, j] not in [xt_space[i, j]] and design["xt"][i, j] != np.nan:
+					raise Exception("xt value for group " + str(i) + " (column " + str(j) + ") is not in the design space")
+
+	# for a_space
+	if a_space is not None:
+		if type(a_space) is not np.ndarray and type(a_space) is list:
+			a_space = np.array(a_space * design["m"]).reshape([design["m"], len(a_space)])
+		else:
+			tmp_lst = pd.DataFrame(np.array(a_space).reshape([1, a_space.size]),
+								   # 没写 dimnames = list(NULL,names(x))
+								   )
+			mat = pd.DataFrame([])
+			for jj in range(1, tmp_lst.size+1):
+				tmp = tmp_lst[0, jj]
+				if any(type(i) == str for i in tmp.columns.values.tolist()) and any(type(i) == str for i in design["a"].columns.values.tolist()):
+					tmp = tmp[design["a"].columns.values.tolist()]
+					mat = mat.append(tmp)
+			a_space = mat
+		
+
 
 
 

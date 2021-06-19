@@ -5,6 +5,10 @@ The original version called PopED is basically developed by R language and has c
 
 Learn more in this https://andrewhooker.github.io/PopED/articles/intro-poped.html
 
+## Note  
+This program is still under development!
+
+
 ## Contact  
 You are welcome to compose a friendly e-mail to:  
 felix02@email.unc.edu and czhan685@uwo.ca

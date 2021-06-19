@@ -22,19 +22,28 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
 
         idx = idx0 = len(def0)
         if subset != None:
-            idx0 = as.vector(cumsum(subset)*subset)
-            idx = seq(max(idx0))
+            idx0 = np.array([])
+!!!!!!!!!
+            for k in range(0, (np.cumsum(subset)*subset).size):
+                for i in range(0, (np.cumsum(subset)*subset).shape[1]): #col
+                    for j in range(0, (np.cumsum(subset)*subset).shape[0]): #row
+                        idx[k] = np.cumsum(subset)*subset[j,i]
+                        k = k + 1
+                        j = j + 1
+                j = 0
+                i = i + 1
+            idx = np.arange(max(idx0))
     
         if type(def0) == np.ndarray and select_par > 6 and offdiag == False:
             idx0 = np.diag(idx0)
     
         if type(def0) == np.ndarray and select_par > 6 and offdiag == True:
             tmp = 0 * def0
+###potential problem: lower.tri to np.tril
             tmp[lower.tri(tmp)] = idx0
             idx0 = tmp + np.transpose(tmp)
-    
     else:
-        idx  = seq(size(def0,1))
+        idx  = np.arange(size(def0,1))
         idx0 = zeros(size(def0))
         idx0[:, currentOcc] = idx
   

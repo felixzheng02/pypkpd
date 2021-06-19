@@ -12,12 +12,16 @@ import pandas as pd
 
 def size(obj, dimension_index=None):
 	dim_obj = None
-	if type(obj) == int:
+	if type(obj) is int:
 		dim_obj = None
-	elif type(obj) == np.ndarray or type(obj) == pd.DataFrame:
+	elif type(obj) is np.ndarray or type(obj) is pd.DataFrame:
 		dim_obj = obj.shape
+		if len(dim_obj) == 1:
+			dim_obj = [1, dim_obj[0]]
+		else:
+			dim_obj = list(dim_obj)
 	if dim_obj is None:
-		dim_obj = np.array([1, 1])
+		dim_obj = [1, 1]
 	if dimension_index is None:
 		return dim_obj
 	else:

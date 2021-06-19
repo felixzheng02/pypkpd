@@ -16,11 +16,11 @@ import numpy as np
 
 def ones(dim1, dim2 = None):
 	if dim2 is None:
-		if len(dim1) == 2:
+		if dim1.size == 2:
 			tmp = dim1
 			dim1 = tmp[0]
 			dim2 = tmp[1]
-		elif len(dim1) == 1:
+		elif dim1.size == 1:
 			dim2 = dim1
 		else: # stop("first argument can only have one or two values")
 			print("first argument can only have one or two values")

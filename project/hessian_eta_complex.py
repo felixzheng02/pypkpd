@@ -19,14 +19,14 @@ def hessian_eta_complex(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db,ret
     
     if bAutomatic:
         raise Exception("Automatic differentiation not yet implemented in R version of PopED")
-        #     if((poped.db$settings$Engine$Type==2) ){#FreeMat
+        #     if((poped_db["settings"]Engine$Type==2) ){#FreeMat
         #         stop(sprintf('Automatic differentiation is not available in PopED with FreeMat'))
         #     }
         #     b_init = hessianinit(b_ind)
-        #     fg_init=feval(poped.db$model$fg_pointer,x,a,bpop,b_init,bocc_ind)
-        #      returnArgs <-  feval(poped.db$model$ferror_pointer,model_switch,xt_ind,fg_init,epsi0,poped.db) 
-        # val <- returnArgs[[1]]
-        # poped.db <- returnArgs[[2]]
+        #     fg_init=feval(poped_db["model"]fg_pointer,x,a,bpop,b_init,bocc_ind)
+        #      returnArgs =  feval(poped_db["model"]ferror_pointer,model_switch,xt_ind,fg_init,epsi0,poped_db) 
+        # val = returnArgs[[1]]
+        # poped_db = returnArgs[[1]]
         #     hess = val$hx
     else:
         h = 1E-04

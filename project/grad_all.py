@@ -23,15 +23,16 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
         idx = idx0 = len(def0)
         if subset != None:
             idx0 = np.array([])
-!!!!!!!!!
+
             for k in range(0, (np.cumsum(subset)*subset).size):
                 for i in range(0, (np.cumsum(subset)*subset).shape[1]): #col
                     for j in range(0, (np.cumsum(subset)*subset).shape[0]): #row
-                        idx[k] = np.cumsum(subset)*subset[j,i]
+                        idx0[k] = np.cumsum(subset)*subset[j,i]
                         k = k + 1
                         j = j + 1
-                j = 0
-                i = i + 1
+                    j = 0
+                    i = i + 1
+            
             idx = np.arange(max(idx0))
     
         if type(def0) == np.ndarray and select_par > 6 and offdiag == False:
@@ -61,9 +62,9 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
     if grad_all_switch == 1:
         for i in idx:
             arg_list[[select_par]] = def0 + (idx0 == i) * hlf
-            def_plus <- do_call(func, arg_list)
+            def_plus = do_call(func, arg_list)
             arg_list[[select_par]] = def0 - (idx0 == i) * hlf
-            def_minus <- do_call(func, arg_list)
+            def_minus = do_call(func, arg_list)
             if noPopED == False:
                 def_plus = def_plus[[1]]        
                 def_minus = def_minus[[1]]        

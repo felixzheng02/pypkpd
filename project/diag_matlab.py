@@ -17,12 +17,12 @@
 #' @export
 #' @keywords internal
 
-diag_matlab <- function(mat){
-    dim.mat <- dim(mat)
+diag_matlab = function(mat){
+    dim.mat = dim(mat)
     if(!is.null(dim.mat)){
         if(any(dim.mat==1)){
             if(!all(dim.mat==1)){                
-                mat <- mat[,,drop=T]
+                mat = mat[,,drop=T]
             }
         }
     }

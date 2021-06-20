@@ -41,17 +41,17 @@ def create_design(
 	if m is None: 
 		m = xt.shape[0] # get xt row (same as "m = size(xt, 1)")
 
-	if size(xt, 1) == 1 and m != 1:
+	if size(xt)[0] == 1 and m != 1:
 		xt = np.tile(xt.flatten(), m).reshape(m, xt.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
 # 没写！！！if(!is.matrix(xt)) xt <- rbind(xt)
 	
-	if (size(xt, 1) != m):
-		raise Exception("The number of rows in xt (" + str(size(xt, 1)) + ") is not the same as the number of groups m (" + str(m) + ")")
+	if (size(xt)[0] != m):
+		raise Exception("The number of rows in xt (" + str(size(xt)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
 	
 	xt = pd.DataFrame(xt, 
 					   index=["grp_"+str(i) for i in range(1, m+1)], 
-					   columns=["obs_"+str(i) for i in range(1, xt.shape[1]+1)]) # same as "size(xt, 2)+1"
+					   columns=["obs_"+str(i) for i in range(1, xt.shape[1]+1)]) # same as "size(xt)[1]+1"
 	
 	design["xt"] = xt
 # 没写！！！names(m) <- "n_grp"
@@ -77,7 +77,7 @@ def create_design(
 		model_switch = np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch]) # convert a list of vectors to an array
 	if model_switch is None:
 		model_switch = xt * 0 + 1
-	if size(model_switch, 1) == 1 and m != 1:
+	if size(model_switch)[0] == 1 and m != 1:
 		model_switch  = np.tile(model_switch.flatten(), m).reshape(m, model_switch.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 # 没写！！！if(!is.matrix(model_switch)) model_switch <- rbind(model_switch)
 	if test_mat_size(np.array(size(xt)), np.array(model_switch), "model_switch") == 1:
@@ -103,14 +103,14 @@ def create_design(
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
 # 没写！！！if(!is.matrix(a)) a <- rbind(a)
 		a = pd.DataFrame(a)
-		if size(a, 1) != m:
-			raise Exception("The number of rows in a (" + str(size(a, 1)) + ") is not the same as the number of groups m (" + str(m) + ")")
+		if size(a)[0] != m:
+			raise Exception("The number of rows in a (" + str(size(a)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
 		a.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
 		count = 0
 		for i in range(0, a.shape[1]):
 			if re.match(r'^X\d*$', str(a.columns[i])) != None:
 				count += 1
-		if count == size(a, 2):
+		if count == size(a)[1]:
 			a.set_axis([None] * a.shape[1], axis="column")
 		design["a"] = a
 
@@ -120,7 +120,7 @@ def create_design(
 		if type(x) == list:
 			x = pd.DataFrame(x)
 		colnam = x.columns.values.tolist()
-		if size(x, 1) == 1 and m != 1:
+		if size(x)[0] == 1 and m != 1:
 			x_ = []
 			for i in range(0, x.shape[1]):
 				for j in range(0, x.shape[0]):
@@ -128,8 +128,8 @@ def create_design(
 			x = pd.DataFrame(np.tile(x_, m).reshape(m, x.size),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
 # 没写！！！if(!is.matrix(x)) x <- rbind(x)
-		if size(x, 1) != m:
-			raise Exception("The number of rows in x (" + str(size(x, 1)) + "is not the same as the number of groups m (" + str(m) + ")")
+		if size(x)[0] != m:
+			raise Exception("The number of rows in x (" + str(size(x)[0]) + "is not the same as the number of groups m (" + str(m) + ")")
 		x.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
 		design["x"] = x
 

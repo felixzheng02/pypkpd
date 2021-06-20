@@ -10,11 +10,11 @@
 #' @param bpop The fixed effects parameter values.  Supplied as a vector.
 #' @param b_ind The point at which to evaluate the derivative
 #' @param bocc_ind The point at which to evaluate the derivative
-#' @param poped.db A PopED database.
+#' @param poped_db A PopED database.
 #' 
 #' @return As a list:
 #' \item{y}{A matrix of size (samples per individual x number of random effects)}
-#' \item{poped.db}{A PopED database}
+#' \item{poped_db}{A PopED database}
 #' @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
 #' @example tests/testthat/examples_fcn_doc/examples_LinMatrixL.R
 #' @export
@@ -36,8 +36,8 @@ def LinMatrixL (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
         y=0
     else:
         returnArgs = gradff(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db) 
-        grad_ff_tmp = returnArgs[[1]]
-        poped_db = returnArgs[[2]]
+        grad_ff_tmp = returnArgs[[0]]
+        poped_db = returnArgs[[1]]
         y = np.matmul(grad_ff_tmp, gradfg(x,a,bpop,b_ind,bocc_ind,poped_db))
     
     return [y, poped_db] 

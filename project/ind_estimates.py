@@ -60,7 +60,7 @@ def ind_estimates (data,bpop,d,sigma,start_bind:np.ndarray,bInter,bUDDLike,model
     #This can be changed to any optimization method in MATLAB or user written
     #Could scale b_i by b_i/sqrt(OM_i)*0.01 because fminsearch uses
     #max(5%*b_i,1E-05)
-    #b_z = fminsearch(@(b_z) min_function(data,bpop,d,sigma,bInter,bUDDLike,model_switch,xt_ind,x,a,bocc_ind,poped.db,c1,c2,c3,lC,det_res_var,b_z),b_i,optimset('TolX',1e-6,'TolFun',1e-6,'MaxFunEvals',1000))
+    #b_z = fminsearch(@(b_z) min_function(data,bpop,d,sigma,bInter,bUDDLike,model_switch,xt_ind,x,a,bocc_ind,poped_db,c1,c2,c3,lC,det_res_var,b_z),b_i,optimset('TolX',1e-6,'TolFun',1e-6,'MaxFunEvals',1000))
     b_z = sp.optim(b_i,opt_fun)
     opt_fun(data,bpop,d,sigma,bInter,bUDDLike,model_switch,xt_ind,x,a,bocc_ind,poped_db,c1,c2,c3,lC,det_res_var,b_z)
     #b_z = optim(b_i,opt_fun)

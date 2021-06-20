@@ -24,7 +24,7 @@ def do_call(what, *args):
     return getattr(builtins, what)(*args)
 
 def feval (file_name, *args):
-    #func.name <- gsub("\\.R$","",file.name)
+    #func.name = gsub("\\.R$","",file.name)
     for arg in args:
         for i in range(len(args)):
             arglist = []

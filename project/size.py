@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 
-def size(obj, dimension_index=None):
+def size(obj): # @param dimension_index is removed
 	dim_obj = None
 	if type(obj) is int:
 		dim_obj = None
@@ -22,7 +22,4 @@ def size(obj, dimension_index=None):
 			dim_obj = list(dim_obj)
 	if dim_obj is None:
 		dim_obj = [1, 1]
-	if dimension_index is None:
-		return dim_obj
-	else:
-		return dim_obj[dimension_index - 1]
+	return dim_obj

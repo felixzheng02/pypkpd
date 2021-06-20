@@ -44,7 +44,8 @@ def create_design(
 	if size(xt)[0] == 1 and m != 1:
 		xt = np.tile(xt.flatten(), m).reshape(m, xt.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
-# 没写！！！if(!is.matrix(xt)) xt <- rbind(xt)
+	if type(xt) is not np.ndarray and type(xt) is not pd.DataFrame:
+		xt = np.array(xt)
 	
 	if (size(xt)[0] != m):
 		raise Exception("The number of rows in xt (" + str(size(xt)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
@@ -79,7 +80,10 @@ def create_design(
 		model_switch = xt * 0 + 1
 	if size(model_switch)[0] == 1 and m != 1:
 		model_switch  = np.tile(model_switch.flatten(), m).reshape(m, model_switch.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
-# 没写！！！if(!is.matrix(model_switch)) model_switch <- rbind(model_switch)
+
+	if type(model_switch) is not np.ndarray and type(model_switch) is not pd.DataFrame:
+		model_switch = np.array(model_switch)
+
 	if test_mat_size(np.array(size(xt)), np.array(model_switch), "model_switch") == 1:
 		model_switch = pd.DataFrame(model_switch, 
 					   index=["grp_"+str(i) for i in range(1, m+1)], 
@@ -94,14 +98,17 @@ def create_design(
 		elif len(a.shape) == 1:
 			a = np.array([a])
 		colnam = None
-		if size(a, 1) == 1 and m != 1:
+		if size(a)[0] == 1 and m != 1:
 			a_ = []
 			for i in range(0, a.shape[1]):
 				for j in range(0, a.shape[0]):
 					a_.append(a[j][i])
 			a = pd.DataFrame(np.tile(a_, m).reshape(m, a.size),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
-# 没写！！！if(!is.matrix(a)) a <- rbind(a)
+
+		if type(a) is not np.ndarray and type(a) is not pd.DataFrame:
+			a = np.array(a)
+
 		a = pd.DataFrame(a)
 		if size(a)[0] != m:
 			raise Exception("The number of rows in a (" + str(size(a)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
@@ -127,7 +134,10 @@ def create_design(
 					x_.append(x[i][j])
 			x = pd.DataFrame(np.tile(x_, m).reshape(m, x.size),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
-# 没写！！！if(!is.matrix(x)) x <- rbind(x)
+
+		if type(x) is not np.ndarray and type(x) is not pd.DataFrame:
+			x = pd.DataFrame(x)
+
 		if size(x)[0] != m:
 			raise Exception("The number of rows in x (" + str(size(x)[0]) + "is not the same as the number of groups m (" + str(m) + ")")
 		x.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
@@ -138,7 +148,10 @@ def create_design(
 	if max(size(groupsize)) == 1 and m != 1:
 		groupsize = [groupsize] * m
 		groupsize = pd.DataFrame(np.array(groupsize).reshape([m ,1]), index=["grp_"+str(i) for i in range(1, m+1)])
-# 没写！！！if(!is.matrix(groupsize)) groupsize <- rbind(groupsize)
+
+		if type(groupsize) is not np.ndarray and type(groupsize) is not pd.DataFrame:
+			groupsize = pd.DataFrame(groupsize)
+			
 		if test_mat_size(np.array([m, 1]), groupsize.to_numpy(), "groupsize") == 1:
 			groupsize.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
 			groupsize.set_axis(["n_id"] * groupsize.shape[1], axis="columns")
@@ -146,14 +159,3 @@ def create_design(
 	
 
 	return design
-
-
-xt1 = [np.array([1.0, 2.0, 3.0]), np.array([1.0, 2.0, 3.0, 4.0])]
-
-
-design_1 = create_design(xt=xt1, groupsize=20)
-
-# print(design_1)
-
-for key, value in design_1.items():
-	print(value)

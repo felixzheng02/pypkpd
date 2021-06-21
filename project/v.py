@@ -79,7 +79,15 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
           lh = returnArgs[[0]]
           poped_db = returnArgs[[1]]
     ###numpy broadcasting???
-          np.matmul(np.matmul(interact=lh, (d %x% sigma)), np.transpose(lh))
+          interact = lh
+          d_sigma_prod = np.empty([d.shape[0], d.shape[1]])
+          for j in range(0, d_sigma_prod.shape[1]): #frame col
+            for i in range(0, d_sigma_prod.shape[0]): #frame row
+              d_sigma_prod[i,j] = np.array(d[i,j]*sigma)
+              i = i + 1
+            j = j + 1
+            i = 0
+          np.matmul(np.matmul(interact, d_sigma_prod), np.transpose(lh))
           if sum(interact.size) == 2:
             ret = ret + interact
           else:

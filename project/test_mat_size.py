@@ -13,9 +13,12 @@ import numpy as np
 
 
 def test_mat_size(correct_size: np.ndarray, mat: np.ndarray, name: str):
-	if (correct_size == np.array(mat.shape)).all():
+	shape = list(mat.shape)
+	if len(shape) == 1:
+		shape = [1, shape[0]]
+	if (correct_size == np.array(shape)).all():
 		return 1
 	else:
-		tmp1 = '*'.join(str(i) for i in mat.shape)
+		tmp1 = '*'.join(str(i) for i in shape)
 		tmp2 = '*'.join(str(i) for i in correct_size.tolist())
-		raise Exception(name + "has dimensions " + tmp1 + " and should be " + tmp2)
+		raise Exception(name + " has dimensions " + tmp1 + " and should be " + tmp2)

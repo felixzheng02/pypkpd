@@ -149,12 +149,12 @@ def create_design(
 		groupsize = [groupsize] * m
 		groupsize = pd.DataFrame(np.array(groupsize).reshape([m ,1]), index=["grp_"+str(i) for i in range(1, m+1)])
 
-		if type(groupsize) is not np.ndarray and type(groupsize) is not pd.DataFrame:
-			groupsize = pd.DataFrame(groupsize)
-			
-		if test_mat_size(np.array([m, 1]), groupsize.to_numpy(), "groupsize") == 1:
-			groupsize.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
-			groupsize.set_axis(["n_id"] * groupsize.shape[1], axis="columns")
+	if type(groupsize) is not np.ndarray and type(groupsize) is not pd.DataFrame:
+		groupsize = pd.DataFrame(groupsize)
+		
+	if test_mat_size(np.array([m, 1]), np.array(groupsize), "groupsize") == 1:
+		groupsize.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
+		groupsize.set_axis(["n_id"] * groupsize.shape[1], axis="columns")
 		design["groupsize"] = groupsize
 	
 

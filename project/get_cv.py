@@ -72,7 +72,7 @@ def get_rse(fim, poped_db,*args):
     use_percent=True,
     fim_calc_type=poped_db["settings"]["iFIMCalculationType"],
     prior_fim = poped_db["settings"]["prior_fim"],
-    #pseudo_on_fail = FALSE,
+    #pseudo_on_fail = False,
     ## update poped_db with options supplied in function
     called_args = match.call()
     default_args = formals()
@@ -125,7 +125,7 @@ def get_rse(fim, poped_db,*args):
         mess = paste0("  The following parameters are not estimable:\n  ",
                     paste0(zero_ret,collapse = ", "),
                     "\n  Is the design adequate to estimate all parameters?")
-        warning(mess, call. = FALSE)
+        warning(mess, call. = False)
         ret[ret==0] = NA
     }
     return ret

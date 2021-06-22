@@ -38,13 +38,13 @@
 #'  all a values are given the same maximum value
 #' @param mina Vector defining the minimum value for each covariate. IF a single value is supplied then
 #'  all a values are given the same minimum value
-#' @param use_grouped_xt Group sampling times between groups so that each group has the same values (\code{TRUE} or \code{FALSE}).
+#' @param use_grouped_xt Group sampling times between groups so that each group has the same values (\code{True} or \code{False}).
 #' @param grouped_xt Matrix defining the grouping of sample points. Matching integers mean that the points are matched.  
 #' Allows for finer control than \code{use_grouped_xt}
-#' @param use_grouped_a Group continuous design variables between groups so that each group has the same values (\code{TRUE} or \code{FALSE}).
+#' @param use_grouped_a Group continuous design variables between groups so that each group has the same values (\code{True} or \code{False}).
 #' @param grouped_a Matrix defining the grouping of continuous design variables. Matching integers mean that the values are matched.  
 #' Allows for finer control than \code{use_grouped_a}.
-#' @param use_grouped_x Group discrete design variables between groups so that each group has the same values (\code{TRUE} or \code{FALSE}).
+#' @param use_grouped_x Group discrete design variables between groups so that each group has the same values (\code{True} or \code{False}).
 #' @param grouped_x Matrix defining the grouping of discrete design variables. Matching integers mean that the values are matched.  
 #' Allows for finer control than \code{use_grouped_x}.
 #' @param our_zero Value to interpret as zero in design.
@@ -57,7 +57,6 @@
 #' @export
 #' 
 # @importFrom dplyr rbind_all
-
 Author: Caiya Zhang, Yuchen Zheng
 """
 

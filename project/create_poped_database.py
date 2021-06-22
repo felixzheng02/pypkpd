@@ -33,7 +33,7 @@ e.g. \code{"feps.prop"}.
 #'
 @param optsw  \itemize{
 \item \bold{******WHAT TO OPTIMIZE**********}}
- Row vector of optimization tasks (1=TRUE,0=FALSE) in the following order: 
+ Row vector of optimization tasks (1=True,0=False) in the following order: 
 (Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group). 
 All elements set to zero => only calculate the FIM with current design
 
@@ -83,11 +83,11 @@ supplied then all xt values are given the same minimum value
  all a values are given the same max value
 @param mina Vector defining the min value for each covariate. If a single value is supplied then
  all a values are given the same max value
-@param bUseGrouped_xt Use grouped time points (1=TRUE, 0=FALSE).
+@param bUseGrouped_xt Use grouped time points (1=True, 0=False).
 @param G_xt Matrix defining the grouping of sample points. Matching integers mean that the points are matched.
-@param bUseGrouped_a Use grouped covariates (1=TRUE, 0=FALSE)
+@param bUseGrouped_a Use grouped covariates (1=True, 0=False)
 @param G_a Matrix defining the grouping of covariates. Matching integers mean that the points are matched.
-@param bUseGrouped_x Use grouped discrete design variables (1=TRUE, 0=FALSE).
+@param bUseGrouped_x Use grouped discrete design variables (1=True, 0=False).
 @param G_x  Matrix defining the grouping of discrete design variables. Matching integers mean that the points are matched.
 
 @param iFIMCalculationType  \itemize{
@@ -121,7 +121,7 @@ D-family design (1) or ED-family design (0) (with or without parameter uncertain
 \item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
 \item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
 rows and columns of the FIM: det(FIM)/det(FIM_u)
-\item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped.db,use_percent=FALSE))
+\item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped_db,use_percent=False))
 }
 @param ds_index Ds_index is a vector set to 1 if a parameter is uninteresting, otherwise 0.
 size=(1,num unfixed parameters). First unfixed bpop, then unfixed d, then unfixed docc and last unfixed sigma. 
@@ -162,7 +162,7 @@ matrix bpop to define uncertainty). One can also just supply the parameter value
 The parameter order of 'd' is defined in the 'fg_fun' or 'fg_file'. If you use named 
 arguments in 'd' then the order will be worked out automatically.
 @param covd Column major vector defining the covariances of the IIV variances. 
-That is, from your full IIV matrix  \code{covd <-  IIV[lower.tri(IIV)]}. 
+That is, from your full IIV matrix  \code{covd =  IIV[lower.tri(IIV)]}. 
 @param sigma Matrix defining the variances can covariances of the residual variability terms of the model.
 can also just supply the diagonal parameter values (variances) as a \code{c()}. 
 @param docc Matrix defining the IOV, the IOV variances and the IOV distribution as for d and bpop. 
@@ -185,11 +185,11 @@ Default is fixed.
 
 @param bUseRandomSearch  \itemize{
 \item \bold{******START OF Optimization algorithm  SPECIFICATION OPTIONS**********}}
-Use random search (1=TRUE, 0=FALSE)
-@param bUseStochasticGradient Use Stochastic Gradient search (1=TRUE, 0=FALSE) 
-@param bUseLineSearch Use Line search (1=TRUE, 0=FALSE) 
-@param bUseExchangeAlgorithm Use Exchange algorithm (1=TRUE, 0=FALSE)        
-@param bUseBFGSMinimizer Use BFGS Minimizer (1=TRUE, 0=FALSE) 
+Use random search (1=True, 0=False)
+@param bUseStochasticGradient Use Stochastic Gradient search (1=True, 0=False) 
+@param bUseLineSearch Use Line search (1=True, 0=False) 
+@param bUseExchangeAlgorithm Use Exchange algorithm (1=True, 0=False)        
+@param bUseBFGSMinimizer Use BFGS Minimizer (1=True, 0=False) 
 @param EACriteria Exchange Algorithm Criteria, 1 = Modified, 2 = Fedorov 
 @param strRunFile Filename and path, or function name, for a run file that is used instead of the regular PopED call. 
 
@@ -206,10 +206,10 @@ The current PopED version
 User defined data structure that, for example could be used to send in data to the model 
 @param ourzero Value to interpret as zero in design 
 @param dSeed The seed number used for optimization and sampling -- integer or -1 which creates a random seed \code{as.integer(Sys.time())} or NULL.
-@param line_opta Vector for line search on continuous design variables (1=TRUE,0=FALSE)
-@param line_optx Vector for line search on discrete design variables (1=TRUE,0=FALSE) 
+@param line_opta Vector for line search on continuous design variables (1=True,0=False)
+@param line_optx Vector for line search on discrete design variables (1=True,0=False) 
 @param bShowGraphs Use graph output during search
-@param use_logfile If a log file should be used (0=FALSE, 1=TRUE)
+@param use_logfile If a log file should be used (0=False, 1=True)
 @param m1_switch Method used to calculate M1 
 (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) 
 @param m2_switch Method used to calculate M2
@@ -291,13 +291,17 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 #from am.poped_choose import am.poped_choose
+import datetime
 import numpy as np
+from project.ones import ones
 from project.zeros import zeros
 from project.cell import cell
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
 from project.create_design import create_design
 from project.create_design_space import create_design_space
+from project.find_largest_index import find_largest_index
+from project.test_mat_size import test_mat_size
 
 def create_poped_database(
 						popedInput = {},
@@ -323,7 +327,7 @@ def create_poped_database(
 	## ---- What to optimize
 	## --------------------------
 
-	## -- Vector of optimization tasks (1=TRUE,0=FALSE)
+	## -- Vector of optimization tasks (1=True,0=False)
 	## (Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group)
 	## -- All elements set to zero => only calculate the FIM with current design --
 	optsw = poped_choose(popedInput['settings']['optsw'], np.array([[0,0,0,0,0]]), 0)
@@ -346,7 +350,7 @@ def create_poped_database(
 	#nx=poped_choose(popedInput['nx'], size(x,2)),
 	nx = poped_choose(popedInput['design']['nx'], None, 0)
 	## -- Vector defining the initial covariate values --
-	#a=poped.choose(popedInput$design[["a"]],zeros(m,0)),
+	#a=poped_choose(popedInput$design[["a"]],zeros(m,0)),
 	a = poped_choose(popedInput['design'][['a']], None, 0)
 	## number of continuous design variables that are not time (e.g. continuous covariates)
 	#na=poped_choose(popedInput['na'],size(a,2)),
@@ -354,10 +358,10 @@ def create_poped_database(
 	## -- Vector defining the size of the different groups (num individuals in each group) --
 	groupsize = poped_choose(popedInput['design']['groupsize'], "'groupsize' needs to be defined", 1)
 	## -- Vector defining the number of samples for each group --
-	#ni=poped.choose(popedInput$design$ni,matrix(size(xt,2),m,1)),
+	#ni=poped_choose(popedInput["design"]ni,matrix(size(xt,2),m,1)),
 	ni = poped_choose(popedInput['design']['ni'], None, 0)
 	## -- Vector defining which response a certain sampling time belongs to --
-	#model_switch=poped.choose(popedInput$design$model_switch,ones(size(xt,1),size(xt,2))),
+	#model_switch=poped_choose(popedInput["design"]model_switch,ones(size(xt,1),size(xt,2))),
 	model_switch = poped_choose(popedInput['design']['model_switch'], None, 0)
 
 	## --------------------------
@@ -373,7 +377,7 @@ def create_poped_database(
 	## -- Vector defining the max size of the different groups (max num individuals in each group) --
 	maxgroupsize = poped_choose(popedInput['design_space']['maxgroupsize'], None, 0)
 	## -- Vector defining the min size of the different groups (min num individuals in each group) --
-	#mingroupsize=poped.choose(popedInput$design$mingroupsize,ones(m,1)),
+	#mingroupsize=poped_choose(popedInput["design"]mingroupsize,ones(m,1)),
 	mingroupsize = poped_choose(popedInput['design_space']['mingroupsize'], None, 0)
 	## -- The total maximal groupsize over all groups--
 	maxtotgroupsize = poped_choose(popedInput['design_space']['maxtotgroupsize'], None, 0)
@@ -385,22 +389,22 @@ def create_poped_database(
 	minxt = poped_choose(popedInput['design_space']['minxt'], None, 0)
 	discrete_xt = poped_choose(popedInput['design_space']['xt_space'], None, 0)
 	## -- Cell defining the discrete variables --
-	#discrete_x=poped.choose(popedInput$design$discrete_x,cell(m,nx)),
+	#discrete_x=poped_choose(popedInput["design"]discrete_x,cell(m,nx)),
 	discrete_x = poped_choose(popedInput['design_space']['discrete_x'], None, 0)
 	## -- Vector defining the max value for each covariate --
 	maxa = poped_choose(popedInput['design_space']['maxa'], None, 0)
 	## -- Vector defining the min value for each covariate --
 	mina = poped_choose(popedInput['design_space']['mina'], None, 0)
 	discrete_a = poped_choose(popedInput['design_space']['a_space'], None, 0)
-	## -- Use grouped time points (1=TRUE, 0=FALSE) --
+	## -- Use grouped time points (1=True, 0=False) --
 	bUseGrouped_xt = poped_choose(popedInput['design_space']['bUseGrouped_xt'], False, 0)
 	## -- Matrix defining the grouping of sample points --
 	G_xt = poped_choose(popedInput['design_space']['G_xt'], None, 0)
-	## -- Use grouped covariates (1=TRUE, 0=FALSE) --
+	## -- Use grouped covariates (1=True, 0=False) --
 	bUseGrouped_a = poped_choose(popedInput['design_space']['bUseGrouped_a'], False, 0)
 	## -- Matrix defining the grouping of covariates --
 	G_a = poped_choose(popedInput['design_space']['G_a'], None, 0)
-	## -- Use grouped discrete design variables (1=TRUE, 0=FALSE) --
+	## -- Use grouped discrete design variables (1=True, 0=False) --
 	bUseGrouped_x = poped_choose(popedInput['design_space']['bUseGrouped_x'], False, 0)
 	## -- Matrix defining the grouping of discrete design variables --
 	G_x = poped_choose(popedInput['design_space'][["G_x"]], None, 0)
@@ -518,15 +522,15 @@ def create_poped_database(
 	## ---- Optimization algorithm choices
 	## --------------------------
 
-	## -- Use random search (1=TRUE, 0=FALSE) --
+	## -- Use random search (1=True, 0=False) --
 	bUseRandomSearch = poped_choose(popedInput['settings']['bUseRandomSearch'], True, 0)
-	## -- Use Stochastic Gradient search (1=TRUE, 0=FALSE) --
+	## -- Use Stochastic Gradient search (1=True, 0=False) --
 	bUseStochasticGradient = poped_choose(popedInput['settings']['bUseStochasticGradient'], True, 0)
-	## -- Use Line search (1=TRUE, 0=FALSE) --
+	## -- Use Line search (1=True, 0=False) --
 	bUseLineSearch = poped_choose(popedInput['settings']['bUseLineSearch'], True, 0)
-	## -- Use Exchange algorithm (1=TRUE, 0=FALSE) --
+	## -- Use Exchange algorithm (1=True, 0=False) --
 	bUseExchangeAlgorithm = poped_choose(popedInput['settings']['bUseExchangeAlgorithm'], False, 0)
-	## -- Use BFGS Minimizer (1=TRUE, 0=FALSE) --
+	## -- Use BFGS Minimizer (1=True, 0=False) --
 	bUseBFGSMinimizer = poped_choose(popedInput['settings']['bUseBFGSMinimizer'], False, 0)
 	## -- Exchange Algorithm Criteria, 1 = Modified, 2 = Fedorov --
 	EACriteria = poped_choose(popedInput['settings']['EACriteria'], 1, 0)
@@ -557,16 +561,16 @@ def create_poped_database(
 	user_data = poped_choose(popedInput['settings']['user_data'], cell(0,0), 0)
 	## -- Value to interpret as zero in design --
 	ourzero = poped_choose(popedInput['settings']['ourzero'], 1e-5, 0)
-	#ourzero=poped.choose(popedInput$ourzero,0),
+	#ourzero=poped_choose(popedInput$ourzero,0),
 	## -- The seed number used for optimization and sampling -- integer or -1 which creates a random seed
 	dSeed = poped_choose(popedInput['settings']['dSeed'], None, 0)
-	## -- Vector for line search on continuous design variables (1=TRUE,0=FALSE) --
+	## -- Vector for line search on continuous design variables (1=True,0=False) --
 	line_opta = poped_choose(popedInput['settings']['line_opta'], None, 0)
-	## -- Vector for line search on discrete design variables (1=TRUE,0=FALSE) --
+	## -- Vector for line search on discrete design variables (1=True,0=False) --
 	line_optx = poped_choose(popedInput['settings']['line_optx'], None, 0) #matrix(0,0,1)
 	## -- Use graph output during search --
 	bShowGraphs = poped_choose(popedInput['settings']['bShowGraphs'], False, 0)
-	## -- If a log file should be used (0=FALSE, 1=TRUE) --
+	## -- If a log file should be used (0=False, 1=True) --
 	use_logfile = poped_choose(popedInput['settings']['use_logfile'], False, 0)
 	## -- Method used to calculate M1
 	## (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
@@ -643,7 +647,7 @@ def create_poped_database(
 	bEANoReplicates = poped_choose(popedInput['settings']['bEANoReplicates'], False, 0)
 	## -- BFGS Minimizer Convergence Criteria Minimum Step --
 	BFGSConvergenceCriteriaMinStep = None,
-	#poped.choose(popedInput["settings"]BFGSConvergenceCriteriaMinStep,1e-08),
+	#poped_choose(popedInput["settings"]BFGSConvergenceCriteriaMinStep,1e-08),
 	## -- BFGS Minimizer Convergence Criteria Normalized Projected Gradient Tolerance --
 	BFGSProjectedGradientTol = poped_choose(popedInput['settings']['BFGSProjectedGradientTol'], 0.0001, 0)
 	## -- BFGS Minimizer Line Search Tolerance f --
@@ -675,7 +679,7 @@ def create_poped_database(
 	iUseParallelMethod = poped_choose(popedInput['settings']['parallel']['iUseParallelMethod'], 1, 0)
 	## -- Additional dependencies used in MCC compilation (mat-files), if several space separated --
 	MCC_Dep = None,
-	#poped.choose(popedInput["settings"]parallel$strAdditionalMCCCompilerDependencies, ''),
+	#poped_choose(popedInput["settings"]parallel$strAdditionalMCCCompilerDependencies, ''),
 	## -- Compilation output executable name --
 	strExecuteName = poped_choose(popedInput['settings']['parallel']['strExecuteName'], 'calc_fim.exe', 0)
 	## -- Number of processes to use when running in parallel (e.g. 3 = 2 workers, 1 job manager) --
@@ -683,7 +687,7 @@ def create_poped_database(
 	## -- Number of design evaluations that should be evaluated in each process before getting new work from job manager --
 	iNumChunkDesignEvals = poped_choose(popedInput['settings']['parallel']['iNumChunkDesignEvals'], -2, 0)
 	## -- The prefix of the input mat file to communicate with the executable --
-	#strMatFileInputPrefix = poped.choose(
+	#strMatFileInputPrefix = poped_choose(
 	#   popedInput["settings"]parallel$strMatFileInputPrefix,
 	#   'parallel_input'),
 	## -- The prefix of the output mat file to communicate with the executable --
@@ -706,18 +710,18 @@ def create_poped_database(
 #####-------------- main part --------------#####
 	poped_db = {}
     # five main headings for database
-    #     poped.db <- list(design=NULL,
+    #     poped_db = list(design=NULL,
     #                      design_space=NULL,
     #                      models=NULL,
     #                      parameters=NULL,
     #                      settings=NULL)
     
     #     # update popedInput with options supplied in function
-    #     called_args <- match.call()
-    #     default_args <- formals()
+    #     called_args = match.call()
+    #     default_args = formals()
     #     for(i in names(called_args)[-1]){
     #       if(length(grep("^popedInput$",capture.output(default_args[[i]])))==1) {
-    #         eval(parse(text=paste(capture.output(default_args[[i]]),"<-",called_args[[i]])))
+    #         eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
     #       }
     #     }
     
@@ -832,8 +836,8 @@ def create_poped_database(
 		design_space["discrete_x"] = design_space[["x_space"]]
     	design_space[["x_space"]] = None
     
-    #design_space$maxni <- max(design_space$maxni)
-    #design_space$minni <- min(design_space$minni)	
+    #design_space$maxni = max(design_space$maxni)
+    #design_space$minni = min(design_space$minni)	
 	
 	#should be removed
 	if design[["x"]] is None:
@@ -853,20 +857,20 @@ def create_poped_database(
 	poped_db["design"] = design
 	poped_db["design_space"] = design_space
 
-	#poped.db$m = poped.db$design$m  # should be removed only in design
-    #poped.db$nx = poped.choose(nx,size(design$x,2)) # should be removed, not needed or in design
-    #poped.db$na = poped.choose(na,size(design$a,2)) # should be removed, not needed or in design
+	#poped_db$m = poped_db["design"]m  # should be removed only in design
+    #poped_db$nx = poped_choose(nx,size(design$x,2)) # should be removed, not needed or in design
+    #poped_db$na = poped_choose(na,size(design$a,2)) # should be removed, not needed or in design
                 
 	poped_db["settings"]["bLHS"] = bLHS
     
-    #poped.db$discrete_x = design_space$discrete_x # should be removed only in design_space
+    #poped_db$discrete_x = design_space$discrete_x # should be removed only in design_space
     
-    #poped.db$maxni=max(design_space$maxni) # should be only in design_space and called maxmaxni if needed
-    #poped.db$minni=min(design_space$minni) # should be only in design_space and called minminni if needed
+    #poped_db$maxni=max(design_space$maxni) # should be only in design_space and called maxmaxni if needed
+    #poped_db$minni=min(design_space$minni) # should be only in design_space and called minminni if needed
     
-    #poped.db$bUseGrouped_xt = design_space$bUseGrouped_xt # should be only in design_space
-    #poped.db$bUseGrouped_a  = design_space$bUseGrouped_a # should be only in design_space
-    #poped.db$bUseGrouped_x  = design_space$bUseGrouped_x # should be only in design_space
+    #poped_db$bUseGrouped_xt = design_space$bUseGrouped_xt # should be only in design_space
+    #poped_db$bUseGrouped_a  = design_space$bUseGrouped_a # should be only in design_space
+    #poped_db$bUseGrouped_x  = design_space$bUseGrouped_x # should be only in design_space
     
 	poped_db["settings"]["d_switch"] = d_switch
 	poped_db["settings"]["iApproximationMethod"] = iApproximationMethod
@@ -985,7 +989,7 @@ def create_poped_database(
 
 
 	# if(is.null(ofv_fun) || is.function(ofv_fun)){
-    #   poped.db["settings"]ofv_fun = ofv_fun
+    #   poped_db["settings"]ofv_fun = ofv_fun
     # } else {
     #   stop("ofv_fun must be a function or NULL")
     # }
@@ -1003,18 +1007,18 @@ def create_poped_database(
 
 	
 	# if(is.function(ofv_fun)){
-    #   poped.db["settings"]ofv_fun = ofv_fun 
+    #   poped_db["settings"]ofv_fun = ofv_fun 
     # } else if(exists(ofv_fun)){
-    #   poped.db["settings"]ofv_fun = ofv_fun 
+    #   poped_db["settings"]ofv_fun = ofv_fun 
     # } else {
     #   source(ofv_fun)
-    #   returnArgs <-  fileparts(ofv_fun) 
-    #   strffModelFilePath <- returnArgs[[1]]
-    #   strffModelFilename  <- returnArgs[[2]]
+    #   returnArgs =  fileparts(ofv_fun) 
+    #   strffModelFilePath = returnArgs[[1]]
+    #   strffModelFilename  = returnArgs[[1]]
     #   ## if (~strcmp(strffModelFilePath,''))
     #   ##    cd(strffModelFilePath);
     #   ## end
-    #   poped.db["settings"]ofv_fun = strffModelFilename
+    #   poped_db["settings"]ofv_fun = strffModelFilename
     # }
  
 	poped_db["model"]["auto_pointer"] = zeros(1,0)
@@ -1041,7 +1045,7 @@ def create_poped_database(
 	elif ff_file != None:
 		poped_db["model"]["ff_pointer"] = ff_file
 	else:
-		exec(open(popedInput["strAutoCorrelationFile"]).read)
+		exec(open(ff_file).read)
 		returnArgs =  fileparts(ff_file) 
 		strffModelFilePath = returnArgs[[0]]
 		strffModelFilename  = returnArgs[[1]]
@@ -1054,36 +1058,303 @@ def create_poped_database(
 	for key in popedInput:
 		if "SubModels" in popedInput.keys():
 			i = 1
-			while any(names(popedInput["SubModels"]) == print("ff_file%d", i)):
-				exec(open(eval(print('popedInput["SubModels"]["ff_file"]%d', i)))) ##ok<NASGU> 
-				returnArgs <-  fileparts(eval(print('popedInput["SubModels"]["ff_file"]%d', i))) ##ok<NASGU> 
-				strffModelFilePath = returnArgs[[0]]
-				strffModelFilename  = returnArgs[[1]]
-				##         if (~strcmp(strffModelFilePath,''))
-				##             cd(strffModelFilePath);
-				##         end
-				poped_db["model"]["subffPointers"][paste('ff_pointer',i,sep='')] = strffModelFilename
-				i = i + 1
+			for elem_key in popedInput["SubModels"]:
+				if elem_key == "".join(["ff_file", i]):
+					exec(open(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i])))) ##ok<NASGU> 
+					returnArgs =  fileparts(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i]))) ##ok<NASGU> 
+					strffModelFilePath = returnArgs[[0]]
+					strffModelFilename  = returnArgs[[1]]
+					##         if (~strcmp(strffModelFilePath,''))
+					##             cd(strffModelFilePath);
+					##         end
+					poped_db["model"]["subffPointers"]["".join(["ff_pointer",i])] = strffModelFilename
+					i = i + 1
+    
+	if callable(fError_fun):
+		poped_db["model"]["ferror_pointer"] = fError_fun
+	elif type(fError_fun) is str:
+		if fError_fun is not None:
+			poped_db["model"]["ferror_pointer"] = fError_fun
+	elif fError_file is not None:
+		poped_db["model"]["ferror_pointer"] = fError_file
+	else:
+		exec(open(fError_file).read)
+		returnArgs =  fileparts(fError_file) 
+		strErrorModelFilePath = returnArgs[[0]]
+		strErrorModelFilename  = returnArgs[[1]]
+		## if (~strcmp(strErrorModelFilePath,''))
+		##    cd(strErrorModelFilePath);
+		## end
+		poped_db["model"]["ferror_pointer"] = strErrorModelFilename
+    
+    
+	
+	##  %Set the model file string path
+    ##  poped_db$model_file = ff_file
+    ##   model_file = eval('functions(poped_db.ff_pointer)');
+    ##   if (~strcmp(model_file.file,''))
+    ##       poped_db.model_file = eval('char(model_file.file)');
+    ##   else
+    ##       poped_db.model_file = eval('char(model_file.function)');
+    ##   end
+    
+    #==================================
+    # Initialize the randomization    
+    #==================================
+	if dSeed is not None:
+		if dSeed == -1:
+			poped_db["settings"]["dSeed"] = int(datetime.datetime.now())
+		else:
+			poped_db["settings"]["dSeed"] = dSeed
+		set.seed(poped_db["settings"]["dSeed"]) 
+
+    
+	poped_db["parameters"]["nbpop"] = poped_choose(nbpop,find_largest_index(poped_db["model"]["fg_pointer"],"bpop"))
+	poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff,find_largest_index(poped_db["model"]["fg_pointer"],"b"))
+	poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=T,mat.row=T))
+	poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=T,mat.row=F))
+	#poped_db["parameters"]ng = poped_choose(ng,length(do.call(poped_db["model"]fg_pointer,list(0,0,0,0,0))))    
+	poped_db["parameters"]["ng"] = length(do.call(poped_db["model"]["fg_pointer"],
+											[0,0,0,0,
+													zeros(poped_db["parameters"]["NumDocc"],
+														poped_db["parameters"]["NumOcc"])]))    
+    
+	poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc,matrix(1,nrow=1,ncol=poped_db["parameters"]["NumDocc"]))
+	poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d,matrix(1,nrow=1,ncol=poped_db["parameters"]["NumRanEff"]))
+	poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop,matrix(1,nrow=1,ncol=poped_db["parameters"]["nbpop"]))
+
+    # reorder named values
+	fg_names = names(do_call(poped_db["model"]["fg_pointer"], [1,1,1,1,ones(poped_db["parameters"]["NumDocc"],poped_db["parameters"]["NumOcc"])]))
+
+    reorder_vec = function(your_vec,name_order){
+		if names(your_vec) is not None:
+			if(all(names(your_vec) %in% name_order)){
+				your_vec = your_vec[name_order[name_order %in% names(your_vec)]]
+				}  
+		}
+		return your_vec
+    }
+    
+    poped_db["parameters"]["notfixed_bpop"] = reorder_vec(poped_db["parameters"]["notfixed_bpop"], fg_names)
+                           
+    poped_db["parameters"]["notfixed_d"] = reorder_vec(poped_db["parameters"]["notfixed_d"], fg_names)
+    
+    
+    if size(d)[0] == 1 and size(d)[1] == poped_db["parameters"]["NumRanEff"]: # we have just the parameter values not the uncertainty
+		d_descr = zeros(poped_db["parameters"]["NumRanEff"],3)
+		
+		# reorder named values
+		d = reorder_vec(d,fg_names)
+		
+		
+		d_descr[,2] = d
+		d_descr[,1] = 0 # point values
+		d_descr[,3] = 0 # variance
+		rownames(d_descr) = names(d)
+		d = d_descr
+    
+    
+    if size(bpop)[0] == 1 and size(bpop)[1] == poped_db["parameters"]["nbpop"]: # we have just the parameter values not the uncertainty
+		bpop_descr = zeros(poped_db["parameters"]["nbpop"],3)
+		
+		# reorder named values
+		bpop = reorder_vec(bpop,fg_names)
+		
+		bpop_descr[:,1] = bpop
+		bpop_descr[:,0] = 0 # point values
+		bpop_descr[:,2] = 0 # variance
+		rownames(bpop_descr) = names(bpop)
+		bpop = bpop_descr
+	   
+    
+    if size(sigma)[0] == 1 and type(sigma) is not np.ndarray: # we have just the diagonal parameter values 
+		sigma_tmp = diag(sigma,size(sigma,2),size(sigma,2))
+		rownames(sigma_tmp) = names(sigma)
+		sigma = sigma_tmp   
+    
+    covd = poped_choose(covd,zeros(1,poped_db["parameters"]["NumRanEff"])*(poped_db["parameters"]["NumRanEff"]-1)/2)
+    poped_db["parameters"]["covd"] = covd
+    
+    tmp = ones(1,length(covd))
+    tmp[covd==0] = 0
+    poped_db["parameters"]["notfixed_covd"]=poped_choose(notfixed_covd,tmp)
+    
+    #==================================
+    # Sample the individual eta's for FOCE and FOCEI
+    #==================================
+    if poped_db["settings"]["iApproximationMethod"]!=0 and poped_db["settings"]["iApproximationMethod"]!=3:
       
-    
-        
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
+		iMaxCorrIndNeeded = 100
+		
+		bzeros=zeros(poped_db["parameters"]["NumRanEff"],1)
+		bones = matrix(1,poped_db["parameters"]["NumRanEff"],1)
+		bocczeros=zeros(poped_db["parameters"]["NumDocc"],1)
+		boccones=matrix(1,poped_db["parameters"]["NumDocc"],1)
+		
+		poped_db["parameters"]["b_global"]=zeros(poped_db["parameters"]["NumRanEff"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded))
+		
+		fulld = getfulld(d[,2],poped_db["parameters"]["covd"])
+		fulldocc = getfulld(docc[,2,drop=F],poped_db["parameters"]["covdocc"])
+		
+		poped_db["parameters"]["bocc_global"] = cell(poped_db["settings"]["iFOCENumInd"],1)
+		
+		if poped_db["settings"]["d_switch"] is True:
+			poped_db["parameters"]["b_global"] = t(mvtnorm::rmvnorm(max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),sigma=fulld))
+			for i in range(0, poped_db["settings"]["iFOCENumInd"]):
+				poped_db["parameters"]["bocc_global"][[i]]=zeros(size(docc,1),poped_db["parameters"]["NumOcc"])
+				if poped_db["parameters"]["NumOcc"] != 0:
+					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]["NumOcc"],sigma=fulldocc))
 			
+		else:
+			d_dist=pargen(d,poped_db["model"]user_distribution_pointer,max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
+			docc_dist=pargen(docc,poped_db["model"]user_distribution_pointer,poped_db["settings"]["iFOCENumInd"],poped_db["settings"]bLHS,zeros(1,0),poped_db)
+			
+			if len(d_dist) != 0:
+				for i in range(0,max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded)):
+					poped_db["parameters"]["b_global"][,i] = np.transpose(mvtnorm::rmvnorm(1,sigma=getfulld(d_dist[i,],poped_db["parameters"]["covd"])))
+			
+			if len(docc_dist) != 0:
+				for i in range(0,poped_db["settings"]["iFOCENumInd"]):
+					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]NumOcc,sigma=getfulld(docc_dist[i,],poped_db["parameters"]covdocc)))
+				
+      
+    else:
+		poped_db["parameters"]["bocc_global"]=zeros(poped_db["parameters"]["NumRanEff"],1)
+		poped_db["parameters"]["bocc_global"] = cell(1,1)
+		poped_db["parameters"]["bocc_global"][[1]]=zeros(size(docc)[0],poped_db["parameters"]["NumOcc"])
+		poped_db["settings"]["iFOCENumInd"] = 1
+    
+    
+    poped_db["settings"]["modtit"] = modtit
+    poped_db["settings"]["exptit"] = sprintf('%s_exp$mat',modtit) #experiment settings title
+    poped_db["settings"]["opttit"] = sprintf('%s_opt$mat',modtit) #optimization settings title
+    poped_db["settings"]["bShowGraphs"] = bShowGraphs
+    
+    poped_db["settings"]["use_logfile"] = use_logfile
+    poped_db["settings"]["output_file"] = output_file
+    poped_db["settings"]["output_function_file"] = output_function_file
+    
+    poped_db["settings"]["optsw"] = optsw
+        
+    line_opta=poped_choose(line_opta,ones(1,size(poped_db["design"]["a"],2)))
+    if test_mat_size(c(1, size(poped_db["design"]["a"])[1]),line_opta,"line_opta"):
+      	poped_db["settings"]["line_opta"] = line_opta
+    
+    
+    line_optx=poped_choose(line_optx,ones(1,size(poped_db["design"]["x"],2)))
+    if test_mat_size(c(1, size(poped_db["design"]["x"])[1]),line_optx,"line_optx"):
+      	poped_db["settings"]["line_optx"] = line_optx
+    
 
-	
-	
+    #poped_db$design = popedInput$design
+    poped_db["parameters"]["bpop"] = bpop
+    poped_db["parameters"]["d"] = d
+    poped_db["parameters"]["covd"] = covd
+    poped_db["parameters"]["sigma"] = sigma
+    poped_db["parameters"]["docc"] = docc
+    poped_db["parameters"]["covdocc"] = covdocc
+        
+    #poped_db["design"]G = design_space$G_xt ## should only be in design_space
+    #poped_db["design"]Ga = design_space$G_a ## should only be in design_space
+    #poped_db["design"]Gx = design_space$G_x ## should only be in design_space
+    
+    #poped_db["design"]maxgroupsize = design_space$maxgroupsize ## should only be in design_space
+    #poped_db["design"]mingroupsize = design_space$mingroupsize ## should only be in design_space
+    #poped_db["design"]maxtotgroupsize = design_space$maxtotgroupsize ## should only be in design_space
+    #poped_db["design"]mintotgroupsize = design_space$mintotgroupsize ## should only be in design_space
+    #poped_db["design"]maxxt = design_space$maxxt ## should only be in design_space
+    #poped_db["design"]minxt = design_space$minxt ## should only be in design_space
+    #poped_db["design"]discrete_x = design_space$discrete_x ## should only be in design_space
+    #poped_db["design"]maxa = design_space$maxa ## should only be in design_space
+    #poped_db["design"]mina = design_space$mina ## should only be in design_space   
+    
+    poped_db["settings"]["m1_switch"] = m1_switch
+    poped_db["settings"]["m2_switch"] = m2_switch
+    poped_db["settings"]["hle_switch"] = hle_switch
+    poped_db["settings"]["gradff_switch"]=gradff_switch
+    poped_db["settings"]["gradfg_switch"] = gradfg_switch
+    poped_db["settings"]["grad_all_switch"]=grad_all_switch
+    
+    poped_db["settings"]["prior_fim"] = prior_fim
+    
+    poped_db["parameters"]["notfixed_sigma"] =  notfixed_sigma
+    #poped_db["parameters"]sigma = sigma
+    #poped_db["parameters"]docc = docc
+  
+    poped_db["parameters"]["ds_index"] = ds_index
+    ## create ds_index if not already done
+    if poped_db["parameters"]["ds_index"] is not None: 
+		unfixed_params = get_unfixed_params(poped_db)
+		poped_db["parameters"]["ds_index"] = t(rep(0,length(unfixed_params["all"])))
+		poped_db["parameters"]["ds_index"][(length(unfixed_params["bpop"])+1):length(poped_db["parameters"]["ds_index"])] = 1
+    else:
+      	if type(poped_db["parameters"]["ds_index"]) is not np.ndarray:
+			  poped_db["parameters"]["ds_index"] = matrix(poped_db["parameters"]["ds_index"],1,length(poped_db["parameters"]["ds_index"]))
+    
+    
+    poped_db["settings"]["strIterationFileName"] = strIterationFileName
+    poped_db["settings"]["user_data"] = user_data
+    poped_db["settings"]["bUseSecondOrder"] = False
+    poped_db["settings"]["bCalculateEBE"] = False
+    poped_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
+    poped_db["settings"]["bEANoReplicates"] = bEANoReplicates
+    
+    if len(strRunFile) != 0:    
+		if strRunFile == " ":
+			poped_db["settings"]["run_file_pointer"]=zeros(1,0)
+		else:
+			if strRunFile is not None:
+				poped_db["settings"]["run_file_pointer"] = strRunFile
+			else:
+				source(popedInput["strRunFile"])
+				returnArgs =  fileparts(popedInput["strRunFile"]) 
+				strRunFilePath = returnArgs[[0]]
+				strRunFilename  = returnArgs[[1]]
+				## if (~strcmp(strErrorModelFilePath,''))
+				##    cd(strErrorModelFilePath);
+				## end
+				poped_db["settings"]["run_file_pointer"] = strRunFilename
+
+    #poped_db = convert_popedInput(popedInput,...)
+    
+    poped_db["settings"]["Engine"] = list(Type=1,Version=version["version"].string)
+    
+    poped_db = convert_variables(poped_db) ## need to transform here
+    
+    param.val = get_all_params(poped_db)
+    tmp.names = names(param.val)
+    eval(parse(text=paste(tmp.names,".val","=","param.val$",tmp.names,sep="")))
+    d.val = d.val # for package check
+    covd.val = covd.val
+    docc.val = docc.val
+    covdocc.val = covdocc.val
+    bpop.val = bpop.val
+    d_full = getfulld(d.val,covd.val)
+    docc_full = getfulld(docc.val,covdocc.val)
+    sigma_full = poped_db["parameters"]["sigma"]
+    poped_db["parameters"]["param_pt_val"]["bpop"] = bpop.val
+    poped_db["parameters"]["param_pt_val"]["d"] = d_full
+    poped_db["parameters"]["param_pt_val"]["docc"] = docc_full
+    poped_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
+    
+    #     downsize.list = downsizing_general_design(poped_db)
+    #     tmp.names = names(downsize.list)
+    #     model_switch = c()
+    #     ni = c()
+    #     xt = c()
+    #     x = c()
+    #     a = c()
+    #     eval(parse(text=paste(tmp.names,"=","downsize.list$",tmp.names,sep="")))
+    #     poped_db$downsized.design$model_switch = model_switch
+    #     poped_db$downsized.design$ni = ni
+    #     poped_db$downsized.design$xt = xt
+    #     poped_db$downsized.design$x = x
+    #     poped_db$downsized.design$a = a
+    #     poped_db$downsized.design$groupsize = poped_db["design"]groupsize
+    
+    retargs = fileparts(poped_db["settings"]["output_file"])
+    poped_db["settings"]["strOutputFilePath"] = retargs[[0]]
+    poped_db["settings"]["strOutputFileName"] = retargs[[1]]
+    poped_db["settings"]["strOutputFileExtension"] = retargs[[2]]
+    
+    return poped_db

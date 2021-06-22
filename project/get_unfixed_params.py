@@ -22,20 +22,22 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 
+import numpy as np
 from project.size import size
+from project.zeros import zeros
 from project.diag_matlab import diag_matlab
 
 
 def get_unfixed_params(poped_db,params=None):
   
     if params is not None:
-        bpop = poped_db["parameters"]["bpop"][,2,drop=F]
-        d = poped_db["parameters"]["d"][,2,drop=F]
+        bpop = poped_db["parameters"]["bpop"][:,1]
+        d = poped_db["parameters"]["d"][:,1]
         covd = poped_db["parameters"]["covd"]
-        docc = poped_db["parameters"]["docc"][,2,drop=F]
+        docc = poped_db["parameters"]["docc"][:,1]
         covdocc = poped_db["parameters"]["covdocc"]
         sigma = diag_matlab(poped_db["parameters"]["sigma"])
-        covsigma = zeros(1,length(sigma)*(length(sigma)-1)/2)
+        covsigma = zeros(1,(sigma.size)*((sigma.size)-1)/2)
         k = 1
         for i in range(0,size(poped_db["parameters"]["sigma"])[0]):
             for j in range(0,size(poped_db["parameters"]["sigma"])[1]):
@@ -43,13 +45,13 @@ def get_unfixed_params(poped_db,params=None):
                     covsigma[k] = poped_db["parameters"]["sigma"][i,j]
                     k = k + 1
     else:
-        nbpop = length(poped_db["parameters"]["notfixed_bpop"])
-        nd = length(poped_db["parameters"]["notfixed_d"])
-        ncovd = length(poped_db["parameters"]["notfixed_covd"])
-        ndocc = length(poped_db["parameters"]["notfixed_docc"])
-        ncovdocc = length(poped_db["parameters"]["notfixed_covdocc"])
-        nsigma = length(poped_db["parameters"]["notfixed_sigma"])
-        ncovsigma = length(poped_db["parameters"]["notfixed_covsigma"])
+        nbpop = poped_db["parameters"]["notfixed_bpop"].size
+        nd = poped_db["parameters"]["notfixed_d"].size
+        ncovd = poped_db["parameters"]["notfixed_covd"].size
+        ndocc = poped_db["parameters"]["notfixed_docc"].size
+        ncovdocc = poped_db["parameters"]["notfixed_covdocc"].size
+        nsigma = poped_db["parameters"]["notfixed_sigma"].size
+        ncovsigma = poped_db["parameters"]["notfixed_covsigma"].size
         
         bpop = params[1:nbpop]
         d = params[(1+nbpop):(nbpop+nd)]
@@ -67,12 +69,12 @@ def get_unfixed_params(poped_db,params=None):
     sigma = sigma[poped_db["parameters"]["notfixed_sigma"]==1]
     covsigma = covsigma[poped_db["parameters"]["notfixed_covsigma"]==1]
     
-    all = matrix(c(bpop, d, covd, docc, covdocc, sigma, covsigma),ncol=1,byrow=True)
+    all = np.array([[bpop, d, covd, docc, covdocc, sigma, covsigma]])
     
     if poped_db["settings"]["iFIMCalculationType"] != 4:
-        var_derivative = matrix(1,size(all))
+        var_derivative = np.array([1,size(all)])
     else:
-        var_derivative = matrix(c(rep(1,length(bpop)), rep(1,length(d)), rep(1,length(covd)), rep(1,length(docc)), rep(1,length(covdocc)), rep(0,length(sigma)), rep(1,length(covsigma))),ncol=1,byrow=T)
+        var_derivative = np.array([[np.repeat(1,bpop.size), np.repeat(1,d.size), np.repeat(1,covd.size), np.repeat(1,docc.size), np.repeat(1,covdocc.size), np.repeat(0,sigma.size), np.repeat(1,covsigma.size)]])
     
     
     return [bpop,d,covd,docc,covdocc,sigma,covsigma,all,var_derivative]

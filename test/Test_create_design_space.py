@@ -4,9 +4,11 @@ from project.create_design_space import create_design_space
 
 design_1 = create_design(xt=[np.array([1,2,3,4,5]),
                              np.array([1,2,3,4])],
-                         groupsize=np.array([50, 20])
-                        #  a=list(c(WT=70,DOSE=1000),
-                        #          c(DOSE=1000,WT=35)))
+                         groupsize=np.array([50, 20]),
+                         a=[np.array([70, 1000]),
+                            np.array([1000, 35])]
+                        #  a=[np.array([{"WT": 70, "DOSE": 1000}]),
+                        #     np.array([{"DOSE": 1000, "WT": 35}])]
 )
 
 ds_1 = create_design_space(design_1)

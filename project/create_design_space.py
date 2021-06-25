@@ -142,7 +142,7 @@ def create_design_space(design,
 	if test_mat_size(np.array([design["m"], 1]), maxni, "maxni") == 1:
 		maxni = pd.DataFrame(maxni,
 							 index=["grp_"+str(i+1) for i in range(0, design["m"])],
-							 columns="n_obs"*maxni.shape[1])
+							 columns=["n_obs"] * maxni.shape[1])
 
 	# minni
 	if size(minni)[0] == 1 and design["m"] != 1:
@@ -152,7 +152,7 @@ def create_design_space(design,
 	if test_mat_size(np.array([design["m"], 1]), minni, "minni") == 1:
 		minni = pd.DataFrame(minni,
 							 index=["grp_"+str(i+1) for i in range(0, design["m"])],
-							 columns="n_obs"*minni.shape[1])
+							 columns=["n_obs"] * minni.shape[1])
 	
 	# make sure min is smaller than max
 	ret = comp_max_min(maxni, minni, called_args)
@@ -160,9 +160,9 @@ def create_design_space(design,
 	minni = ret["min_val"]
 
 	# check ni given max and min
-	if any(design["ni"] < minni):
+	if any(np.array(design["ni"]) < np.array(minni)):
 		raise Exception("ni is less than minni")
-	if any(design["ni"] > maxni):
+	if any(np.array(design["ni"]) > np.array(maxni)):
 		raise Exception("ni is greater than maxni")
 	
 	# maxtotni and mintotni
@@ -181,7 +181,7 @@ def create_design_space(design,
 		raise Exception("sum of ni is greater than maxtotni")
 
 	# update xt and model_switch given maxni
-	if np.amax(maxni) > size(design["xt"])[1]:
+	if np.amax(np.array(maxni)) > size(design["xt"])[1]:
 
 		# xt has to increase
 		xt_full = ones(design["m"], np.amax(maxni)) * np.nan
@@ -212,11 +212,25 @@ def create_design_space(design,
 
 	# maxgroupsize
 	if size(maxgroupsize)[0] == 1 and design["m"] != 1:
-		...
-		# maxgroupsize = np.array()
+		maxgroupsize = pd.DataFrame(np.array([maxgroupsize] * design["m"]).reshape([design["m"], 1]),
+									index=["grp_"+str(i+1) for i in range(0, design["m"])])
+	if len(maxgroupsize.shape) != 2:
+		maxgroupsize = maxgroupsize[:, np.newaxis]
+	if test_mat_size(np.array([design["m"], 1]), np.array(maxgroupsize), "maxgroupsize") == 1:
+		maxgroupsize = pd.DataFrame(maxgroupsize,
+								 index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+								 columns=["n_id"] * maxgroupsize.shape[1])
 	
 	# mingroupsize
-
+	if size(mingroupsize)[0] == 1 and design["m"] != 1:
+		mingroupsize = pd.DataFrame(np.array([mingroupsize] * design["m"]).reshape([design["m"], 1]),
+									index=["grp_"+str(i+1) for i in range(0, design["m"])])
+	if len(mingroupsize.shape) != 2:
+		mingroupsize = mingroupsize[:, np.newaxis]
+	if test_mat_size(np.array([design["m"], 1]), np.array(mingroupsize), "mingroupsize") == 1:
+		mingroupsize = pd.DataFrame(mingroupsize,
+								 index=["grp_"+str(i) for i in range(1, design["m"]+1)],
+								 columns=["n_id"] * mingroupsize.shape[1])
 
 	# make sure min is less than max
 	ret = comp_max_min(maxgroupsize, mingroupsize, called_args)
@@ -224,9 +238,9 @@ def create_design_space(design,
 	mingroupsize = ret["min_val"]
 
 	# check given max and min
-	if any(design["groupsize"] < mingroupsize):
+	if any(np.array(design["groupsize"]) < np.array(mingroupsize)):
 		raise Exception("groupsize is less than mingroupsize")
-	if any(design["groupsize"] > maxgroupsize):
+	if any(np.array(design["groupsize"]) > np.array(maxgroupsize)):
 		raise Exception("groupsize is greater than maxgroupsize")
 
 	# maxtotgroupsize
@@ -243,9 +257,9 @@ def create_design_space(design,
 	mintotgroupsize = ret["min_val"]
 
 	# check given max and min
-	if any(np.sum(design["groupsize"]) < mingroupsize):
+	if any(np.array(np.sum(design["groupsize"])) < np.array(mintotgroupsize)):
 		raise Exception("sum of groupsizes is less than mintotgroupsize")
-	if any(np.sum(design["groupsize"]) > maxgroupsize):
+	if any(np.array(np.sum(design["groupsize"])) > np.array(maxtotgroupsize)):
 		raise Exception("sum of groupsizes is greater than maxtotgroupsize")
 	
 	# maxxt and minxt
@@ -269,7 +283,7 @@ def create_design_space(design,
 						") is not the same as the number of groups m (" +
 						str(design["m"]) +
 						")")
-	if size(maxxt)[1] == np.max(design["ni"]) and np.max(maxni) > np.max(design["ni"]) and size(design["xt"])[1] == np.max(maxni):
+	if size(maxxt)[1] == int(np.max(design["ni"])) and int(np.max(maxni)) > int(np.max(design["ni"])) and size(design["xt"])[1] == int(np.max(maxni)):
 		maxxt_full = design["xt"]
 		maxxt_full[:, 0:np.max(design["ni"])] = maxxt
 		maxxt = maxxt_full
@@ -298,7 +312,7 @@ def create_design_space(design,
 						") is not the same as the number of groups m (" +
 						str(design["m"]) +
 						")")
-	if size(minxt)[1] == np.max(design["ni"]) and np.max(maxni) > np.max(design["ni"]) and size(design["xt"])[1] == np.max(maxni):
+	if size(minxt)[1] == int(np.max(design["ni"])) and int(np.max(maxni)) > int(np.max(design["ni"])) and size(design["xt"])[1] == int(np.max(maxni)):
 		minxt_full = design["xt"]
 		minxt_full[:, 0:np.max(design["ni"])] = minxt
 		minxt = minxt_full
@@ -319,17 +333,17 @@ def create_design_space(design,
 		design["xt"] = design["xt"] + our_zero * (design["xt"] == 0)
 	
 	# check given max and min
-	if any(np.greater(minxt, design["xt"])):
+	if np.greater(np.array(minxt), np.array(design["xt"])).any():
 		raise Exception("xt is less than minxt")
-	if any(np.greater(design["xt"], maxxt)):
+	if np.greater(np.array(design["xt"]), np.array(maxxt)).any():
 		raise Exception("xt is greater than maxxt")
 	
 	# need to decide on appripriate values of xt and minxt and maxxt if applicable
-	if any(maxni>design["ni"]) and any(np.isnan(design["xt"])):
+	if any(np.array(maxni) > np.array(design["ni"])) and any(np.isnan(design["xt"])):
 		for grp in range(0, design["m"]):
-			xt_grp = design["xt"][grp, :]
-			maxxt_grp = maxxt[grp, :]
-			minxt_grp = minxt[grp, :]
+			xt_grp = design["xt"].iloc[grp, :]
+			maxxt_grp = pd.DataFrame(maxxt).iloc[grp, :]
+			minxt_grp = pd.DataFrame(minxt).iloc[grp, :]
 			if any(np.isnan(maxxt_grp)):
 				_, idx = np.unique(maxxt_grp[~np.isnan(maxxt_grp)], return_index=True) # remove duplicated and nan values but keep order
 				max_vals = [maxxt_grp[~np.isnan(maxxt_grp)][index] for index in sorted(idx)]
@@ -364,12 +378,12 @@ def create_design_space(design,
 				if (not one_max) and (not one_min):
 					raise Exception("Unable to determine the initial xt values needed for group " + str(grp+1) +
                                     "\n if ni increases with optimization \nPlease supply them as input.")
-			design["xt"][grp, :] = xt_grp
-			maxxt[grp, :] = maxxt_grp
-			minxt[grp, :] = minxt_grp
+			design["xt"].iloc[grp, :] = xt_grp
+			pd.DataFrame(maxxt).iloc[grp, :] = maxxt_grp
+			pd.DataFrame(minxt).iloc[grp, :] = minxt_grp
 		design_new["xt"] = design["xt"]
 
-	# for a 没写
+	# for a
 	if maxa is not None:
 		if type(maxa) is list:
 			maxa = pd.DataFrame(maxa)
@@ -412,13 +426,13 @@ def create_design_space(design,
 
 	# check ni given max and min
 	if mina is not None and maxa is not None and design["a"] is not None:
-		if any(design["a"] < mina):
+		if (np.array(design["a"]) < np.array(mina)).any():
 			raise Exception("a is less than mina")
-		if any(design["a"] > maxa):
+		if (np.array(design["a"]) > np.array(maxa)).any():
 			raise Exception("a is greater than maxa")
 
 	# for x
-	if x_space is None and design["x"] is not None:
+	if x_space is None and "x" in design.keys():
 		x_space = cell(size(design["x"]))
 		for i in range(0, size(design["x"])[0]):
 			for j in range(0, size(design["x"])[1]):
@@ -511,8 +525,8 @@ def create_design_space(design,
 			if use_grouped_xt:
 				val = 1
 			for j in range(0, design["xt"].shape[1]):
-				if design["xt"][i, j] is not None:
-					grouped_xt[i, j] = val
+				if design["xt"].iloc[i, j] is not None:
+					grouped_xt.iloc[i, j] = val
 					val += 1
 
 	if grouped_xt.size == 1:
@@ -531,7 +545,7 @@ def create_design_space(design,
 		use_grouped_xt = True
 	if type(grouped_xt) is not np.ndarray and type(grouped_xt) is not pd.DataFrame:
 		grouped_xt = np.array(grouped_xt)
-	if size(grouped_xt)[1] == np.max(design["ni"]) and max(maxni) > np.max(design["ni"]) and size(design["xt"])[1] == max(maxni):
+	if size(grouped_xt)[1] == size(grouped_xt)[1] and np.max(np.array(maxni)) > np.max(np.array(design["ni"])) and size(design["xt"])[1] == np.max(np.array(maxni)):
 		grouped_xt_full = design["xt"] * np.nan
 		grouped_xt_full[:, 1:np.max(design["ni"])+1] = grouped_xt
 		grouped_xt = grouped_xt_full
@@ -543,7 +557,7 @@ def create_design_space(design,
 	# get values in the NA region if possible
 	if any(maxni > design["ni"]) and any(np.isnan(grouped_xt)):
 		for grp in range(0, design["m"]):
-			grouped_xt_grp = grouped_xt[grp, :]
+			grouped_xt_grp = pd.DataFrame(grouped_xt).iloc[grp, :]
 			if any(np.isnan(grouped_xt_grp)):
 				_, idx = np.unique(grouped_xt_grp[~np.isnan(grouped_xt_grp)], return_index=True) # remove duplicated and nan values but keep order
 				vals = [grouped_xt_grp[~np.isnan(grouped_xt_grp)][index] for index in sorted(idx)]
@@ -553,24 +567,24 @@ def create_design_space(design,
 					raise Exception("Unable to determine the grouped_xt values needed for group " +
 									str(grp+1) +
 									"\n if ni increases with optimization \nPlease supply them as input.")
-			grouped_xt[grp, :] = grouped_xt_grp
+			pd.DataFrame(grouped_xt).iloc[grp, :] = grouped_xt_grp
 
-	_, idx = np.unique(grouped_xt[~np.isnan(design["xt"])], return_index=True) # remove duplicated and nan values but keep order
-	for i in [grouped_xt[~np.isnan(design["xt"])][index] for index in sorted(idx)]:
-		_, idx = np.unique(design["xt"][grouped_xt == i and ~np.isnan(design["xt"])], return_index=True) # remove duplicated and nan values but keep order
-		if len([design["xt"][grouped_xt == i and ~np.isnan(design["xt"])][index] for index in sorted(idx)]) != 1:
+	_, idx = np.unique(np.array(grouped_xt)[~np.isnan(np.array(design["xt"]))], return_index=True) # remove duplicated and nan values but keep order
+	for i in [np.array(grouped_xt)[~np.isnan(np.array(design["xt"]))][index] for index in sorted(idx)]:
+		_, idx = np.unique(np.array(design["xt"])[np.array(grouped_xt) == i and ~np.isnan(np.array(design["xt"]))], return_index=True) # remove duplicated and nan values but keep order
+		if len([np.array(design["xt"])[np.array(grouped_xt) == i and ~np.isnan(np.array(design["xt"]))][index] for index in sorted(idx)]) != 1:
 			raise Exception("xt values grouped with value %g from grouped_xt do not have the same initial values.\n'" % i)
-		_, idx = np.unique(maxxt[grouped_xt == i and ~np.isnan(design["xt"])], return_index=True) # remove duplicated and nan values but keep order
-		if len([maxxt[grouped_xt == i and ~np.isnan(design["xt"])][index] for index in sorted(idx)]) != 1:
+		_, idx = np.unique(maxxt[np.array(grouped_xt) == i and ~np.isnan(np.array(design["xt"]))], return_index=True) # remove duplicated and nan values but keep order
+		if len([maxxt[np.array(grouped_xt) == i and ~np.isnan(np.array(design["xt"]))][index] for index in sorted(idx)]) != 1:
 			raise Exception("xt values grouped with value %g from grouped_xt do not have the same maximum allowed values (maxxt).\n" % i)
-		_, idx = np.unique(minxt[grouped_xt == i and ~np.isnan(design["xt"])], return_index=True) # remove duplicated and nan values but keep order
-		if len([minxt[grouped_xt == i and ~np.isnan(design["xt"])][index] for index in sorted(idx)]) != 1:
+		_, idx = np.unique(minxt[np.array(grouped_xt) == i and ~np.isnan(np.array(design["xt"]))], return_index=True) # remove duplicated and nan values but keep order
+		if len([minxt[np.array(grouped_xt) == i and ~np.isnan(np.array(design["xt"]))][index] for index in sorted(idx)]) != 1:
 			raise Exception("xt values grouped with value %g from grouped_xt do not have the same maximum allowed values (minxt).\n" % i)
-		grouped_cells_xt = xt_space[grouped_xt == i and np.isnan(design["xt"])]
+		grouped_cells_xt = xt_space[np.array(grouped_xt) == i and np.isnan(np.array(design["xt"]))]
 		for j in range(0, grouped_cells_xt.size):
 			for k in range(0, grouped_cells_xt.size):
 				if (any(np.array(size(grouped_cells_xt[j])) != np.array(size(grouped_cells_xt[k]))) or
-					any(grouped_cells_xt[j] != grouped_cells_xt[k])):
+					(grouped_cells_xt[j] != grouped_cells_xt[k])):
 					raise Exception("xt values grouped with value %g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
 
 	_, idx = np.unique(grouped_xt[~np.isnan(design["xt"])], return_index=True) # remove duplicated and nan values but keep order

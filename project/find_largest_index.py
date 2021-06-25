@@ -5,22 +5,22 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 
-def find_largest_index(func_str="sfg",lab="bpop",mat=F,mat_row=T):
-    if(is.function(func.str)){
-        txt <- capture.output(func.str)
-    } else {
-        txt <- capture.output(eval(parse(text=func.str)))
-    }
-    txt <- grep(paste("^[^\\#]*",lab,"\\[",sep=""),txt,value=T)
-    ind <- 0
-    if(length(txt)!=0 && !mat)  
-        ind <- gsub(paste("^[^\\#]*",lab,"\\[\\s*(\\d+)\\s*\\].*",sep=""),"\\1",txt)
-    if(length(txt)!=0 && mat && mat.row)  
-        ind <- gsub(paste("^[^\\#]*",lab,"\\[\\s*(\\d+)\\s*,.*?\\].*$",sep=""),"\\1",txt)
-    if(length(txt)!=0 && mat && !mat.row)  
-        ind <- gsub(paste("^[^\\#]*",lab,"\\[.*?,\\s*(\\d+)\\s*\\].*",sep=""),"\\1",txt)
+def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
+    if callable(func_str):
+        txt = capture_output(func_str)
+    else:
+        txt = capture_output(eval(parse(text=func_str)))
     
-    max(as.numeric(ind))
+    txt = grep(paste("^[^\\#]*",lab,"\\[",sep=""),txt,value=T)
+    ind = 0
+    if len(txt) != 0 and mat is False: 
+        ind = gsub(paste("^[^\\#]*",lab,"\\[\\s*(\\d+)\\s*\\].*",sep=""),"\\1",txt)
+    if len(txt) != 0 and mat and mat_row is True: 
+        ind = gsub(paste("^[^\\#]*",lab,"\\[\\s*(\\d+)\\s*,.*?\\].*$",sep=""),"\\1",txt)
+    if len(txt) != 0 and mat and mat_row is False: 
+        ind = gsub(paste("^[^\\#]*",lab,"\\[.*?,\\s*(\\d+)\\s*\\].*",sep=""),"\\1",txt)
+    
+    max(float(ind))
 
 # 
 #  find.largest.index("sfg","bpop")

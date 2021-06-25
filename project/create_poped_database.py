@@ -293,15 +293,28 @@ Author: Caiya Zhang, Yuchen Zheng
 #from am.poped_choose import am.poped_choose
 import datetime
 import numpy as np
+import pandas as pd
 from project.ones import ones
+from project.size import size
 from project.zeros import zeros
 from project.cell import cell
+from project.feval import do_call
+from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
 from project.create_design import create_design
 from project.create_design_space import create_design_space
 from project.find_largest_index import find_largest_index
 from project.test_mat_size import test_mat_size
+
+def reorder_vec(your_vec,name_order):
+	if your_vec.keys() is not None:
+		if all(your_vec.keys()) in name_order:
+			your_vec = your_vec[name_order[name_order in your_vec.keys()]]
+			
+	return your_vec
+    
+
 
 def create_poped_database(
 						popedInput = {},
@@ -1111,51 +1124,48 @@ def create_poped_database(
     
 	poped_db["parameters"]["nbpop"] = poped_choose(nbpop,find_largest_index(poped_db["model"]["fg_pointer"],"bpop"))
 	poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff,find_largest_index(poped_db["model"]["fg_pointer"],"b"))
-	poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=T,mat.row=T))
-	poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=T,mat.row=F))
-	#poped_db["parameters"]ng = poped_choose(ng,length(do.call(poped_db["model"]fg_pointer,list(0,0,0,0,0))))    
-	poped_db["parameters"]["ng"] = length(do.call(poped_db["model"]["fg_pointer"],
-											[0,0,0,0,
-													zeros(poped_db["parameters"]["NumDocc"],
-														poped_db["parameters"]["NumOcc"])]))    
-    
-	poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc,matrix(1,nrow=1,ncol=poped_db["parameters"]["NumDocc"]))
-	poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d,matrix(1,nrow=1,ncol=poped_db["parameters"]["NumRanEff"]))
-	poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop,matrix(1,nrow=1,ncol=poped_db["parameters"]["nbpop"]))
+																
+	poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=True,mat_row=True))
+	poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=True,mat_row=False))
+	#poped_db["parameters"]["ng"] = poped_choose(ng,length(do.call(poped_db["model"]fg_pointer,list(0,0,0,0,0))))    
+	poped_db["parameters"]["ng"] = (do_call(poped_db["model"]["fg_pointer"],
+											[0,0,0,0,zeros(poped_db["parameters"]["NumDocc"],
+														poped_db["parameters"]["NumOcc"])])).size  
+	
+	#xt[i] = np.pad(xt[i], (0, length-len(xt[i])), "constant", constant_values=np.nan)  
+	docc_arr = np.array([1])
+	d_arr = np.array([1])
+	bpop_arr = np.array([1])
+	poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc,np.pad(docc_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["NumDocc"]))
+	poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d,np.pad(d_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["NumRanEff"]))
+	poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop,np.pad(bpop_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["nbpop"]))
 
     # reorder named values
-	fg_names = names(do_call(poped_db["model"]["fg_pointer"], [1,1,1,1,ones(poped_db["parameters"]["NumDocc"],poped_db["parameters"]["NumOcc"])]))
+	fg_names = do_call(poped_db["model"]["fg_pointer"], [1,1,1,1,ones(poped_db["parameters"]["NumDocc"],poped_db["parameters"]["NumOcc"])]).keys()
 
-    reorder_vec = function(your_vec,name_order){
-		if names(your_vec) is not None:
-			if(all(names(your_vec) %in% name_order)){
-				your_vec = your_vec[name_order[name_order %in% names(your_vec)]]
-				}  
-		}
-		return your_vec
-    }
     
-    poped_db["parameters"]["notfixed_bpop"] = reorder_vec(poped_db["parameters"]["notfixed_bpop"], fg_names)
+    
+	poped_db["parameters"]["notfixed_bpop"] = reorder_vec(poped_db["parameters"]["notfixed_bpop"], fg_names)
                            
-    poped_db["parameters"]["notfixed_d"] = reorder_vec(poped_db["parameters"]["notfixed_d"], fg_names)
+	poped_db["parameters"]["notfixed_d"] = reorder_vec(poped_db["parameters"]["notfixed_d"], fg_names)
     
     
-    if size(d)[0] == 1 and size(d)[1] == poped_db["parameters"]["NumRanEff"]: # we have just the parameter values not the uncertainty
+	if size(d)[0] == 1 and size(d)[1] == poped_db["parameters"]["NumRanEff"]: # we have just the parameter values not the uncertainty
 		d_descr = zeros(poped_db["parameters"]["NumRanEff"],3)
 		
 		# reorder named values
 		d = reorder_vec(d,fg_names)
 		
 		
-		d_descr[,2] = d
-		d_descr[,1] = 0 # point values
-		d_descr[,3] = 0 # variance
-		rownames(d_descr) = names(d)
+		d_descr[:,1] = d
+		d_descr[:,0] = 0 # point values
+		d_descr[:,2] = 0 # variance
+		d_descr.columns.values = d.keys()
 		d = d_descr
-    
-    
-    if size(bpop)[0] == 1 and size(bpop)[1] == poped_db["parameters"]["nbpop"]: # we have just the parameter values not the uncertainty
-		bpop_descr = zeros(poped_db["parameters"]["nbpop"],3)
+
+
+	if size(bpop)[0] == 1 and size(bpop)[1] == poped_db["parameters"]["nbpop"]: # we have just the parameter values not the uncertainty
+		bpop_descr = pd.DataFrame(zeros(poped_db["parameters"]["nbpop"],3))
 		
 		# reorder named values
 		bpop = reorder_vec(bpop,fg_names)
@@ -1163,62 +1173,63 @@ def create_poped_database(
 		bpop_descr[:,1] = bpop
 		bpop_descr[:,0] = 0 # point values
 		bpop_descr[:,2] = 0 # variance
-		rownames(bpop_descr) = names(bpop)
+		bpop_descr.columns.values = bpop.keys()
 		bpop = bpop_descr
-	   
-    
-    if size(sigma)[0] == 1 and type(sigma) is not np.ndarray: # we have just the diagonal parameter values 
-		sigma_tmp = diag(sigma,size(sigma,2),size(sigma,2))
-		rownames(sigma_tmp) = names(sigma)
+		
+
+	if size(sigma)[0] == 1 and type(sigma) is not np.ndarray: # we have just the diagonal parameter values 
+		sigma_tmp = pd.DataFrame(np.diag(sigma,size(sigma,2),size(sigma,2)))
+		sigma_tmp.columns.values = sigma.keys()
 		sigma = sigma_tmp   
     
-    covd = poped_choose(covd,zeros(1,poped_db["parameters"]["NumRanEff"])*(poped_db["parameters"]["NumRanEff"]-1)/2)
-    poped_db["parameters"]["covd"] = covd
+	covd = poped_choose(covd, zeros(1,poped_db["parameters"]["NumRanEff"])*(poped_db["parameters"]["NumRanEff"]-1)/2, 0)
+	poped_db["parameters"]["covd"] = covd
     
-    tmp = ones(1,length(covd))
-    tmp[covd==0] = 0
-    poped_db["parameters"]["notfixed_covd"]=poped_choose(notfixed_covd,tmp)
+	tmp = ones(1,len(covd))
+	for i in range(0, len(covd)):
+		if covd[i] ==0:
+			tmp[i] = 0
+    #tmp[covd==0] = 0
+	poped_db["parameters"]["notfixed_covd"] = poped_choose(notfixed_covd, tmp, 0)
     
-    #==================================
-    # Sample the individual eta's for FOCE and FOCEI
-    #==================================
-    if poped_db["settings"]["iApproximationMethod"]!=0 and poped_db["settings"]["iApproximationMethod"]!=3:
-      
+
+	#==================================
+	# Sample the individual eta's for FOCE and FOCEI
+	#==================================
+	if poped_db["settings"]["iApproximationMethod"] != 0 and poped_db["settings"]["iApproximationMethod"] != 3:
+		
 		iMaxCorrIndNeeded = 100
-		
 		bzeros=zeros(poped_db["parameters"]["NumRanEff"],1)
-		bones = matrix(1,poped_db["parameters"]["NumRanEff"],1)
+		bones = np.array([1]).reshape(poped_db["parameters"]["NumRanEff"],1)
 		bocczeros=zeros(poped_db["parameters"]["NumDocc"],1)
-		boccones=matrix(1,poped_db["parameters"]["NumDocc"],1)
-		
-		poped_db["parameters"]["b_global"]=zeros(poped_db["parameters"]["NumRanEff"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded))
-		
-		fulld = getfulld(d[,2],poped_db["parameters"]["covd"])
+		boccones=np.array([1]).reshape(poped_db["parameters"]["NumDocc"],1)
+
+		poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded))
+
+		fulld = getfulld(d[:,1],poped_db["parameters"]["covd"])
 		fulldocc = getfulld(docc[,2,drop=F],poped_db["parameters"]["covdocc"])
-		
+
 		poped_db["parameters"]["bocc_global"] = cell(poped_db["settings"]["iFOCENumInd"],1)
 		
 		if poped_db["settings"]["d_switch"] is True:
-			poped_db["parameters"]["b_global"] = t(mvtnorm::rmvnorm(max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),sigma=fulld))
+			poped_db["parameters"]["b_global"] = np.transpose(mvtnorm::rmvnorm(max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),sigma=fulld))
 			for i in range(0, poped_db["settings"]["iFOCENumInd"]):
 				poped_db["parameters"]["bocc_global"][[i]]=zeros(size(docc,1),poped_db["parameters"]["NumOcc"])
 				if poped_db["parameters"]["NumOcc"] != 0:
 					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]["NumOcc"],sigma=fulldocc))
 			
 		else:
-			d_dist=pargen(d,poped_db["model"]user_distribution_pointer,max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
-			docc_dist=pargen(docc,poped_db["model"]user_distribution_pointer,poped_db["settings"]["iFOCENumInd"],poped_db["settings"]bLHS,zeros(1,0),poped_db)
+			d_dist=pargen(d,poped_db["model"]["user_distribution_pointer"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
+			docc_dist=pargen(docc,poped_db["model"]["user_distribution_pointer"],poped_db["settings"]["iFOCENumInd"],poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
 			
 			if len(d_dist) != 0:
 				for i in range(0,max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded)):
-					poped_db["parameters"]["b_global"][,i] = np.transpose(mvtnorm::rmvnorm(1,sigma=getfulld(d_dist[i,],poped_db["parameters"]["covd"])))
+					poped_db["parameters"]["b_global"][:,i] = np.transpose(mvtnorm::rmvnorm(1,sigma=getfulld(d_dist[i,],poped_db["parameters"]["covd"])))
 			
 			if len(docc_dist) != 0:
 				for i in range(0,poped_db["settings"]["iFOCENumInd"]):
-					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]NumOcc,sigma=getfulld(docc_dist[i,],poped_db["parameters"]covdocc)))
-				
-      
-    else:
+					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]NumOcc,sigma=getfulld(docc_dist[i,],poped_db["parameters"]["covdocc"])))
+	else:
 		poped_db["parameters"]["bocc_global"]=zeros(poped_db["parameters"]["NumRanEff"],1)
 		poped_db["parameters"]["bocc_global"] = cell(1,1)
 		poped_db["parameters"]["bocc_global"][[1]]=zeros(size(docc)[0],poped_db["parameters"]["NumOcc"])

@@ -18,7 +18,7 @@ def hessian_eta_complex(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db,ret
     g = zeros(n,1)    # Memory for the gradient vector
     
     if bAutomatic:
-        raise Exception("Automatic differentiation not yet implemented in R version of PopED")
+        raise Exception("Automatic differentiation not yet implemented in Python version of pypkpd")
         #     if((poped_db["settings"]Engine$Type==2) ){#FreeMat
         #         stop(sprintf('Automatic differentiation is not available in PopED with FreeMat'))
         #     }

@@ -299,13 +299,18 @@ from project.size import size
 from project.zeros import zeros
 from project.cell import cell
 from project.feval import do_call
+from project.pargen import pargen
 from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
+from project.test_mat_size import test_mat_size
 from project.create_design import create_design
 from project.create_design_space import create_design_space
 from project.find_largest_index import find_largest_index
-from project.test_mat_size import test_mat_size
+from project.convert_variables import convert_variables
+from project.get_all_params import get_all_params
+from project.get_unfixed_params import get_unfixed_params
+
 
 def reorder_vec(your_vec,name_order):
 	if your_vec.keys() is not None:
@@ -987,7 +992,7 @@ def create_poped_database(
       	poped_db["model"]["fg_pointer"] = strfgModelFilename
 	
 	poped_db["settings"]["ed_penalty_pointer"] = zeros(1,0)
-	if str(strEDPenaltyFile != ""):
+	if str(strEDPenaltyFile) != "":
 		if strEDPenaltyFile != None:
 			poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFile
 		else:
@@ -1207,28 +1212,28 @@ def create_poped_database(
 		poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded))
 
 		fulld = getfulld(d[:,1],poped_db["parameters"]["covd"])
-		fulldocc = getfulld(docc[,2,drop=F],poped_db["parameters"]["covdocc"])
+		fulldocc = getfulld(docc[:,1],poped_db["parameters"]["covdocc"])
 
 		poped_db["parameters"]["bocc_global"] = cell(poped_db["settings"]["iFOCENumInd"],1)
 		
 		if poped_db["settings"]["d_switch"] is True:
-			poped_db["parameters"]["b_global"] = np.transpose(mvtnorm::rmvnorm(max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),sigma=fulld))
+			poped_db["parameters"]["b_global"] = np.transpose(np.random.multivariate_normal(max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),sigma=fulld))
 			for i in range(0, poped_db["settings"]["iFOCENumInd"]):
 				poped_db["parameters"]["bocc_global"][[i]]=zeros(size(docc,1),poped_db["parameters"]["NumOcc"])
 				if poped_db["parameters"]["NumOcc"] != 0:
-					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]["NumOcc"],sigma=fulldocc))
+					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(np.random.multivariate_normal(poped_db["parameters"]["NumOcc"],sigma=fulldocc))
 			
 		else:
-			d_dist=pargen(d,poped_db["model"]["user_distribution_pointer"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
-			docc_dist=pargen(docc,poped_db["model"]["user_distribution_pointer"],poped_db["settings"]["iFOCENumInd"],poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
+			d_dist = pargen(d,poped_db["model"]["user_distribution_pointer"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded),poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
+			docc_dist = pargen(docc,poped_db["model"]["user_distribution_pointer"],poped_db["settings"]["iFOCENumInd"],poped_db["settings"]["bLHS"],zeros(1,0),poped_db)
 			
 			if len(d_dist) != 0:
 				for i in range(0,max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded)):
-					poped_db["parameters"]["b_global"][:,i] = np.transpose(mvtnorm::rmvnorm(1,sigma=getfulld(d_dist[i,],poped_db["parameters"]["covd"])))
+					poped_db["parameters"]["b_global"][:,i] = np.transpose(np.random.multivariate_normal(1,sigma=getfulld(d_dist[i,],poped_db["parameters"]["covd"])))
 			
 			if len(docc_dist) != 0:
 				for i in range(0,poped_db["settings"]["iFOCENumInd"]):
-					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(mvtnorm::rmvnorm(poped_db["parameters"]NumOcc,sigma=getfulld(docc_dist[i,],poped_db["parameters"]["covdocc"])))
+					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(np.random.multivariate_normal(poped_db["parameters"]["NumOcc"],sigma=getfulld(docc_dist[i,],poped_db["parameters"]["covdocc"])))
 	else:
 		poped_db["parameters"]["bocc_global"]=zeros(poped_db["parameters"]["NumRanEff"],1)
 		poped_db["parameters"]["bocc_global"] = cell(1,1)
@@ -1236,34 +1241,34 @@ def create_poped_database(
 		poped_db["settings"]["iFOCENumInd"] = 1
     
     
-    poped_db["settings"]["modtit"] = modtit
-    poped_db["settings"]["exptit"] = sprintf('%s_exp$mat',modtit) #experiment settings title
-    poped_db["settings"]["opttit"] = sprintf('%s_opt$mat',modtit) #optimization settings title
-    poped_db["settings"]["bShowGraphs"] = bShowGraphs
+	poped_db["settings"]["modtit"] = modtit
+	poped_db["settings"]["exptit"] = str('%s_exp["mat"]',modtit) #experiment settings title
+	poped_db["settings"]["opttit"] = str('%s_opt["mat"]',modtit) #optimization settings title
+	poped_db["settings"]["bShowGraphs"] = bShowGraphs
+
+	poped_db["settings"]["use_logfile"] = use_logfile
+	poped_db["settings"]["output_file"] = output_file
+	poped_db["settings"]["output_function_file"] = output_function_file
+
+	poped_db["settings"]["optsw"] = optsw
+		
+	line_opta = poped_choose(line_opta,ones(1,size(poped_db["design"]["a"],2)))
+	if test_mat_size(np.array([1, size(poped_db["design"]["a"])[0]]),line_opta,"line_opta"):
+		poped_db["settings"]["line_opta"] = line_opta
     
-    poped_db["settings"]["use_logfile"] = use_logfile
-    poped_db["settings"]["output_file"] = output_file
-    poped_db["settings"]["output_function_file"] = output_function_file
     
-    poped_db["settings"]["optsw"] = optsw
-        
-    line_opta=poped_choose(line_opta,ones(1,size(poped_db["design"]["a"],2)))
-    if test_mat_size(c(1, size(poped_db["design"]["a"])[1]),line_opta,"line_opta"):
-      	poped_db["settings"]["line_opta"] = line_opta
-    
-    
-    line_optx=poped_choose(line_optx,ones(1,size(poped_db["design"]["x"],2)))
-    if test_mat_size(c(1, size(poped_db["design"]["x"])[1]),line_optx,"line_optx"):
-      	poped_db["settings"]["line_optx"] = line_optx
+	line_optx = poped_choose(line_optx,ones(1,size(poped_db["design"]["x"],2)))
+	if test_mat_size(np.array([1, size(poped_db["design"]["x"])[0]]),line_optx,"line_optx"):
+		poped_db["settings"]["line_optx"] = line_optx
     
 
     #poped_db$design = popedInput$design
-    poped_db["parameters"]["bpop"] = bpop
-    poped_db["parameters"]["d"] = d
-    poped_db["parameters"]["covd"] = covd
-    poped_db["parameters"]["sigma"] = sigma
-    poped_db["parameters"]["docc"] = docc
-    poped_db["parameters"]["covdocc"] = covdocc
+	poped_db["parameters"]["bpop"] = bpop
+	poped_db["parameters"]["d"] = d
+	poped_db["parameters"]["covd"] = covd
+	poped_db["parameters"]["sigma"] = sigma
+	poped_db["parameters"]["docc"] = docc
+	poped_db["parameters"]["covdocc"] = covdocc
         
     #poped_db["design"]G = design_space$G_xt ## should only be in design_space
     #poped_db["design"]Ga = design_space$G_a ## should only be in design_space
@@ -1279,45 +1284,46 @@ def create_poped_database(
     #poped_db["design"]maxa = design_space$maxa ## should only be in design_space
     #poped_db["design"]mina = design_space$mina ## should only be in design_space   
     
-    poped_db["settings"]["m1_switch"] = m1_switch
-    poped_db["settings"]["m2_switch"] = m2_switch
-    poped_db["settings"]["hle_switch"] = hle_switch
-    poped_db["settings"]["gradff_switch"]=gradff_switch
-    poped_db["settings"]["gradfg_switch"] = gradfg_switch
-    poped_db["settings"]["grad_all_switch"]=grad_all_switch
+	poped_db["settings"]["m1_switch"] = m1_switch
+	poped_db["settings"]["m2_switch"] = m2_switch
+	poped_db["settings"]["hle_switch"] = hle_switch
+	poped_db["settings"]["gradff_switch"]=gradff_switch
+	poped_db["settings"]["gradfg_switch"] = gradfg_switch
+	poped_db["settings"]["grad_all_switch"]=grad_all_switch
+
+	poped_db["settings"]["prior_fim"] = prior_fim
+
+	poped_db["parameters"]["notfixed_sigma"] =  notfixed_sigma
+	#poped_db["parameters"]sigma = sigma
+	#poped_db["parameters"]docc = docc
+
+	poped_db["parameters"]["ds_index"] = ds_index
     
-    poped_db["settings"]["prior_fim"] = prior_fim
-    
-    poped_db["parameters"]["notfixed_sigma"] =  notfixed_sigma
-    #poped_db["parameters"]sigma = sigma
-    #poped_db["parameters"]docc = docc
-  
-    poped_db["parameters"]["ds_index"] = ds_index
-    ## create ds_index if not already done
-    if poped_db["parameters"]["ds_index"] is not None: 
+	## create ds_index if not already done
+	if poped_db["parameters"]["ds_index"] is not None: 
 		unfixed_params = get_unfixed_params(poped_db)
-		poped_db["parameters"]["ds_index"] = t(rep(0,length(unfixed_params["all"])))
-		poped_db["parameters"]["ds_index"][(length(unfixed_params["bpop"])+1):length(poped_db["parameters"]["ds_index"])] = 1
-    else:
-      	if type(poped_db["parameters"]["ds_index"]) is not np.ndarray:
-			  poped_db["parameters"]["ds_index"] = matrix(poped_db["parameters"]["ds_index"],1,length(poped_db["parameters"]["ds_index"]))
+		poped_db["parameters"]["ds_index"] = np.transposet(np.repeat(0,unfixed_params["all"].size))
+		poped_db["parameters"]["ds_index"][(unfixed_params["bpop"].size+1):poped_db["parameters"]["ds_index"].size] = 1
+	else:
+		if type(poped_db["parameters"]["ds_index"]) is not np.ndarray:
+				poped_db["parameters"]["ds_index"] = np.array([poped_db["parameters"]["ds_index"],1,poped_db["parameters"]["ds_index"].size])
     
     
-    poped_db["settings"]["strIterationFileName"] = strIterationFileName
-    poped_db["settings"]["user_data"] = user_data
-    poped_db["settings"]["bUseSecondOrder"] = False
-    poped_db["settings"]["bCalculateEBE"] = False
-    poped_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
-    poped_db["settings"]["bEANoReplicates"] = bEANoReplicates
+	poped_db["settings"]["strIterationFileName"] = strIterationFileName
+	poped_db["settings"]["user_data"] = user_data
+	poped_db["settings"]["bUseSecondOrder"] = False
+	poped_db["settings"]["bCalculateEBE"] = False
+	poped_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
+	poped_db["settings"]["bEANoReplicates"] = bEANoReplicates
     
-    if len(strRunFile) != 0:    
+	if len(strRunFile) != 0:    
 		if strRunFile == " ":
-			poped_db["settings"]["run_file_pointer"]=zeros(1,0)
+			poped_db["settings"]["run_file_pointer"] = zeros(1,0)
 		else:
 			if strRunFile is not None:
 				poped_db["settings"]["run_file_pointer"] = strRunFile
 			else:
-				source(popedInput["strRunFile"])
+				exec(open(popedInput["strRunFile"]).read)
 				returnArgs =  fileparts(popedInput["strRunFile"]) 
 				strRunFilePath = returnArgs[[0]]
 				strRunFilename  = returnArgs[[1]]
@@ -1328,44 +1334,49 @@ def create_poped_database(
 
     #poped_db = convert_popedInput(popedInput,...)
     
-    poped_db["settings"]["Engine"] = list(Type=1,Version=version["version"].string)
+	poped_db["settings"]["Engine"] = {"Type" : 1, "Version" : poped_version["version"].string}
+
+	poped_db = convert_variables(poped_db) ## need to transform here
     
-    poped_db = convert_variables(poped_db) ## need to transform here
+	param_val = get_all_params(poped_db)
+	tmp_names = param_val.keys()
+	eval(str('%s.val = param.val["%s"]',tmp_names,tmp_names))
+	""" 
+	#tools/spped_check.R
+
+	d_val = d_val # for package check
+	covd_val = covd_val
+	docc_val = docc_val
+	covdocc_val = covdocc_val
+	bpop_val = bpop_val
+	d_full = getfulld(d_val,covd_val)
+	docc_full = getfulld(docc_val,covdocc_val)
+	sigma_full = poped_db["parameters"]["sigma"]
+	
+	poped_db["parameters"]["param_pt_val"]["bpop"] = bpop_val
+	poped_db["parameters"]["param_pt_val"]["d"] = d_full
+	poped_db["parameters"]["param_pt_val"]["docc"] = docc_full
+	poped_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
     
-    param.val = get_all_params(poped_db)
-    tmp.names = names(param.val)
-    eval(parse(text=paste(tmp.names,".val","=","param.val$",tmp.names,sep="")))
-    d.val = d.val # for package check
-    covd.val = covd.val
-    docc.val = docc.val
-    covdocc.val = covdocc.val
-    bpop.val = bpop.val
-    d_full = getfulld(d.val,covd.val)
-    docc_full = getfulld(docc.val,covdocc.val)
-    sigma_full = poped_db["parameters"]["sigma"]
-    poped_db["parameters"]["param_pt_val"]["bpop"] = bpop.val
-    poped_db["parameters"]["param_pt_val"]["d"] = d_full
-    poped_db["parameters"]["param_pt_val"]["docc"] = docc_full
-    poped_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
-    
-    #     downsize.list = downsizing_general_design(poped_db)
-    #     tmp.names = names(downsize.list)
-    #     model_switch = c()
-    #     ni = c()
-    #     xt = c()
-    #     x = c()
-    #     a = c()
-    #     eval(parse(text=paste(tmp.names,"=","downsize.list$",tmp.names,sep="")))
-    #     poped_db$downsized.design$model_switch = model_switch
-    #     poped_db$downsized.design$ni = ni
-    #     poped_db$downsized.design$xt = xt
-    #     poped_db$downsized.design$x = x
-    #     poped_db$downsized.design$a = a
-    #     poped_db$downsized.design$groupsize = poped_db["design"]groupsize
-    
-    retargs = fileparts(poped_db["settings"]["output_file"])
-    poped_db["settings"]["strOutputFilePath"] = retargs[[0]]
-    poped_db["settings"]["strOutputFileName"] = retargs[[1]]
-    poped_db["settings"]["strOutputFileExtension"] = retargs[[2]]
-    
-    return poped_db
+	"""
+	#     downsize.list = downsizing_general_design(poped_db)
+	#     tmp.names = names(downsize.list)
+	#     model_switch = c()
+	#     ni = c()
+	#     xt = c()
+	#     x = c()
+	#     a = c()
+	#     eval(parse(text=paste(tmp.names,"=","downsize.list$",tmp.names,sep="")))
+	#     poped_db$downsized.design$model_switch = model_switch
+	#     poped_db$downsized.design$ni = ni
+	#     poped_db$downsized.design$xt = xt
+	#     poped_db$downsized.design$x = x
+	#     poped_db$downsized.design$a = a
+	#     poped_db$downsized.design$groupsize = poped_db["design"]groupsize
+
+	retargs = fileparts(poped_db["settings"]["output_file"])
+	poped_db["settings"]["strOutputFilePath"] = retargs[[0]]
+	poped_db["settings"]["strOutputFileName"] = retargs[[1]]
+	poped_db["settings"]["strOutputFileExtension"] = retargs[[2]]
+
+	return poped_db

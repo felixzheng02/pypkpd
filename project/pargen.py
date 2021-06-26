@@ -18,7 +18,7 @@
 #' @param sample_size The number of random samples per parameter to generate
 #' @param bLHS Logical, indicating if Latin Hypercube Sampling should be used.
 #' @param sample_number The sample number to extract from a user distribution.
-#' @param poped.db A PopED database.
+#' @param poped_db A PopED database.
 #'   
 #' @return A matrix of random samples of size (sample_size x
 #'   number_of_parameters)
@@ -68,7 +68,7 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     #                   sample_size=1000,
     #                   bLHS=1,
     #                   sample_number=NULL,
-    #                   poped.db)
+    #                   poped_db)
     # sample_size=1000
     # data <- apply(bpop_vals_ed_ln,1,
     #               function(par) rlnorm(sample_size,log(par[2]^2/sqrt(par[3]+par[2]^2)),

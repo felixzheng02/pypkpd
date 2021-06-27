@@ -11,6 +11,7 @@ from project.size import size
 from project.zeros import zeros
 from project.diag_matlab import diag_matlab
 from project.get_all_params import get_all_params
+from project.get_unfixed_params import get_unfixed_params
 
 def get_cv(param_vars,poped_db):
     #Return the RSE,CV of parameters
@@ -63,30 +64,30 @@ def get_cv(param_vars,poped_db):
 #' @export
 
 def get_rse(fim, poped_db,*args):
-    bpop=poped_db["parameters"]["bpop"][:,1],
+    bpop = poped_db["parameters"]["bpop"][:,1]
     #bpop=poped_db["parameters"]bpop[,2,drop=F],
-    d=poped_db["parameters"]["d"][:,1],
-    # d=poped_db["parameters"]d[,2,drop=F],
-    docc=poped_db["parameters"]["docc"],
-    sigma=poped_db["parameters"]["sigma"],
-    use_percent=True,
-    fim_calc_type=poped_db["settings"]["iFIMCalculationType"],
+    d = poped_db["parameters"]["d"][:,1]
+    # d = poped_db["parameters"]d[,2,drop=F],
+    docc = poped_db["parameters"]["docc"]
+    sigma = poped_db["parameters"]["sigma"]
+    use_percent = True
+    fim_calc_type = poped_db["settings"]["iFIMCalculationType"],
     prior_fim = poped_db["settings"]["prior_fim"],
     #pseudo_on_fail = False,
     ## update poped_db with options supplied in function
-    called_args = match.call()
+    called_args = match_call()
     default_args = formals()
-    for i in names(called_args)[-1]:
-        if length(grep("^poped\\.db\\$",capture.output(default_args[[i]]))) == 1:
+    for i in called_args.keys()[-1]:
+        if length(grep("^poped\\.db\\$",capture_output(default_args[[i]]))) == 1:
         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
         # if (i %in% c('bpop','d')) {
         #   if (eval(parse(text=paste("dim(",i,")[2]>1"))))
         #     (eval(parse(text=paste(i, "=",i,"[,2]"))))
         # }
-        eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
+            eval(parse(text=paste(capture_output(default_args[[i]]),"=",i)))
 
     ## if prior is given in poped_db then add it to the given fim
-    if len(prior_fim) != 0 and all(size(prior_fim)==size(fim)):
+    if len(prior_fim) != 0 and all(size(prior_fim) == size(fim)):
         fim = fim + prior_fim
   
   
@@ -100,33 +101,32 @@ def get_rse(fim, poped_db,*args):
                     "\n  Is the design adequate to estimate all parameters?")
         eig = eigen(fim)[["values"]]
         names(eig) = get_parnam(poped_db)
-        neg.vals = eig[eig< 0]
-        num.neg = length(neg.vals)
-        if(num.neg>0){
-        mess = paste0(mess,"\n  Potentially problematic parameters and associated eigenvalues:")
-        for(i in 1:num.neg){
-            mess = paste0(mess,sprintf("\n %12s  %8.7e",names(neg.vals[i]),neg.vals[i]))
-        }
-        }
+        neg_vals = eig[eig< 0]
+        num_neg = length(neg.vals)
+        if num_neg > 0:
+            mess = paste0(mess,"\n  Potentially problematic parameters and associated eigenvalues:")
+            for i in range(0,num_neg):
+                mess = paste0(mess,sprintf("\n %12s  %8.7e",names(neg.vals[i]),neg_vals[i]))
         #warning(simpleWarning(mess,call="get_rse()"))
         warning(mess)
-        return (rep(NA,length(get_parnam(poped_db))))
-    }  
+        return (np.repeat(np.nan, length(get_parnam(poped_db))))
+
     param_vars = diag_matlab(inv_fim)
     returnArgs =  get_cv(param_vars,poped_db) 
     params = returnArgs[[1]]
     params_rse = returnArgs[[2]]
     parnam = get_parnam(poped_db)
-    ret = params_rse[,,drop=T]
-    if(use_percent) ret[params!=0]=ret[params!=0]*100
-    names(ret) = parnam
-    if(any(ret==0)){
-        zero_ret = names(ret[ret==0])
+    ret = params_rse[:,:,drop=T]
+    if use_percent: 
+        ret[params!=0] = ret[params!=0]*100
+    ret.keys() = parnam
+    if any(ret==0):
+        zero_ret = ret[ret==0].keys()
         mess = paste0("  The following parameters are not estimable:\n  ",
                     paste0(zero_ret,collapse = ", "),
                     "\n  Is the design adequate to estimate all parameters?")
         warning(mess, call. = False)
         ret[ret==0] = NA
-    }
+    
     return ret
 

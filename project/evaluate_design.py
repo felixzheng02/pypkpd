@@ -1,3 +1,4 @@
+"""
 #' Evaluate a design
 #' 
 #' This function evaluates the design defined in a poped database.
@@ -10,7 +11,15 @@
 #' @example tests/testthat/examples_fcn_doc/warfarin_basic.R
 #' @example tests/testthat/examples_fcn_doc/examples_evaluate_design.R
 #' @family evaluate_design
-!!
+
+#' Author: Caiya Zhang, Yuchen Zheng
+"""
+
+
+
+from project.get_cv import get_rse
+from project.calc_ofv_and_fim import calc_ofv_and_fim
+
 def evaluate_design(poped_db, *args):
     out = calc_ofv_and_fim(poped_db,...)
     if out["fim"] is None:

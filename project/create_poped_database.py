@@ -205,7 +205,7 @@ The current PopED version
 \item \bold{******START OF Miscellaneous SPECIFICATION OPTIONS**********}}
 User defined data structure that, for example could be used to send in data to the model 
 @param ourzero Value to interpret as zero in design 
-@param dSeed The seed number used for optimization and sampling -- integer or -1 which creates a random seed \code{as.integer(Sys.time())} or NULL.
+@param dSeed The seed number used for optimization and sampling -- integer or -1 which creates a random seed \code{as.integer(Sys.time())} or None.
 @param line_opta Vector for line search on continuous design variables (1=True,0=False)
 @param line_optx Vector for line search on discrete design variables (1=True,0=False) 
 @param bShowGraphs Use graph output during search
@@ -232,7 +232,7 @@ User defined data structure that, for example could be used to send in data to t
 @param hle Step length of derivative of model w.r.t. sigma
 @param AbsTol The absolute tolerance for the diff equation solver
 @param RelTol The relative tolerance for the diff equation solver
-@param iDiffSolverMethod The diff equation solver method, NULL as default.
+@param iDiffSolverMethod The diff equation solver method, None as default.
 @param bUseMemorySolver If the differential equation results should be stored in memory (1) or not (0)
 @param rsit Number of Random search iterations 
 @param sgit Number of stochastic gradient iterations
@@ -728,11 +728,11 @@ def create_poped_database(
 #####-------------- main part --------------#####
 	poped_db = {}
     # five main headings for database
-    #     poped_db = list(design=NULL,
-    #                      design_space=NULL,
-    #                      models=NULL,
-    #                      parameters=NULL,
-    #                      settings=NULL)
+    #     poped_db = list(design=None,
+    #                      design_space=None,
+    #                      models=None,
+    #                      parameters=None,
+    #                      settings=None)
     
     #     # update popedInput with options supplied in function
     #     called_args = match.call()
@@ -1009,7 +1009,7 @@ def create_poped_database(
 	# if(is.null(ofv_fun) || is.function(ofv_fun)){
     #   poped_db["settings"]ofv_fun = ofv_fun
     # } else {
-    #   stop("ofv_fun must be a function or NULL")
+    #   stop("ofv_fun must be a function or None")
     # }
 
 	if ofv_fun is None or callable(ofv_fun):
@@ -1021,7 +1021,7 @@ def create_poped_database(
 			exec(open(str(ofv_fun).read))
 			poped_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)[["filename"]]')
 		else:
-			raise Exception("ofv_fun is not a function or NULL, and no file with that name was found")
+			raise Exception("ofv_fun is not a function or None, and no file with that name was found")
 
 	
 	# if(is.function(ofv_fun)){

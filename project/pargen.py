@@ -64,10 +64,10 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     # 
     # # with log-normal distributions
     # pars.ln <- pargen(par=bpop_vals_ed_ln,
-    #                   user_dist_pointer=NULL,
+    #                   user_dist_pointer=None,
     #                   sample_size=1000,
     #                   bLHS=1,
-    #                   sample_number=NULL,
+    #                   sample_number=None,
     #                   poped_db)
     # sample_size=1000
     # data <- apply(bpop_vals_ed_ln,1,

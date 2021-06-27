@@ -493,7 +493,7 @@ def create_design_space(design,
 			a_space = np.array(a_space * design["m"]).reshape([design["m"], len(a_space)])
 		else:
 			tmp_lst = pd.DataFrame(np.array(a_space).reshape([1, a_space.size]),
-								   # 没写 dimnames = list(NULL,names(x))
+								   # 没写 dimnames = list(None,names(x))
 								   )
 			mat = pd.DataFrame([])
 			for jj in range(0, tmp_lst.size):

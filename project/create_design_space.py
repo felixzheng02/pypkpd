@@ -184,7 +184,7 @@ def create_design_space(design,
 	if np.amax(np.array(maxni)) > size(design["xt"])[1]:
 
 		# xt has to increase
-		xt_full = np.array(ones(design["m"], np.amax(maxni))) * np.nan
+		xt_full = np.array(ones(design["m"], int(np.amax(maxni)))) * np.nan
 		xt_full[0:design["m"], 0:size(design["xt"])[1]] = design["xt"]
 		xt_full = pd.DataFrame(xt_full,
 							   index=["grp_"+str(i+1) for i in range(0, design["m"])],
@@ -193,21 +193,21 @@ def create_design_space(design,
 		design_new["xt"] = design["xt"]
 
 		# model switch has to increase
-		model_switch_full = np.array(ones(design["m"], np.amax(maxni))) * np.nan
+		model_switch_full = np.array(ones(design["m"], int(np.amax(maxni)))) * np.nan
 		model_switch_full[0:design["m"], 0:size(design["model_switch"])[1]] = design["model_switch"]
 		model_switch_full = pd.DataFrame(model_switch_full,
 							   index=["grp_"+str(i+1) for i in range(0, design["m"])],
 							   columns=["obs_"+str(i+1) for i in range(0, size(model_switch_full)[1])])
 		design["model_switch"] = model_switch_full
 		for i in range(0, design["model_switch"].shape[0]):
-			x_tmp = design["model_switch"][i, :]
+			x_tmp = design["model_switch"].iloc[i, :]
 			_, idx = np.unique(x_tmp[~np.isnan(x_tmp)], return_index=True) # remove duplicated and nan values but keep order
 			if len([x_tmp[~np.isnan(x_tmp)][index] for index in sorted(idx)]) == 1:
 				x_tmp[np.isnan(x_tmp)] = [x_tmp[~np.isnan(x_tmp)][index] for index in sorted(idx)]
 			else:
 				raise Exception("Unable to determine the model_switch values needed for group " + str(i+1)
 								+ "\n Please supply them as input.")
-			design["model_switch"][i, :] = x_tmp
+			design["model_switch"].iloc[i, :] = x_tmp
 		design_new["model_switch"] = design["model_switch"]
 
 	# maxgroupsize

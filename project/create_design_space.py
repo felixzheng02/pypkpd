@@ -263,7 +263,9 @@ def create_design_space(design,
 		raise Exception("sum of groupsizes is greater than maxtotgroupsize")
 	
 	# maxxt and minxt
-	if maxxt.size == 1:
+	if type(maxxt) is int:
+		maxxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt
+	elif maxxt.size == 1:
 		maxxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt
 	if type(maxxt) is list:
 		length = max([len(i) for i in maxxt])
@@ -292,7 +294,9 @@ def create_design_space(design,
 							 index=["grp_"+str(i+1) for i in range(0, design["m"])],
 							 columns=["obs_"+str(i+1) for i in range(0, maxxt.shape[1])])
 
-	if minxt.size == 1:
+	if type(minxt) is int:
+		minxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * minxt
+	elif minxt.size == 1:
 		minxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * minxt
 	if type(minxt) is list:
 		length = max([len(i) for i in minxt])
@@ -547,7 +551,7 @@ def create_design_space(design,
 		grouped_xt = np.array(grouped_xt)
 	if size(grouped_xt)[1] == size(grouped_xt)[1] and np.max(np.array(maxni)) > np.max(np.array(design["ni"])) and size(design["xt"])[1] == np.max(np.array(maxni)):
 		grouped_xt_full = design["xt"] * np.nan
-		grouped_xt_full[:, 1:np.max(design["ni"])+1] = grouped_xt
+		grouped_xt_full.iloc[:, 0:int(np.max(design["ni"]))] = pd.DataFrame(grouped_xt.astype(np.float32))
 		grouped_xt = grouped_xt_full
 	if test_mat_size(np.array(size(design["xt"])), np.array(grouped_xt), "grouped_xt") == 1:
 		grouped_xt = pd.DataFrame(grouped_xt,

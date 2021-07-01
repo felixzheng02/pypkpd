@@ -6,7 +6,7 @@ design_1 = create_design(xt=[np.array([1,2,3,4,5]),
                              np.array([1,2,3,4])],
                          groupsize=np.array([50, 20]),
                          a=[np.array([70, 1000]),
-                            np.array([1000, 35])]
+                            np.array([35, 1000])]
                         #  a=[np.array([{"WT": 70, "DOSE": 1000}]),
                         #     np.array([{"DOSE": 1000, "WT": 35}])]
 )
@@ -25,15 +25,18 @@ ds_5 = create_design_space(design_1, mina=np.array([10,20]))
 
 design_2 = create_design(xt=[np.array([1,2,3,4,5]),
                              np.array([1,2,3,4])],
-                         groupsize=np.array([50,20])
-
+                         groupsize=np.array([50,20]),
+                         a = [np.array([70, 1000]),
+                              np.array([35, 1000])],
+                         x = [np.array([1, 100]),
+                              np.array([2, 200])]
 )
 
 ds_6 = create_design_space(design_2) 
 
-# ds_7 = create_design_space(design_2,
-#                            x_space={"SEX": np.array([1,2]),
-#                                     "DOSE_discrete": seq(100,400,by=20)))
+ds_7 = create_design_space(design_2,
+                           x_space=[np.array([1,2]),
+                                    np.array(list(range(100,400,20)))])
 
 # ds_8 = create_design_space(design_2,
 #                             x_space=list(SEX=c(1,2),

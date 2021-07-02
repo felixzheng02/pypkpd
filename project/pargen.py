@@ -43,7 +43,7 @@ from project.getTruncatedNormal import getTruncatedNormal
 
 def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
   
-    nvar = size(par,1)
+    nvar = size(par)[0]
     ret = zeros(sample_size,nvar)
     
     # for log-normal distributions
@@ -56,21 +56,21 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     
     ## using rlnorm (may be faster)
     # Adding 40% Uncertainty to fixed effects log-normal (not Favail)
-    # bpop_vals <- c(CL=0.15, V=8, KA=1.0, Favail=1)
-    # bpop_vals_ed_ln <- cbind(ones(length(bpop_vals),1)*4, # log-normal distribution
+    # bpop_vals = c(CL=0.15, V=8, KA=1.0, Favail=1)
+    # bpop_vals_ed_ln = cbind(ones(length(bpop_vals),1)*4, # log-normal distribution
     #                          bpop_vals,
     #                          ones(length(bpop_vals),1)*(bpop_vals*0.4)^2) # 40% of bpop value
-    # bpop_vals_ed_ln["Favail",]  <- c(0,1,0)
+    # bpop_vals_ed_ln["Favail",]  = c(0,1,0)
     # 
     # # with log-normal distributions
-    # pars.ln <- pargen(par=bpop_vals_ed_ln,
+    # pars.ln = pargen(par=bpop_vals_ed_ln,
     #                   user_dist_pointer=None,
     #                   sample_size=1000,
     #                   bLHS=1,
     #                   sample_number=None,
     #                   poped_db)
     # sample_size=1000
-    # data <- apply(bpop_vals_ed_ln,1,
+    # data = apply(bpop_vals_ed_ln,1,
     #               function(par) rlnorm(sample_size,log(par[2]^2/sqrt(par[3]+par[2]^2)),
     #                                    sqrt(log(par[3]/par[2]^2+1))))
     # colMeans(data)
@@ -79,7 +79,7 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     
     if bLHS == 0:#Random Sampling
         for k in range(0,sample_size):
-            np = size(par,1)
+            np = size(par)[0]
             if np != 0:
                 n = numpy.random.randn(np,1) # normal mean=0 and sd=1
                 u = numpy.random.rand(np,1)*2-1 # uniform from -1 to 1
@@ -90,7 +90,7 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
                 ret[k,] = (t==0)*par[:,1] + (t==2)*(par[:,1]+u*c2/2) + (t==1)*(par[:,1]+n*c2^(1/2)) + (t==4)*numpy.exp((numpy.log(par[:,1]^2/numpy.sqrt(par[:,2]+par[:,1]^2)))+n*(numpy.sqrt(numpy.log(par[:,2]/par[:,1]^2+1))))
                 #(t==4)*par[,2,drop=F]*exp(n*c2^(1/2))
                 if sum(t==5)>0: #Truncated normal
-                    for i in range(0,size(par,1)):
+                    for i in range(0,size(par)[0]):
                         if t(i)==5:
                             ret[k,i] = getTruncatedNormal(par[i,2],c2[i])
                 
@@ -134,7 +134,7 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
 
 
 
-#sign.2 <- function(x){
+#sign.2 = function(x){
 #  s = x/abs(x)*(x!=0)
 #return( s) 
 #}

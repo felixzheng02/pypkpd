@@ -57,8 +57,8 @@ def evaluate_e_ofv_fim(poped_db,*args):
     default_args = formals()
     for i in called_args.keys()[-1]:
         if length(grep("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
-            #eval(parse(text=paste(capture.output(default_args[[i]]),"<-",called_args[[i]])))
-            eval(parse(text=paste(capture.output(default_args[[i]]),"<-",i)))
+            #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
+            eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
         
        
     

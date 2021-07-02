@@ -126,7 +126,7 @@ def get_rse(fim, poped_db,*args):
                     paste0(zero_ret,collapse = ", "),
                     "\n  Is the design adequate to estimate all parameters?")
         warning(mess, call. = False)
-        ret[ret==0] = NA
+        ret[ret==0] = np.nan
     
     return ret
 

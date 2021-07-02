@@ -75,9 +75,9 @@ def calc_ofv_and_fim(poped_db, *args):
                     groupsize=poped_db["design"]["groupsize"]
                     fim_calc_type=fim_calc_type
                 
-                #     returnArgs <-  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
-                #     fmf <- returnArgs[[1]]
-                #     poped_db <- returnArgs[[2]]
+                #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
+                #     fmf = returnArgs[[1]]
+                #     poped_db = returnArgs[[2]]
                 
                 dmf = ofv_fim(fmf,poped_db,*args)
             else:
@@ -86,7 +86,7 @@ def calc_ofv_and_fim(poped_db, *args):
                 default_args = formals()
                 for i in called_args.keys()[-1]:
                     if length(grep("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
-                        #eval(parse(text=paste(capture.output(default_args[[i]]),"<-",called_args[[i]])))
+                        #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i)) is not None:
                             eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
                 out_tmp = do_call(ofv_fun,[poped_db,*args])
@@ -97,7 +97,7 @@ def calc_ofv_and_fim(poped_db, *args):
             
         else:   # e-family
             if ofv_fun is None:
-                output <- evaluate.e.ofv.fim(poped_db,
+                output = evaluate.e.ofv.fim(poped_db,
                                         fim.calc.type=fim.calc.type,
                                         bpop=bpopdescr,
                                         d=ddescr,
@@ -117,11 +117,11 @@ def calc_ofv_and_fim(poped_db, *args):
                 fmf = output["E_fim"] 
             else:
                 ## update poped_db with options supplied in function
-                called_args <- match.call()
-                default_args <- formals()
+                called_args = match.call()
+                default_args = formals()
                 for(i in names(called_args)[-1]){
                     if(length(grep("^poped\\.db\\$",capture_output(default_args[[i]])))==1) {
-                        #eval(parse(text=paste(capture.output(default_args[[i]]),"<-",called_args[[i]])))
+                        #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i))) is not None: 
                             eval(parse(text=paste(capture_output(default_args[[i]]),"=",i)))
             
@@ -129,7 +129,7 @@ def calc_ofv_and_fim(poped_db, *args):
                 dmf = mc_mean(ofv_fun,poped_db,...)
                 fmf = None
     
-        ofv <- dmf
+        ofv = dmf
         if type(fim) is np.np.ndarray:
             fim = fmf
     
@@ -161,9 +161,9 @@ def calc_ofv_and_fim(poped_db, *args):
             a = a
             groupsize = poped_db["design"]["groupsize"]
             fim_calc_type = fim_calc_type
-        #     returnArgs <-  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
-        #     fmf <- returnArgs[[1]]
-        #     poped_db <- returnArgs[[2]]
+        #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
+        #     fmf = returnArgs[[1]]
+        #     poped_db = returnArgs[[2]]
         else:
             output = evaluate_e_ofv_fim(poped_db,*args)  
             fim_calc_type = fim_calc_type

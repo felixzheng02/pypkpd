@@ -1078,8 +1078,8 @@ def create_poped_database(
 			i = 1
 			for elem_key in popedInput["SubModels"]:
 				if elem_key == "".join(["ff_file", i]):
-					exec(open(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i])))) ##ok<NASGU> 
-					returnArgs =  fileparts(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i]))) ##ok<NASGU> 
+					exec(open(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i])))) ##ok<np.nanSGU> 
+					returnArgs =  fileparts(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i]))) ##ok<np.nanSGU> 
 					strffModelFilePath = returnArgs[[0]]
 					strffModelFilename  = returnArgs[[1]]
 					##         if (~strcmp(strffModelFilePath,''))

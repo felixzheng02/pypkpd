@@ -29,8 +29,8 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
 #  find.largest.index("sfg","x")
 #  find.largest.index("sfg","a")
 # 
-# txt <- capture.output(eval(parse(text="sfg")))
-# txt <- grep(paste("^[^\\#]*bpop","\\[",sep=""),txt,value=T)
+# txt = capture.output(eval(parse(text="sfg")))
+# txt = grep(paste("^[^\\#]*bpop","\\[",sep=""),txt,value=T)
 # txt
-# ind <- gsub(paste("^[^\\#]*","bpop","\\[","(\\d+)\\].*",sep=""),"\\1",txt)
+# ind = gsub(paste("^[^\\#]*","bpop","\\[","(\\d+)\\].*",sep=""),"\\1",txt)
 # max(as.numeric(ind))

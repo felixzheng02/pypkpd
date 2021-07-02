@@ -40,7 +40,7 @@ from project.mf_all import mf_all
 from project.mf_all_loq import mf_all_loq
 
 def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*args):
-    m = size(ni,1)
+    m = size(ni)[0]
     s = 0
     for i in range(0,m):
         if ni[i]!=0 and groupsize[i]!=0:
@@ -54,7 +54,7 @@ def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*args):
             else:
                 a_i =  zeros(0,1)
             
-        # mf_all <- function(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db){
+        # mf_all = function(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db){
         extra_args = [args]
         if extra_args["loq"] is None and extra_args["uloq"] is None: # no loq
             returnArgs = mf_all(np.transpose(model_switch[i,1:ni[i]]),

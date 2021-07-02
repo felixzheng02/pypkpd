@@ -64,7 +64,7 @@ def ed_mftot(model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,
             docc_gen_list[[ct]]=docc_gen
     
     if len(poped_db["settings"]["ed_penalty_pointer"]) != 0:
-        returnArgs <- feval(poped_db["settings"]["ed_penalty_pointer"],fim_list,bpop_gen,d_gen_list,
+        returnArgs = feval(poped_db["settings"]["ed_penalty_pointer"],fim_list,bpop_gen,d_gen_list,
                             docc_gen_list,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,
                             bpopdescr,ddescr,covd,sigma,docc,poped_db) 
         ED_fim = returnArgs[[0]]

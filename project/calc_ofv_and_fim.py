@@ -33,8 +33,10 @@
 
 
 import numpy as np
+from project.feval import do_call
 from project.ofv_fim import ofv_fim
 from project.getfulld import getfulld
+from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
 
 def calc_ofv_and_fim(poped_db, *args):
   
@@ -85,42 +87,42 @@ def calc_ofv_and_fim(poped_db, *args):
                 called_args = match_call()
                 default_args = formals()
                 for i in called_args.keys()[-1]:
-                    if length(grep("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
+                    if len(grep("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
-                        if eval(parse(text=paste(i)) is not None:
+                        if eval(parse(text=paste(i))) is not None:
                             eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
                 out_tmp = do_call(ofv_fun,[poped_db,*args])
                 dmf = out_tmp[[0]]
                 fmf = None
-                if(length(out_tmp)>1) 
+                if length(out_tmp)>1:
                     fmf = out_tmp[[1]]
             
         else:   # e-family
             if ofv_fun is None:
-                output = evaluate.e.ofv.fim(poped_db,
-                                        fim.calc.type=fim.calc.type,
+                output = evaluate_e_ofv_fim(poped_db,
+                                        fim_calc_type=fim_calc_type,
                                         bpop=bpopdescr,
                                         d=ddescr,
-                                        covd=poped_db["parameters"]covd,
-                                        docc=poped_db["parameters"]docc,
-                                        sigma=poped_db["parameters"]sigma,
+                                        covd=poped_db["parameters"]["covd"],
+                                        docc=poped_db["parameters"]["docc"],
+                                        sigma=poped_db["parameters"]["sigma"],
                                         model_switch=model_switch,
                                         ni=ni,
                                         xt=xt,
                                         x=x,
                                         a=a,
-                                        groupsize=poped_db["design"]groupsize,
+                                        groupsize=poped_db["design"]["groupsize"],
                                         use_laplace=use_laplace,
-                                        laplace.fim=laplace.fim, 
-                                        ...)
+                                        laplace_fim=laplace_fim, 
+                                        *args)
                 dmf = output["E_ofv"]
                 fmf = output["E_fim"] 
             else:
                 ## update poped_db with options supplied in function
                 called_args = match.call()
                 default_args = formals()
-                for(i in names(called_args)[-1]){
-                    if(length(grep("^poped\\.db\\$",capture_output(default_args[[i]])))==1) {
+                for i in names(called_args)[-1]:
+                    if(len(grep("^poped\\.db\\$",capture_output(default_args[[i]])))==1):
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i))) is not None: 
                             eval(parse(text=paste(capture_output(default_args[[i]]),"=",i)))

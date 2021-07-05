@@ -198,8 +198,8 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         # compute all probabilities
         pred_pot_loq = pred[loq_obs_master==2]
         cov_pot_loq = cov[loq_obs_master==2,loq_obs_master==2]
-        p_loq_comb = rep(0,nrow(loq_obs))
-        p_loq_comb_full = rep(0,nrow(loq_obs)) # for diagnostics
+        p_loq_comb = repeat(0,loq_obs.shape[0])
+        p_loq_comb_full = repeat(0,loq_obs.shape[0]) # for diagnostics
         for j in range(0,loq_obs.shape[0]):
             p_loq_comb_tmp = mvtnorm::pmvnorm(loq_comb_l[j,],
                                 loq_comb_u[j,], 

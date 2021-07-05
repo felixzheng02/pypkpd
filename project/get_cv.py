@@ -6,6 +6,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
+import re
 import numpy as np
 from project.size import size
 from project.zeros import zeros
@@ -63,6 +64,7 @@ def get_cv(param_vars,poped_db):
 #' @example tests/testthat/examples_fcn_doc/examples_evaluate.fim.R
 #' @export
 
+
 def get_rse(fim, poped_db,*args):
     bpop = poped_db["parameters"]["bpop"][:,1]
     #bpop=poped_db["parameters"]bpop[,2,drop=F],
@@ -78,13 +80,13 @@ def get_rse(fim, poped_db,*args):
     called_args = match_call()
     default_args = formals()
     for i in called_args.keys()[-1]:
-        if length(grep("^poped\\.db\\$",capture_output(default_args[[i]]))) == 1:
+        if len(re.match("^poped\\.db\\$",capture_output(default_args[[i]]))) == 1:
         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
         # if (i %in% c('bpop','d')) {
         #   if (eval(parse(text=paste("dim(",i,")[2]>1"))))
         #     (eval(parse(text=paste(i, "=",i,"[,2]"))))
         # }
-            eval(parse(text=paste(capture_output(default_args[[i]]),"=",i)))
+            eval(str(capture_output(default_args[[i]]) + "=" + i))
 
     ## if prior is given in poped_db then add it to the given fim
     if len(prior_fim) != 0 and all(size(prior_fim) == size(fim)):
@@ -97,12 +99,11 @@ def get_rse(fim, poped_db,*args):
     })
 
     if inv_fim is None:
-        mess = paste0("\n  Could not invert the FIM.",
-                    "\n  Is the design adequate to estimate all parameters?")
+        mess = "\n  Could not invert the FIM." + "\n  Is the design adequate to estimate all parameters?"
         eig = eigen(fim)[["values"]]
-        names(eig) = get_parnam(poped_db)
+        eig.keys() = get_parnam(poped_db)
         neg_vals = eig[eig< 0]
-        num_neg = length(neg.vals)
+        num_neg = length(neg_vals)
         if num_neg > 0:
             mess = paste0(mess,"\n  Potentially problematic parameters and associated eigenvalues:")
             for i in range(0,num_neg):
@@ -122,9 +123,7 @@ def get_rse(fim, poped_db,*args):
     ret.keys() = parnam
     if any(ret==0):
         zero_ret = ret[ret==0].keys()
-        mess = paste0("  The following parameters are not estimable:\n  ",
-                    paste0(zero_ret,collapse = ", "),
-                    "\n  Is the design adequate to estimate all parameters?")
+        mess = "  The following parameters are not estimable:\n  " + ", ".joint(zero_ret) + "\n  Is the design adequate to estimate all parameters?"
         warning(mess, call. = False)
         ret[ret==0] = np.nan
     

@@ -105,9 +105,9 @@ def get_rse(fim, poped_db,*args):
         neg_vals = eig[eig< 0]
         num_neg = length(neg_vals)
         if num_neg > 0:
-            mess = paste0(mess,"\n  Potentially problematic parameters and associated eigenvalues:")
+            mess = mess + "\n  Potentially problematic parameters and associated eigenvalues:"
             for i in range(0,num_neg):
-                mess = paste0(mess,sprintf("\n %12s  %8.7e",names(neg.vals[i]),neg_vals[i]))
+                mess = mess + ("\n %12s  %8.7e",neg_vals[i].keys(),neg_vals[i])
         #warning(simpleWarning(mess,call="get_rse()"))
         warning(mess)
         return (np.repeat(np.nan, length(get_parnam(poped_db))))

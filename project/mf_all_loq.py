@@ -153,6 +153,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         
         # expand rows that could be BLOQ or ULOQ 
         
+        for 
         exp_rows = apply(loq_obs_short==3,1,any)
         loq_obs = loq_obs_short[exp_rows is False,:]
         if any(exp_rows is True):
@@ -166,7 +167,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
                 
                 obs_tmp_exp = np.array(obs_tmp).reshape(perm_tmp.shape[0], obs_tmp.shape[1])
                 obs_tmp_exp[obs_tmp_exp==3] = perm_tmp[:,:]
-                loq_obs = rbind(loq_obs,obs_tmp_exp)
+                loq_obs = np.concatenate(loq_obs,obs_tmp_exp,axis=0)
             
         
         # make sure that mapped values are all accounted for 
@@ -176,20 +177,20 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         # cat(loq_obs,"\n")
         # cat(loq_obs_master,"\n")
         # if(sum(loq_obs_master==2)==1) browser()
-        lloq_mat = np.array(np.repeat(loq_full[loq_obs_master==2],loq_obs.shape[0]),nrow=nrow(loq_obs),byrow=T)
-        uloq_mat = matrix(rep(uloq_full[loq_obs_master==2],nrow(loq_obs)),nrow=nrow(loq_obs),byrow=T)
+        lloq_mat = repeat(loq_full[loq_obs_master==2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
+        uloq_mat = repeat(uloq_full[loq_obs_master==2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
         
         
         loq_comb_l = loq_obs*np.nan
         loq_comb_u = loq_obs*np.nan
         
         # BLOQ
-        loq_comb_l[loq_obs==1] = -np.infinity
+        loq_comb_l[loq_obs==1] = -np.Infinity
         loq_comb_u[loq_obs==1] = lloq_mat[loq_obs==1]
         
         # ULOQ
         loq_comb_l[loq_obs==2] = uloq_mat[loq_obs==2]
-        loq_comb_u[loq_obs==2] = Inf
+        loq_comb_u[loq_obs==2] = np.Infinity
         
         # normal observations
         loq_comb_l[loq_obs==0] = lloq_mat[loq_obs==0]
@@ -216,7 +217,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         
         # sum of probabilities
         tot_p = sum(p_loq_comb_full)
-        max_diff = PI_alpha/2*length(loq_obs_master==2) # max p missed if all points are truncated with PI 
+        max_diff = PI_alpha/2*len(loq_obs_master==2) # max p missed if all points are truncated with PI 
         if tot_p > 1.01 or tot_p < (1-max_diff):
             raise Exception("Sum of initial probabilities: %6.5g\n" + "Probabilities do not add up to one!", tot_p)
         

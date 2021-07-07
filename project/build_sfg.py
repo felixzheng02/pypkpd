@@ -33,11 +33,19 @@ import numpy as np
 def sfg_tmp(x,a,bpop,b,bocc):
     return None
 
-def build_sfg(model="ff_PK_1_comp_oral_sd_CL",covariates=np.array("dose","tau"),par_names=None,
-                       etas="exp", # can be exp, prop, add, none. can be one for all or per parameter
-                       no_etas=np.array("F","Favail"),
-                       env = parent_frame()):
-  
+def build_sfg(  model="ff_PK_1_comp_oral_sd_CL",
+                covariates=np.array("dose","tau"),
+                par_names=None,
+                etas="exp", # can be exp, prop, add, none. can be one for all or per parameter
+                no_etas=np.array("F","Favail"),
+                env = parent_frame()):
+
+
+#> <bytecode: 0x7fe20a979808>
+#> <environment: namespace:PopED>
+## -- parameter definition function 
+## -- names match parameters in function ff
+
     ## get variable of function
     parameter_names_ff = par_names
     if parameter_names_ff is None: 

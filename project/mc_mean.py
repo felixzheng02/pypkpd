@@ -62,17 +62,17 @@ def mc_mean(ofv_fcn,poped_db,*args):
                         poped_db)
     
     poped_db_tmp = poped_db
-    
+
     for ct in range(0,ED_samp_size):
-        poped_db_tmp["parameters"]["bpop"][:,1] <- bpop_gen[ct,:]
-        poped_db_tmp["parameters"]["d"][:,1] <- d_gen[ct,:]
-        poped_db_tmp["parameters"]["docc"][:,1] <- docc_gen[ct,:]
+        poped_db_tmp["parameters"]["bpop"][:,1] = bpop_gen[ct,:]
+        poped_db_tmp["parameters"]["d"][:,1] = d_gen[ct,:]
+        poped_db_tmp["parameters"]["docc"][:,1] = docc_gen[ct,:]
         
         dmf_tmp = do_call(ofv_fcn, [poped_db_tmp,*args])
         
         ofv_sum = ofv_sum + dmf_tmp
     
-    ofv_mean=ofv_sum/poped_db["settings"]["ED_samp_size"]
+    ofv_mean = ofv_sum/poped_db["settings"]["ED_samp_size"]
 
     return ofv_mean
     

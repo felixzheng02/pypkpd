@@ -36,23 +36,25 @@ ds_6 = create_design_space(design_2)
 
 ds_7 = create_design_space(design_2,
                            x_space=[np.array([1,2]),
-                                    np.array(list(range(100,400,20)))])
+                                    np.array(list(range(100,420,20)))])
 
-# ds_8 = create_design_space(design_2,
-#                             x_space=list(SEX=c(1,2),
-#                                          DOSE_discrete=seq(100,400,by=20)),
-#                             grouped_xt=c(1,2,3,4,5))
+ds_8 = create_design_space(design_2,
+                           x_space=[np.array([1,2]),
+                                    np.array(list(range(100,420,20)))],
+                           grouped_xt=np.array([1,2,3,4,5])) 
 
-# ds_9 = create_design_space(design_2,
-#                             x_space=list(SEX=c(1,2),
-#                                          DOSE_discrete=seq(100,400,by=20)),
-#                             use_grouped_xt=TRUE)
+ds_9 = create_design_space(design_2,
+                           x_space=[np.array([1,2]),
+                                    np.array(list(range(100,420,20)))],
+                           use_grouped_xt=True) 
 
-# design_3 = create_design(xt=list(c(1,2,3,4,5),
-#                                   c(1,2,3,4)),
-#                           groupsize=c(50,20),
-#                           a=list(c(WT=35,DOSE=1000)),
-#                           x=list(c(SEX=1,DOSE_discrete=100)))
+design_3 = create_design(xt=[np.array([1,2,3,4,5]),
+                             np.array([1,2,3,4])],
+                         groupsize=np.array([50,20]),
+                         a = [np.array([35, 1000])],
+                         x = [np.array([1, 100])]
+)
+
 
 # ds_10 = create_design_space(design_3,
 #                              x_space=list(SEX=c(1,2),DOSE_discrete=seq(100,400,by=20)),

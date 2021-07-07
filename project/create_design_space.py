@@ -445,7 +445,7 @@ def create_design_space(design,
 				x_space[i, j] = np.array(design["x"])[i, j]
 	if x_space is not None:
 		if size(x_space)[0] == 1 and design["m"] != 1:
-			x_space = np.tile(x_space.flatten(), design["m"]).reshape(design["m"], x_space.size)
+			x_space = np.array(x_space * design["m"], dtype=object).reshape(design["m"], len(x_space))
 		if test_mat_size(np.array(size(design["x"])), x_space, "x_space") == 1:
 			x_space = pd.DataFrame(x_space,
 								   index=["grp_"+str(i+1) for i in range(0, design["m"])],
@@ -454,7 +454,11 @@ def create_design_space(design,
 
 		for i in range(0, size(design["x"])[0]):
 			for j in range(0, size(design["x"])[1]):
-				if np.array(design["x"])[i, j] not in [np.array(x_space)[i, j]]:
+				if type(np.array(x_space)[i, j]) is np.ndarray:
+					tmp = np.array(x_space)[i, j]
+				else:
+					tmp = [np.array(x_space)[i, j]]
+				if np.array(design["x"])[i, j] not in tmp:
 					raise Exception("x value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 	
 	# for xt_space

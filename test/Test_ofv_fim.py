@@ -29,26 +29,27 @@ ff.PK.1.comp.oral.sd.CL
 #> <environment: namespace:PopED>
 ## -- parameter definition function 
 ## -- names match parameters in function ff
-sfg <- function(x,a,bpop,b,bocc){
-  parameters=np.arrayCL=bpop[1]*exp(b[1]),
-               V=bpop[2]*exp(b[2]),
-               KA=bpop[3]*exp(b[3]),
-               Favail=bpop[4],
-               DOSE=a[1])
-  return(parameters) 
-}
 
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 
 
 import numpy as np
+from project.evaluate_fim import evaluate_fim
 from project.create_poped_database import create_poped_database
+
+def sfg(x,a,bpop,b,bocc):
+    parameters=np.arrayCL=bpop[1]*np.exp(b[1]),
+    V=bpop[2]*np.exp(b[2]),
+    KA=bpop[3]*np.exp(b[3]),
+    Favail=bpop[4],
+    DOSE=a[1]
+    return parameters
 
 
 ## -- Define initial design  and design space
 poped_db = create_poped_database(ff_fun="ff_PK_1_comp_oral_sd_CL",
-                                  fg_fun="sfg",
+                                  fg_fun=sfg(),
                                   fError_fun="feps_add_prop",
                                   bpop=np.array([0.15,8,1.0,1]), 
                                   notfixed_bpop=np.array([1,1,1,0]),
@@ -66,11 +67,11 @@ poped_db = create_poped_database(ff_fun="ff_PK_1_comp_oral_sd_CL",
 ## Create PopED database
 ## (warfarin model for optimization)
 #####################################
-
+print(poped_db)
 
 ## evaluate initial design 
 FIM = evaluate_fim(poped_db) 
-FIM
+print(FIM)
 #>             [,1]      [,2]      [,3]         [,4]         [,5]        [,6]
 #> [1,] 17141.83891 20.838375 10.011000 0.000000e+00     0.000000  0.00000000
 #> [2,]    20.83837 17.268051 -3.423641 0.000000e+00     0.000000  0.00000000
@@ -91,12 +92,13 @@ FIM
 #> [8,]   6659.56987  475.500111get_rse(FIM,poped_db)
 #>        CL         V        KA      d_CL       d_V      d_KA  sig_prop   sig_add 
 #>  5.096246  3.031164 14.260384 29.761226 36.681388 26.748640 32.011719 25.637971 
-det(FIM)
+print(np.linalg.det(FIM))
 #> [1] 1.143859e+24ofv_fim(FIM,poped_db,ofv_calc_type=1) # det(FIM)
 #> [1] 1.143859e+24ofv_fim(FIM,poped_db,ofv_calc_type=2) # 1/trace_matrix(inv(FIM))
 #> [1] 9.127328ofv_fim(FIM,poped_db,ofv_calc_type=4) # log(det(FIM)) 
 #> [1] 55.39645ofv_fim(FIM,poped_db,ofv_calc_type=6) # Ds with fixed effects as "important"
 #> [1] 16.49204ofv_fim(FIM,poped_db,ofv_calc_type=6,
-ds_index=np.array1,1,1,0,0,0,1,1)) # Ds with random effects as "important"
+ds_index = np.array([1,1,1,0,0,0,1,1]) # Ds with random effects as "important"
 #> [1] 21.23143ofv_fim(FIM,poped_db,ofv_calc_type=7) # 1/sum(get_rse(FIM,poped_db,use_percent=FALSE))
 #> [1] 0.5772714
+print(ds_index)

@@ -24,6 +24,7 @@
 import numpy as np
 from numpy.core.records import array
 from project.tic import tic
+from project.toc import toc
 from project.ones import ones
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
 from project.create_poped_database import create_poped_database
@@ -55,9 +56,9 @@ bpop_vals_ed_ln
 #> KA     4      1.00 0.010000
 #> Favail 0      1.00 0.000000
 ## -- Define initial design  and design space
-poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
-                                fg_fun=sfg,
-                                fError_fun=feps_add_prop,
+poped_db = create_poped_database(ff_fun="ff_PK_1_comp_oral_sd_CL",
+                                fg_fun=sfg(),
+                                fError_fun="feps_add_prop",
                                 bpop=bpop_vals_ed_ln, 
                                 notfixed_bpop=np.array([1,1,1,0]),
                                 #CL=0.07, V=0.02, KA=0.6
@@ -88,25 +89,25 @@ output["E_ofv"]
 #> [1] 55.46088
 ## ED evaluate using Laplace approximation 
 tic()
-output <- evaluate.e.ofv.fim(poped_db,use_laplace=TRUE)
+output = evaluate_e_ofv_fim(poped_db,use_laplace=True)
 toc()
 #> Elapsed time: 1.3 seconds.output$E_ofv
 #> [1] 1.302806e+24
-if (FALSE) {
+if False:
 
-  ## ED expected value with more precision. 
-  ## Compare time and value to Laplace approximation.
-  ## Run a couple of times to see stochasticity of calculation.
-  tic()
-  e_ofv_mc <- evaluate.e.ofv.fim(poped_db,ED_samp_size=500)
-  toc()
-  e_ofv_mc$E_ofv
-  
-  # If you want to get an E(FIM) from the laplace approximation you have to ask for it
-  # and it will take more time.
-  output <- evaluate.e.ofv.fim(poped_db,use_laplace=TRUE,laplace.fim=TRUE)
-  output$E_fim
+    ## ED expected value with more precision. 
+    ## Compare time and value to Laplace approximation.
+    ## Run a couple of times to see stochasticity of calculation.
+    tic()
+    e_ofv_mc = evaluate_e_ofv_fim(poped_db,ED_samp_size=500)
+    toc()
+    e_ofv_mc["E_ofv"]
+    
+    # If you want to get an E(FIM) from the laplace approximation you have to ask for it
+    # and it will take more time.
+    output = evaluate_e_ofv_fim(poped_db,use_laplace=True,laplace_fim=True)
+    output["E_fim"]
   
  
 
-}
+

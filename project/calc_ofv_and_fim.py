@@ -35,6 +35,7 @@
 import numpy as np
 from project.feval import do_call
 from project.ofv_fim import ofv_fim
+from project.mc_mean import mc_mean
 from project.getfulld import getfulld
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
 

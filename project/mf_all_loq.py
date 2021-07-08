@@ -43,13 +43,13 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
     
     n_mod = unique(np.array([model_switch_i]))
     
-    loq_full = rep(np.nan,length(pred))
-    uloq_full = rep(np.nan,length(pred))
+    loq_full = repeat(np.nan,pred.size)
+    uloq_full = repeat(np.nan,pred.size)
     
     if loq.size == 1:
-        loq_full = rep(loq,length(pred))
+        loq_full = repeat(loq,pred.size)
     if uloq.size == 1: 
-        uloq_full = rep(uloq,length(pred))
+        uloq_full = repeat(uloq,pred.size)
     
     if loq.size == n_mod:
         for k in unique(np.array([model_switch_i])):
@@ -82,7 +82,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         # compute points that have PI that overlaps LOQ
         PI_alpha = 1-loq_PI_conf_level
         z_val = qnorm(1-PI_alpha/2)
-        se_val = sqrt(diag(cov))
+        se_val = np.sqrt(np.diag(cov))
         ci_u = pred + z_val*se_val 
         ci_l = pred - z_val*se_val 
         

@@ -400,7 +400,7 @@ def create_design_space(design,
 							str(size(maxa)[0]) +
 							") is not the same as the number of groups m (" +
 							str(design["m"]) + ")")
-		maxa = pd.DataFrame(maxa,
+		maxa = pd.DataFrame(np.array(maxa),
 							index=["grp_" + str(i+1) for i in range(0, design["m"])])
 		if maxa.columns.values.tolist() == []:
 			maxa.set_axis(design["a"].columns.values.tolist())
@@ -418,7 +418,7 @@ def create_design_space(design,
 							str(size(mina)[0]) +
 							") is not the same as the number of groups m (" +
 							str(design["m"]) + ")")
-		mina = pd.DataFrame(mina,
+		mina = pd.DataFrame(np.array(mina),
 							index=["grp_" + str(i+1) for i in range(0, design["m"])])
 		if mina.columns.values.tolist() == []:
 			mina.set_axis(design["a"].columns.values.tolist())
@@ -620,7 +620,7 @@ def create_design_space(design,
 							grouped_a[i, j] = val
 							val += 1
 
-			if grouped_a.size == 1:
+			if len(grouped_a) == 1:
 				grouped_a = np.array(ones(size(design["a"][0]), size(design["a"][1]))) * grouped_a
 
 			if type(grouped_a) == list:
@@ -686,7 +686,7 @@ def create_design_space(design,
 							grouped_x[i, j] = val
 							val += 1
 
-			if grouped_x.size == 1:
+			if len(grouped_x) == 1:
 				grouped_x = np.array(ones(size(design["x"][0]), size(design["x"][1]))) * grouped_x
 
 			if type(grouped_x) == list:

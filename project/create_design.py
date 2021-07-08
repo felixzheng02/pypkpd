@@ -100,7 +100,7 @@ def create_design(
 			a_ = []
 			for i in range(0, a.shape[1]):
 				for j in range(0, a.shape[0]):
-					a_.append(a[j][i])
+					a_.append(np.array(a)[j][i])
 			a = pd.DataFrame(np.tile(a_, m).reshape(m, a.size),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
 

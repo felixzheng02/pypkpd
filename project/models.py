@@ -1,3 +1,13 @@
+"""
+## This python script defines main structural models needed.
+
+
+#' Author: Caiya Zhang, Yuchen Zheng
+"""
+
+import numpy as np
+from project.feval import do_call
+
 #' Structural model: one-compartment, oral absorption, multiple bolus dose, parameterized using KE.
 #' 
 #' This is a structural model function that encodes a  model that is 
@@ -25,18 +35,19 @@
 #' 
 #' @export
 
-ff.PK.1.comp.oral.md.KE <- function(model_switch,xt,parameters,poped_db){
-  ##-- Model: One comp first order absorption
-  ## -- Analytic solution for both mutiple and single dosing
-  with(as.list(parameters),{
-    y=xt
-    N = floor(xt/TAU)+1
-    y=(DOSE*Favail/V)*(KA/(KA - KE)) * 
-      (exp(-KE * (xt - (N - 1) * TAU)) * (1 - exp(-N * KE * TAU))/(1 - exp(-KE * TAU)) - 
-         exp(-KA * (xt - (N - 1) * TAU)) * (1 - exp(-N * KA * TAU))/(1 - exp(-KA * TAU)))  
-    return(list( y=y,poped_db=poped_db))
-  })
-}
+
+def ff_PK_1_comp_oral_md_KE(model_switch,xt,parameters,poped_db):
+    ##-- Model: One comp first order absorption
+    ## -- Analytic solution for both mutiple and single dosing
+    list(parameters)
+    y = xt
+    N = np.floor(xt/parameters["TAU"]) + 1
+    y = (parameters["DOSE"]*parameters["Favail"]/parameters["V"])*(parameters["KA"]/(parameters["KA"]-parameters["KE"]))*(np.exp(-parameters["KE"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KE"]*parameters["TAU"]))/(1-np.exp(-parameters["KE"]*parameters["TAU"]))-np.exp(-parameters["KA"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KA"]*parameters["TAU"]))/(1-np.exp(-parameters["KA"]*parameters["TAU"])))
+
+    return [y,poped_db]
+
+
+
 
 #' Structural model: one-compartment, oral absorption, multiple bolus dose, parameterized using CL.
 #' 
@@ -59,18 +70,16 @@ ff.PK.1.comp.oral.md.KE <- function(model_switch,xt,parameters,poped_db){
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.md.CL.R
 #' 
 #' @export
-ff.PK.1.comp.oral.md.CL <- function(model_switch,xt,parameters,poped_db){
-  ##-- Model: One comp first order absorption
-  ## -- Analytic solution for both mutiple and single dosing
-  with(as.list(parameters),{
-    y=xt
-    N = floor(xt/TAU)+1
-    y=(DOSE*Favail/V)*(KA/(KA - CL/V)) * 
-      (exp(-CL/V * (xt - (N - 1) * TAU)) * (1 - exp(-N * CL/V * TAU))/(1 - exp(-CL/V * TAU)) - 
-         exp(-KA * (xt - (N - 1) * TAU)) * (1 - exp(-N * KA * TAU))/(1 - exp(-KA * TAU)))  
-    return(list( y=y,poped_db=poped_db))
-  })
-}
+def ff_PK_1_comp_oral_md_CL(model_switch,xt,parameters,poped_db):
+    ##-- Model: One comp first order absorption
+    ## -- Analytic solution for both mutiple and single dosing
+    list(parameters)
+    y = xt
+    N = np.floor(xt/parameters["TAU"])+1
+    y = (parameters["DOSE"]*parameters["Favail"]/parameters["V"])*(parameters["KA"]/(parameters["KA"]-parameters["CL"]/parameters["V"]))*(np.exp(-parameters["CL"]/parameters["V"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["CL"]/parameters["V"]*parameters["TAU"]))/(1-np.exp(-parameters["CL"]/parameters["V"]*parameters["TAU"]))-np.exp(-parameters["KA"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KA"]*parameters["TAU"]))/(1-np.exp(-["KA"]*parameters["TAU"])))  
+
+    return [y,poped_db]
+  
 
 #' Structural model: one-compartment, oral absorption, single bolus dose, parameterized using KE.
 #' 
@@ -97,14 +106,14 @@ ff.PK.1.comp.oral.md.CL <- function(model_switch,xt,parameters,poped_db){
 ## TODO: change the parameterization to be a function option
 ## TODO: only use md and then turn off if single dose
 
-ff.PK.1.comp.oral.sd.KE <- function(model_switch,xt,parameters,poped_db){
-  ##-- Model: One comp first order absorption
-  with(as.list(parameters),{
-    y=xt
-    y=(DOSE*Favail*KA/(V*(KA-KE)))*(exp(-KE*xt)-exp(-KA*xt))
-    return(list( y= y,poped_db=poped_db))
-  })
-}
+def ff_PK_1_comp_oral_sd_KE(model_switch,xt,parameters,poped_db):
+    ##-- Model: One comp first order absorption
+    list(parameters)
+    y = xt
+    y = (parameters["DOSE"]*parameters["Favail"]*parameters["KA"]/(parameters["V"]*(["KA"]-["KE"])))*(np.exp(-parameters["KE"]*xt)-np.exp(-parameters["KA"]*xt))
+
+    return [y,poped_db]
+  
 
 #' Structural model: one-compartment, oral absorption, single bolus dose, parameterized using CL.
 #' 
@@ -128,14 +137,13 @@ ff.PK.1.comp.oral.sd.KE <- function(model_switch,xt,parameters,poped_db){
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.sd.CL.R
 #' 
 #' @export
-ff.PK.1.comp.oral.sd.CL <- function(model_switch,xt,parameters,poped_db){
-  ##-- Model: One comp first order absorption
-  with(as.list(parameters),{
-    y=xt
-    y=(DOSE*Favail*KA/(V*(KA-CL/V)))*(exp(-CL/V*xt)-exp(-KA*xt))
-    return(list( y= y,poped_db=poped_db))
-  })
-}
+def ff_PK_1_comp_oral_sd_CL(model_switch,xt,parameters,poped_db):
+    ##-- Model: One comp first order absorption
+    list(parameters)
+    y = xt
+    y = (parameters["DOSE"]*parameters["Favail"]*parameters["KA"]/(parameters["V"]*(parameters["KA"]-parameters["CL"]/parameters["V"])))*(np.exp(-parameters["CL"]/parameters["V"]*xt)-np.exp(-parameters["KA"]*xt))
+    return [y,poped_db]
+    
 
 #' Structural model: one-compartment, single bolus IV dose, parameterized using CL driving an EMAX model with a direct effect.
 #' 
@@ -157,23 +165,22 @@ ff.PK.1.comp.oral.sd.CL <- function(model_switch,xt,parameters,poped_db){
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PKPD.1.comp.sd.CL.emax.R
 #' 
 #' @export
-ff.PKPD.1.comp.sd.CL.emax <- function(model_switch,xt,parameters,poped_db){
-  with(as.list(parameters),{
-    y=xt
-    MS <- model_switch
+def ff_PKPD_1_comp_sd_CL_emax(model_switch,xt,parameters,poped_db):
+    list(parameters)
+    y = xt
+    MS = model_switch
     
     # PK model
-    CONC = DOSE/V*exp(-CL/V*xt) 
+    CONC = parameters["DOSE"]/parameters["V"]*np.exp(-parameters["CL"]/parameters["V"]*xt) 
     
     # PD model
-    EFF = E0 + CONC*EMAX/(EC50 + CONC)
+    EFF = parameters["E0"] + CONC*parameters["EMAX"]/(parameters["EC50"] + CONC)
     
     y[MS==1] = CONC[MS==1]
     y[MS==2] = EFF[MS==2]
     
-    return(list( y= y,poped_db=poped_db))
-  })
-}
+    return [y,poped_db]
+  
 
 #' Structural model: one-compartment, oral absorption, multiple bolus dose, 
 #' parameterized using CL driving an inhibitory IMAX model with a direct effect.
@@ -196,27 +203,27 @@ ff.PKPD.1.comp.sd.CL.emax <- function(model_switch,xt,parameters,poped_db){
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PKPD.1.comp.oral.md.CL.imax.R
 #' 
 #' @export
-ff.PKPD.1.comp.oral.md.CL.imax <- function(model_switch,xt,parameters,poped_db){
-  ##-- Model: One comp first order absorption + inhibitory imax
-  ## -- works for both mutiple and single dosing  
-  with(as.list(parameters),{
-    
-    y=xt
-    MS <- model_switch
+def ff_PKPD_1_comp_oral_md_CL_imax(model_switch,xt,parameters,poped_db):
+    ##-- Model: One comp first order absorption + inhibitory imax
+    ## -- works for both mutiple and single dosing  
+    list(parameters)
+      
+    y = xt
+    MS = model_switch
     
     # PK model
-    returnArgs=ff.PK.1.comp.oral.md.CL(model_switch,xt,parameters,poped_db)
-    CONC=returnArgs$y
+  
+    returnArgs = ff_PK_1_comp_oral_md_CL(model_switch,xt,parameters,poped_db)
+    CONC = returnArgs["y"]
     
     # PD model
-    EFF = E0*(1 - CONC*IMAX/(IC50 + CONC))
+    EFF = parameters["E0"]*(1 - CONC*["IMAX"]/(parameters["IC50"] + CONC))
     
     y[MS==1] = CONC[MS==1]
     y[MS==2] = EFF[MS==2]
-    
-    return(list( y= y,poped_db=poped_db))
-  })
-}
+      
+    return [y,poped_db]
+  
 
 #' RUV model:  
 #' Additive and Proportional.
@@ -240,16 +247,16 @@ ff.PKPD.1.comp.oral.md.CL.imax <- function(model_switch,xt,parameters,poped_db){
 #' 
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.md.CL.R
 #' @export
-feps.add.prop <- function(model_switch,xt,parameters,epsi,poped_db){
-  ## -- Residual Error function
-  ## -- Additive + Proportional 
-  returnArgs <- do.call(poped_db$model$ff_pointer,list(model_switch,xt,parameters,poped_db)) 
-  y <- returnArgs[[1]]
-  poped_db <- returnArgs[[2]]
-  y = y*(1+epsi[,1])+epsi[,2]
-  
-  return(list( y= y,poped_db =poped_db )) 
-}
+def feps_add_prop(model_switch,xt,parameters,epsi,poped_db):
+    ## -- Residual Error function
+    ## -- Additive + Proportional 
+    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch,xt,parameters,poped_db]) 
+    y = returnArgs[[0]]
+    poped_db = returnArgs[[1]]
+    y = y*(1+epsi[:,0])+epsi[:,1]
+    
+    return [y,poped_db]
+
 
 #' RUV model:  
 #' Additive .
@@ -273,16 +280,16 @@ feps.add.prop <- function(model_switch,xt,parameters,epsi,poped_db){
 #' 
 #' @example tests/testthat/examples_fcn_doc/examples_feps.add.R
 #' @export
-feps.add <- function(model_switch,xt,parameters,epsi,poped_db){
-  ## -- Residual Error function
-  ## -- Additive 
-  returnArgs <- do.call(poped_db$model$ff_pointer,list(model_switch,xt,parameters,poped_db)) 
-  y <- returnArgs[[1]]
-  poped_db <- returnArgs[[2]]
-  y = y+epsi[,1]
-  
-  return(list( y= y,poped_db =poped_db )) 
-}
+def feps_add(model_switch,xt,parameters,epsi,poped_db):
+    ## -- Residual Error function
+    ## -- Additive 
+    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch,xt,parameters,poped_db]) 
+    y = returnArgs[[0]]
+    poped_db = returnArgs[[1]]
+    y = y+epsi[:,0]
+    
+    return [y,poped_db]
+
 
 #' RUV model:  
 #' Proportional.
@@ -308,14 +315,14 @@ feps.add <- function(model_switch,xt,parameters,epsi,poped_db){
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.sd.CL.R
 #' 
 #' @export
-feps.prop <- function(model_switch,xt,parameters,epsi,poped_db){
-  ## -- Residual Error function
-  ## -- Proportional 
-  returnArgs <- do.call(poped_db$model$ff_pointer,list(model_switch,xt,parameters,poped_db)) 
-  y <- returnArgs[[1]]
-  poped_db <- returnArgs[[2]]
-  y = y*(1+epsi[,1])
-  
-  return(list( y= y,poped_db =poped_db )) 
-}
+def feps_prop(model_switch,xt,parameters,epsi,poped_db):
+    ## -- Residual Error function
+    ## -- Proportional 
+    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch,xt,parameters,poped_db]) 
+    y = returnArgs[[0]]
+    poped_db = returnArgs[[1]]
+    y = y*(1+epsi[:,0])
+
+    return [y,poped_db]
+
 

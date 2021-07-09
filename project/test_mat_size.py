@@ -16,7 +16,10 @@ def test_mat_size(correct_size: np.ndarray, mat: np.ndarray, name: str):
 	shape = list(mat.shape)
 	if len(shape) == 1:
 		shape = [1, shape[0]]
-	if (correct_size == np.array(shape)).all():
+	if type(correct_size == np.array(shape)) is bool:
+		if correct_size == np.array(shape):
+			return 1
+	elif (correct_size == np.array(shape)).all():
 		return 1
 	else:
 		tmp1 = '*'.join(str(i) for i in shape)

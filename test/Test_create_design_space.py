@@ -77,9 +77,10 @@ ds_13 = create_design_space(design_3,
 
 
 # seq_1 = 1:10
-# ds_14 = create_design_space(design_1,maxxt=10,minxt=0,
-#                              xt_space = list(seq_1,seq_1,seq_1,seq_1,seq_1))
-# ds_15 = create_design_space(design_1,maxxt=10,minxt=0,xt_space = list(seq_1))
+seq_1 = list(range(1, 11))
+ds_14 = create_design_space(design_1,maxxt=10,minxt=0,
+                             xt_space = [seq_1,seq_1,seq_1,seq_1,seq_1])
+ds_15 = create_design_space(design_1,maxxt=10,minxt=0,xt_space = [seq_1])
 
 # possible_values = as.matrix(cbind(list(0:10),list(0:10),list(0:10),list(0:20),list(0:20)))
 # xt_space = as.matrix(rbind(possible_values,possible_values))

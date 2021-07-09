@@ -62,16 +62,15 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import numpy as np
-from numpy.core.fromnumeric import shape
 import pandas as pd
-import inspect
+import copy
 from project.size import size
 from project.test_mat_size import test_mat_size
 from project.ones import ones
 from project.cell import cell
 
 
-def create_design_space(design,
+def create_design_space(design_,
 						maxni=None,
 						minni=None,
 						maxtotni=None,
@@ -95,6 +94,7 @@ def create_design_space(design,
 						grouped_x=None,
 						our_zero=None):
 
+	design = copy.deepcopy(design_)
 	called_args = locals()
 
 	# assign defaults if not supplied
@@ -474,8 +474,11 @@ def create_design_space(design,
 			elif nspace == ncol_xt: # we assume that all groups have the same space
 				xt_space_tmp = xt_space
 				xt_space = cell(size(design["xt"]))
+				tmp_list = []
 				for i in range(0, nrow_xt):
-					xt_space[i, :] = xt_space_tmp
+					for j in range(0, len(xt_space_tmp)):
+						tmp_list.append(xt_space_tmp[j])
+				xt_space = np.array(tmp_list).reshape(nrow_xt, len(xt_space_tmp), len(xt_space_tmp[0]))
 			elif nspace == (ncol_xt * nrow_xt): # we assume that spaces are entered in row major form
 				xt_space_tmp = xt_space
 				xt_space = np.array(xt_space_tmp).reshape([int((xt_space_tmp.size)/nrow_xt), nrow_xt])
@@ -494,8 +497,13 @@ def create_design_space(design,
 		
 		for i in range(0, design["xt"].shape[0]):
 			for j in range(0, design["xt"].shape[1]):
-				if design["xt"][i, j] not in [xt_space[i, j]] and design["xt"][i, j] != np.nan:
-					raise Exception("xt value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
+				if ~np.isnan(np.array(design["xt"])[i, j]):
+					if type(np.array(xt_space)[i, j]) is int or type(np.array(xt_space)[i, j]) is np.float64:
+						tmp = [np.array(xt_space)[i, j]]
+					else:
+						tmp = np.array(xt_space)[i, j]
+					if np.array(design["xt"])[i, j] not in tmp:
+						raise Exception("xt value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 
 	# for a_space
 	if a_space is not None:
@@ -594,10 +602,10 @@ def create_design_space(design,
 			grouped_cells_xt = None
 		else:
 			grouped_cells_xt = np.array(xt_space)[np.logical_and(np.array(grouped_xt) == i, ~np.isnan(np.array(design["xt"])))]
-			for j in range(0, grouped_cells_xt.size):
-				for k in range(0, grouped_cells_xt.size):
-					if (any(np.array(size(grouped_cells_xt[j])) != np.array(size(grouped_cells_xt[k]))) or
-						(grouped_cells_xt[j] != grouped_cells_xt[k])):
+			for j in range(0, grouped_cells_xt.shape[0]):
+				for k in range(j, grouped_cells_xt.shape[0]):
+					if ((np.array(size(grouped_cells_xt[j])) != np.array(size(grouped_cells_xt[k]))).any() or
+						(grouped_cells_xt[j] != grouped_cells_xt[k]).any()):
 						raise Exception("xt values grouped with value %g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
 
 	_, idx = np.unique(np.array(grouped_xt)[~np.isnan(np.array(design["xt"]))], return_index=True) # remove duplicated and nan values but keep order

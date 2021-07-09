@@ -30,10 +30,10 @@ import re
 import numpy as np
 
 ## create an empty function
-def sfg_tmp(x,a,bpop,b,bocc):
+def sfg_tmp(x1,a,bpop,b,bocc):
     return None
 
-def build_sfg(  model="ff_PK_1_comp_oral_sd_CL",
+def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
                 covariates=np.array("dose","tau"),
                 par_names=None,
                 etas="exp", # can be exp, prop, add, none. can be one for all or per parameter

@@ -32,12 +32,15 @@
 """
 
 
+
+import re
 import numpy as np
 from project.feval import do_call
 from project.ofv_fim import ofv_fim
 from project.mc_mean import mc_mean
 from project.getfulld import getfulld
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
+
 
 def calc_ofv_and_fim(poped_db, *args):
   
@@ -88,14 +91,14 @@ def calc_ofv_and_fim(poped_db, *args):
                 called_args = match_call()
                 default_args = formals()
                 for i in called_args.keys()[-1]:
-                    if len(grep("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
+                    if len(re.match("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i))) is not None:
                             eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
                 out_tmp = do_call(ofv_fun,[poped_db,*args])
                 dmf = out_tmp[[0]]
                 fmf = None
-                if length(out_tmp)>1:
+                if len(out_tmp) > 1:
                     fmf = out_tmp[[1]]
             
         else:   # e-family
@@ -123,7 +126,7 @@ def calc_ofv_and_fim(poped_db, *args):
                 called_args = match.call()
                 default_args = formals()
                 for i in names(called_args)[-1]:
-                    if(len(grep("^poped\\.db\\$",capture_output(default_args[[i]])))==1):
+                    if(len(re.match("^poped\\.db\\$",capture_output(default_args[[i]])))==1):
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i))) is not None: 
                             eval(parse(text=paste(capture_output(default_args[[i]]),"=",i)))

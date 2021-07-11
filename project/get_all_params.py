@@ -40,8 +40,8 @@ def get_all_params (poped_db):
   
     k = 1
 
-    for i in range(0,size(poped_db["parameters"]["sigma"])[0]):
-        for j in range(0,size(poped_db["parameters"]["sigma"])[1]):
+    for i in range(0, size(poped_db["parameters"]["sigma"])[0]):
+        for j in range(0, size(poped_db["parameters"]["sigma"])[1]):
             if i < j:
                 covsigma[k] = poped_db["parameters"]["sigma"][i,j]
                 k = k + 1
@@ -50,5 +50,5 @@ def get_all_params (poped_db):
     covdocc = poped_db["parameters"]["covdocc"]
     
     all = np.array([[bpop], [d], [np.transpose(covd)], [docc], [np.transpose(covdocc)], [sigma], [np.transpose(covsigma)]])
-    return  [bpop, d, covd, docc, covdocc, sigma, covsigma, all]
+    return {"bpop": bpop, "d": d, "covd": covd, "docc": docc, "covdocc": covdocc, "sigma": sigma, "covsigma": covsigma, "all": all}
 

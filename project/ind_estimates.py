@@ -30,7 +30,7 @@ def min_function(data,bpop,d,sigma,bInter,bUDDLike,model_switch,xt_ind,x,a,bocc_
         #}# else {
         #  dret = sum(dmodel_deta(tdata,cdata,theta,eta))
         #dret=c3*eta-dret
-    return [ret, dret]
+    return {"ret": ret, "dret": ret}
 
 
 

@@ -37,7 +37,7 @@ def mf_all(model_switch,xt_ind,x,a,bpop,d,sigma,docc,poped_db):
     ret = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     
-    return [ret, poped_db] 
+    return {"ret": ret, "poped_db": poped_db} 
 
 
 

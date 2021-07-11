@@ -116,7 +116,7 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
     else:
       raise Exception("Unknown derivative option for variance")
     
-  return [ret, poped_db] 
+  return {"ret": ret, "poped_db": poped_db} 
 
 
 

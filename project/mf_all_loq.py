@@ -258,4 +258,4 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
                         x_i,a_i,bpop_val,d_full,sigma_full,docc_full,poped_db)["ret"]
                 
     
-    return [fim, poped_db]
+    return {"fim": fim, "poped_db": poped_db}

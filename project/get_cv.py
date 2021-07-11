@@ -37,7 +37,7 @@ def get_cv(param_vars,poped_db):
         else:
             params_cv[i] = np.sqrt(param_vars[i])
     
-    return [params, params_cv]
+    return {"params": params, "params_cv": params_cv}
 
 
 #' Compute the expected parameter relative standard errors 

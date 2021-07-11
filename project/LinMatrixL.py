@@ -40,7 +40,7 @@ def LinMatrixL (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
         poped_db = returnArgs[[1]]
         y = np.matmul(grad_ff_tmp, gradfg(x,a,bpop,b_ind,bocc_ind,poped_db))
     
-    return [y, poped_db] 
+    return {"y": y, "poped_db": poped_db}
 
 
 

@@ -51,4 +51,4 @@ def m3(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,bUseVarSigmaDeri
 
     dv_db = do_call(np.hstack, [dv_dd, dv_covd, dv_ddocc, dv_covdocc, dv_dsig, dv_dcovsig])
 
-    return [dv_db, poped_db]
+    return {"dv_db": dv_db, "poped_db": poped_db}

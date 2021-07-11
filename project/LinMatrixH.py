@@ -47,7 +47,7 @@ def LinMatrixH (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
         returnArgs = gradf_eps(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,NumEPS,poped_db) 
         y = returnArgs[[0]]
         poped_db = returnArgs[[1]]
-    return [y, poped_db]
+    return {"y": y, "poped_db": poped_db}
 
 
 #' Model linearization with respect to epsilon.
@@ -89,6 +89,6 @@ def gradf_eps (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,num_eps,poped_db):
     e0 = zeros(1,num_eps)
     dfeps_de0 = grad_all(poped_db["model"]["ferror_pointer"],4,xt_ind.shape[0],model_switch,xt_ind,fg0,e0,poped_db)
   
-    return [dfeps_de0, poped_db]
+    return {"dfeps_de0": dfeps_de0, "poped_db": poped_db}
 
 

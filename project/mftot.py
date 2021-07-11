@@ -71,4 +71,4 @@ def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*args):
         poped_db = returnArgs[[1]]
         s = s+groupsize[i]*mf_tmp
 
-    return [s, poped_db]
+    return {"s": s, "poped_db": poped_db}

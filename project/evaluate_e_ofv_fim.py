@@ -30,7 +30,9 @@
 """
 
 
-!!
+import re
+from project.ed_mftot import ed_mftot
+from project.downsizing_general_design import downsizing_general_design
 
 def evaluate_e_ofv_fim(poped_db,*args):
     fim_calc_type = None
@@ -56,7 +58,7 @@ def evaluate_e_ofv_fim(poped_db,*args):
     called_args = match_call()
     default_args = formals()
     for i in called_args.keys()[-1]:
-        if length(grep("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
+        if len(re.match("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
             #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
             eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
         
@@ -101,4 +103,4 @@ def evaluate_e_ofv_fim(poped_db,*args):
         if laplace_fim is True:
             E_fim = ed_mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,...)[["ED_fim"]]
 
-    return [E_ofv, E_fim, poped_db]
+    return {"E_ofv": E_ofv, "E_fim": E_fim, "poped_db": poped_db}

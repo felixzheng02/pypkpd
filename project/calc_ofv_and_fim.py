@@ -188,4 +188,4 @@ def calc_ofv_and_fim(poped_db, *args):
             fmf = output["E_fim"]
         fim = fmf
     
-    return [ofv, fim]
+    return {"ofv": ofv, "fim": fim}

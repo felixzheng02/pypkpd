@@ -153,5 +153,5 @@ def mf3(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db):
     }
     ret = ret/poped_db["settings"]["iFOCENumInd"]
     
-    return [ret, poped_db]
+    return {"ret": ret, "poped_db": poped_db}
 

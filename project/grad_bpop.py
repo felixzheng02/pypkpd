@@ -40,7 +40,7 @@ def helper_v_EBE (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped
   
     vx:np.ndarray = v(model_switch,xt_ind,x,a,bpop,b_ind_x,bocc_ind,d,sigma,docc,poped_db)[[0]]
     vx.shape[0] = np.ndarray(np.prod(vx.shape[0]),1)
-    return [vx, poped_db]
+    return {"vx": vx, "poped_db": poped_db}
 
 
 # helper for m1
@@ -88,5 +88,5 @@ def helper_LinMatrix (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind,bocc_ind,d,s
             occ_add_plus = occ_add_plus + l_plus_occ * (bocc_ind[:, 1])
     ferror = ferror - (l_plus+occ_add_plus)
   
-    return [ferror, poped_db]
+    return {"ferror": ferror, "poped_db": poped_db}
 

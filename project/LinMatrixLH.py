@@ -39,9 +39,9 @@ def LinMatrixLH(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,NumEPS,poped_db):
     #
     y = zeros(size(xt_ind,1), poped_db["parameters"]["NumRanEff"]*NumEPS)
     if poped_db["settings"]["iApproximationMethod"] == 0 or poped_db["settings"]["iApproximationMethod"] == 1: #No interaction
-        return [y, poped_db]
+        return {"y": y, "poped_db": poped_db}
     if poped_db["parameters"]["NumRanEff"] == 0:
-        return [y, poped_db]
+        return {"y": y, "poped_db": poped_db}
     if poped_db["settings"]["hle_switch"] == 20:
         raise Exception("Analytic derivative with interaction is not yet available!")
     
@@ -60,7 +60,7 @@ def LinMatrixLH(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,NumEPS,poped_db):
 ###!!!!!!!!!!!
         y[,((i-1)*NumEPS+1):(i*NumEPS)]=temp[,1:NumEPS,drop=F]
 
-    return [y, poped_db]
+    return {"y": y, "poped_db": poped_db}
     
 
     #Helper function to get the hessian for the AD derivative
@@ -70,4 +70,4 @@ def new_ferror_file(model_switch,deriv_vec,xt_ind,x,a,bpop,bocc_ind,poped_db):
     returnArgs = feval(poped_db["model"]["ferror_pointer"],model_switch,xt_ind,fg0,deriv_vec(poped_db["parameters"]["NumRanEff"]+1:length(deriv_vec)),poped_db) 
     f_error = returnArgs[[0]]
     poped_db = returnArgs[[1]]
-    return [f_error, poped_db]
+    return {"f_error": f_error, "poped_db": poped_db}

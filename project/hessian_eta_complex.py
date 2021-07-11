@@ -55,4 +55,4 @@ def hessian_eta_complex(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db,ret
             hess[k,l]=sum(Im(ff_plus-ff_minus)/h2/2)    # Hessian (central + complex step)
             hess[l,k]=hess[k,l]                           #Make hessian symmetric
         
-    return [hess, g]
+    return {"hess": hess, "g": g}

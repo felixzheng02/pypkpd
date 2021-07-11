@@ -98,7 +98,7 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
         if len(ret) == 0:
           ret = autocorr
         else:
-          ret = ret+ autocorr
+          ret = ret + autocorr
       else:#Add linearized residual model
         full_sig = np.matmul(np.matmul(h,sigma), np.transpose(h))
         if sum(full_sig.size) == 2:

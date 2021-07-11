@@ -294,6 +294,7 @@ Author: Caiya Zhang, Yuchen Zheng
 import datetime
 import numpy as np
 import pandas as pd
+import random
 from project.ones import ones
 from project.size import size
 from project.zeros import zeros
@@ -321,9 +322,7 @@ def reorder_vec(your_vec,name_order):
     
 
 
-def create_poped_database(
-						popedInput = {},
-		):
+def create_poped_database(popedInput = {}):
 
 	# parameters
 
@@ -510,7 +509,7 @@ def create_poped_database(
 	## -- Matrix defining the variances of the residual variability terms --
 	## REQUIRED! No defaults given.
 	# can also just supply the diagonal values as a c()
-	sigma: np.ndarray = popedInput['parameters']['sigma']
+	sigma = popedInput['parameters']['sigma']
 	## -- Matrix defining the IOV, the IOV variances and the IOV distribution --
 	docc = poped_choose(popedInput['parameters']['docc'], np.array([0, 0, 0]), 0)
 	## -- Matrix defining the covariance of the IOV --
@@ -767,24 +766,24 @@ def create_poped_database(
 	poped_db["model"] = {}
 	poped_db["model"]["user_distribution_pointer"] = ""
 	
-	if str(strUserDistributionFile) != "":
-		if strUserDistributionFile != None:
+	if str(strUserDistributionFile) != "" and strUserDistributionFile is not None:
+		if strUserDistributionFile is not None:
 			poped_db["model"]["user_distribution_pointer"] = strUserDistributionFile
 		else:
-			exec(open(strUserDistributionFile).read)
+			exec(open(strUserDistributionFile).read())
 			returnArgs = fileparts(strUserDistributionFile)
-			strUserDistFilePath = returnArgs[[0]]
-			strUserDistFilename = returnArgs[[1]]
+			strUserDistFilePath = list(returnArgs.values())[0]
+			strUserDistFilename = list(returnArgs.values())[1]
 			poped_db["model"]["user_distribution_pointer"] = strUserDistFilename
 	
 	#should be removed
-	if any(x.shape[0]==0 & x.shape[1]==0):
+	if (np.array(size(x)) == 0).any():
 		x = None
 		G_x = None
 		discrete_x = None
 	
 	#should be removed
-	if any(a.shape[0]==0 & a.shape[1]==0):
+	if (np.array(size(a)) == 0).any():
 		a = None
 		G_a = None
 		mina = None
@@ -826,31 +825,31 @@ def create_poped_database(
 	design_space = design_space["design_space"]
 
 	## all of this should be replaced with using the names used in create_design_space as function arguments
-	if design_space[["use_grouped_a"]] != None:
+	if design_space[["use_grouped_a"]] is not None:
 		design_space["bUseGrouped_a"] = design_space[["use_grouped_a"]]
     	design_space[["use_grouped_a"]] = None
     
-	if design_space[["use_grouped_x"]] != None:
+	if design_space[["use_grouped_x"]] is not None:
 		design_space["bUseGrouped_x"] = design_space[["use_grouped_x"]]
     	design_space[["use_grouped_x"]] = None
     
-	if design_space[["use_grouped_xt"]] != None:
+	if design_space[["use_grouped_xt"]] is not None:
 		design_space["bUseGrouped_xt"] = design_space[["use_grouped_xt"]]
     	design_space[["use_grouped_xt"]] = None
     
-	if design_space[["grouped_a"]] != None:
+	if design_space[["grouped_a"]] is not None:
 		design_space["G_a"] = design_space[["grouped_a"]]
     	design_space[["grouped_a"]] = None
     
-	if design_space[["grouped_x"]] != None:
+	if design_space[["grouped_x"]] is not None:
 		design_space["G_x"] = design_space[["grouped_x"]]
     	design_space[["grouped_x"]] = None
     
-	if design_space[["grouped_xt"]] != None:
+	if design_space[["grouped_xt"]] is not None:
 		design_space["G_xt"] = design_space[["grouped_xt"]]
     	design_space[["grouped_xt"]] = None
     
-	if design_space[["x_space"]] != None:
+	if design_space[["x_space"]] is not None:
 		design_space["discrete_x"] = design_space[["x_space"]]
     	design_space[["x_space"]] = None
     
@@ -977,33 +976,37 @@ def create_poped_database(
 	if callable(fg_fun):
 		poped_db["model"]["fg_pointer"] = fg_fun
 	elif type(fg_fun) is str:
-		if fg_fun != None:
+		if fg_fun is not None:
 			poped_db["model"]["fg_pointer"] = fg_fun
-	elif fg_file != None:
-		poped_db["model"]["fg_pointer"] = fg_file
 	else:
-		exec(open(fg_file).read)
-		returnArgs =  fileparts(fg_file) 
-      	strfgModelFilePath = returnArgs[[0]]
-      	strfgModelFilename  = returnArgs[[1]]
-      	## if (~strcmp(strfgModelFilePath,''))
-      	##    cd(strfgModelFilePath);
-      	## end
-      	poped_db["model"]["fg_pointer"] = strfgModelFilename
-	
+		try:
+			fg_file
+		except NameError:
+			# exec(open(fg_file).read())
+			returnArgs=  fileparts(fg_file) 
+			strfgModelFilePath = list(returnArgs.values())[0]
+			strfgModelFilename  = list(returnArgs.values())[1]
+			## if (~strcmp(strfgModelFilePath,''))
+			##    cd(strfgModelFilePath);
+			## end
+			poped_db["model"]["fg_pointer"] = strfgModelFilename
+		else:
+			poped_db["model"]["fg_pointer"] = fg_file
+
+
 	poped_db["settings"]["ed_penalty_pointer"] = zeros(1,0)
 	if str(strEDPenaltyFile) != "":
-		if strEDPenaltyFile != None:
+		if strEDPenaltyFile is not None:
 			poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFile
 		else:
-			exec(open(popedInput["strEDPenaltyFile"]).read)
+			exec(open(popedInput["strEDPenaltyFile"]).read())
 			returnArgs =  fileparts(popedInput["strEDPenaltyFile"]) 
-        strEDPenaltyFilePath = returnArgs[[0]]
-        strEDPenaltyFilename = returnArgs[[1]]
+			strEDPenaltyFilePath = list(returnArgs.values())[0]
+			strEDPenaltyFilename = list(returnArgs.values())[1]
         ##     if (~strcmp(strEDPenaltyFilePath,''))
         ##        cd(strEDPenaltyFilePath);
         ##     end
-        poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
+			poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
 
 
 	# if(is.null(ofv_fun) || is.function(ofv_fun)){
@@ -1017,8 +1020,8 @@ def create_poped_database(
 	else:
 		# source explicit file
         # here I assume that function in file has same name as filename minus .txt and pathnames
-		if ofv_fun != None:
-			exec(open(str(ofv_fun).read))
+		if ofv_fun is not None:
+			exec(open(str(ofv_fun)).read())
 			poped_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)[["filename"]]')
 		else:
 			raise Exception("ofv_fun is not a function or None, and no file with that name was found")
@@ -1043,13 +1046,13 @@ def create_poped_database(
 	#poped_db["model"]["auto_pointer"] = ''
 	if strAutoCorrelationFile != "":
 		if str(strAutoCorrelationFile) != "":
-			if strAutoCorrelationFile != None:
+			if strAutoCorrelationFile is not None:
 				poped_db["model"]["auto_pointer"] = strAutoCorrelationFile
 			else:
-				exec(open(popedInput["strAutoCorrelationFile"]).read) 
+				exec(open(popedInput["strAutoCorrelationFile"]).read()) 
 				returnArgs =  fileparts(popedInput["strAutoCorrelationFile"]) 
-				strAutoCorrelationFilePath = returnArgs[[0]]
-				strAutoCorrelationFilename  = returnArgs[[1]]
+				strAutoCorrelationFilePath = list(returnArgs.values())[0]
+				strAutoCorrelationFilename  = list(returnArgs.values())[1]
           		##     if (~strcmp(strAutoCorrelationFilePath,''))
          		##        cd(strAutoCorrelationFilePath);
           		##     end
@@ -1058,34 +1061,38 @@ def create_poped_database(
 	if callable(ff_fun):
 		poped_db["model"]["ff_pointer"] = ff_fun
 	elif type(ff_fun) is str:
-		if ff_fun != None:
+		if ff_fun is not None:
 			poped_db["model"]["ff_pointer"] = ff_fun
-	elif ff_file != None:
-		poped_db["model"]["ff_pointer"] = ff_file
 	else:
-		exec(open(ff_file).read)
-		returnArgs =  fileparts(ff_file) 
-		strffModelFilePath = returnArgs[[0]]
-		strffModelFilename  = returnArgs[[1]]
-		## if (~strcmp(strffModelFilePath,''))
-        ##    cd(strffModelFilePath);
-        ## end
-		poped_db["model"]["ff_pointer"] = strffModelFilename
+		try:
+			ff_file
+		except NameError:
+			#exec(open(ff_file).read())
+			returnArgs =  fileparts(ff_file) 
+			strffModelFilePath = list(returnArgs.values())[0]
+			strffModelFilename  = list(returnArgs.values())[1]
+			## if (~strcmp(strffModelFilePath,''))
+			##    cd(strffModelFilePath);
+			## end
+			poped_db["model"]["ff_pointer"] = strffModelFilename
+		else:
+			poped_db["model"]["ff_pointer"] = ff_file
+
 
 	#Check if there is any sub models defined
 	for key in popedInput:
 		if "SubModels" in popedInput.keys():
 			i = 1
 			for elem_key in popedInput["SubModels"]:
-				if elem_key == "".join(["ff_file", i]):
-					exec(open(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i])))) ##ok<np.nanSGU> 
-					returnArgs =  fileparts(eval("".join(['popedInput["SubModels"]["ff_file"]%d', i]))) ##ok<np.nanSGU> 
-					strffModelFilePath = returnArgs[[0]]
-					strffModelFilename  = returnArgs[[1]]
+				if elem_key == ("ff_file%d" % i):
+					exec(eval('popedInput["SubModels"]["ff_file"]%d' % i)) ##ok<np.nanSGU> 
+					returnArgs =  fileparts(eval('popedInput["SubModels"]["ff_file"]%d' % i)) ##ok<np.nanSGU> 
+					strffModelFilePath = list(returnArgs.values())[0]
+					strffModelFilename  = list(returnArgs.values())[1]
 					##         if (~strcmp(strffModelFilePath,''))
 					##             cd(strffModelFilePath);
 					##         end
-					poped_db["model"]["subffPointers"]["".join(["ff_pointer",i])] = strffModelFilename
+					poped_db["model"]["subffPointers"]["".join(["ff_pointer", str(i)])] = strffModelFilename
 					i = i + 1
     
 	if callable(fError_fun):
@@ -1093,17 +1100,21 @@ def create_poped_database(
 	elif type(fError_fun) is str:
 		if fError_fun is not None:
 			poped_db["model"]["ferror_pointer"] = fError_fun
-	elif fError_file is not None:
-		poped_db["model"]["ferror_pointer"] = fError_file
 	else:
-		exec(open(fError_file).read)
-		returnArgs =  fileparts(fError_file) 
-		strErrorModelFilePath = returnArgs[[0]]
-		strErrorModelFilename  = returnArgs[[1]]
-		## if (~strcmp(strErrorModelFilePath,''))
-		##    cd(strErrorModelFilePath);
-		## end
-		poped_db["model"]["ferror_pointer"] = strErrorModelFilename
+		try:
+			fError_file
+		except NameError:
+			#exec(open(fError_file).read())
+			returnArgs =  fileparts(fError_file) 
+			strErrorModelFilePath = list(returnArgs.values())[0]
+			strErrorModelFilename  = list(returnArgs.values())[1]
+			## if (~strcmp(strErrorModelFilePath,''))
+			##    cd(strErrorModelFilePath);
+			## end
+			poped_db["model"]["ferror_pointer"] = strErrorModelFilename
+		else:
+			poped_db["model"]["ferror_pointer"] = fError_file
+		
     
     
 	
@@ -1121,17 +1132,17 @@ def create_poped_database(
     #==================================
 	if dSeed is not None:
 		if dSeed == -1:
-			poped_db["settings"]["dSeed"] = int(datetime.datetime.now())
+			poped_db["settings"]["dSeed"] = datetime.datetime.now()
 		else:
 			poped_db["settings"]["dSeed"] = dSeed
-		set.seed(poped_db["settings"]["dSeed"]) 
+		random.seed(poped_db["settings"]["dSeed"]) 
 
     
-	poped_db["parameters"]["nbpop"] = poped_choose(nbpop,find_largest_index(poped_db["model"]["fg_pointer"],"bpop"))
-	poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff,find_largest_index(poped_db["model"]["fg_pointer"],"b"))
+	poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(poped_db["model"]["fg_pointer"],"bpop"), 0)
+	poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(poped_db["model"]["fg_pointer"],"b"), 0)
 																
-	poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=True,mat_row=True))
-	poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc,find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=True,mat_row=False))
+	poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=True,mat_row=True), 0)
+	poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"],"bocc",mat=True,mat_row=False), 0)
 	#poped_db["parameters"]["ng"] = poped_choose(ng,length(do.call(poped_db["model"]fg_pointer,list(0,0,0,0,0))))    
 	poped_db["parameters"]["ng"] = (do_call(poped_db["model"]["fg_pointer"],
 											[0,0,0,0,zeros(poped_db["parameters"]["NumDocc"],
@@ -1141,9 +1152,9 @@ def create_poped_database(
 	docc_arr = np.array([1])
 	d_arr = np.array([1])
 	bpop_arr = np.array([1])
-	poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc,np.pad(docc_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["NumDocc"]))
-	poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d,np.pad(d_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["NumRanEff"]))
-	poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop,np.pad(bpop_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["nbpop"]))
+	poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.pad(docc_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["NumDocc"]), 0)
+	poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.pad(d_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["NumRanEff"]), 0)
+	poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.pad(bpop_arr, (3,2), "constant", constant_values=np.nan).reshape(1,poped_db["parameters"]["nbpop"]), 0)
 
     # reorder named values
 	fg_names = do_call(poped_db["model"]["fg_pointer"], [1,1,1,1,ones(poped_db["parameters"]["NumDocc"],poped_db["parameters"]["NumOcc"])]).keys()
@@ -1165,7 +1176,9 @@ def create_poped_database(
 		d_descr[:,1] = d
 		d_descr[:,0] = 0 # point values
 		d_descr[:,2] = 0 # variance
-		d_descr.columns.values = d.keys()
+		d_descr = pd.DataFrame(d_descr,
+							   columns=d.keys())
+		# d_descr.columns.values = d.keys()
 		d = d_descr
 
 
@@ -1178,22 +1191,27 @@ def create_poped_database(
 		bpop_descr[:,1] = bpop
 		bpop_descr[:,0] = 0 # point values
 		bpop_descr[:,2] = 0 # variance
-		bpop_descr.columns.values = bpop.keys()
+		bpop_descr = pd.DataFrame(bpop_descr,
+							      columns=bpop.keys())
+		# bpop_descr.columns.values = bpop.keys()
 		bpop = bpop_descr
 		
 
 	if size(sigma)[0] == 1 and type(sigma) is not np.ndarray: # we have just the diagonal parameter values 
-		sigma_tmp = pd.DataFrame(np.diag(sigma,size(sigma,2),size(sigma,2)))
-		sigma_tmp.columns.values = sigma.keys()
+		sigma_tmp = pd.DataFrame(np.diag(sigma,size(sigma)[1],size(sigma)[1]))
+		sigma_tmp = pd.DataFrame(sigma_tmp,
+							      columns=sigma.keys())
+		# sigma_tmp.columns.values = sigma.keys()
 		sigma = sigma_tmp   
     
 	covd = poped_choose(covd, zeros(1,poped_db["parameters"]["NumRanEff"])*(poped_db["parameters"]["NumRanEff"]-1)/2, 0)
 	poped_db["parameters"]["covd"] = covd
     
-	tmp = ones(1,len(covd))
-	for i in range(0, len(covd)):
-		if covd[i] ==0:
-			tmp[i] = 0
+	tmp = ones(1, len(covd))
+	if tmp is not None:
+		for i in range(0, len(covd)):
+			if covd[i] ==0:
+				tmp[i] = 0
     #tmp[covd==0] = 0
 	poped_db["parameters"]["notfixed_covd"] = poped_choose(notfixed_covd, tmp, 0)
     
@@ -1204,10 +1222,10 @@ def create_poped_database(
 	if poped_db["settings"]["iApproximationMethod"] != 0 and poped_db["settings"]["iApproximationMethod"] != 3:
 		
 		iMaxCorrIndNeeded = 100
-		bzeros=zeros(poped_db["parameters"]["NumRanEff"],1)
-		bones = np.array([1]).reshape(poped_db["parameters"]["NumRanEff"],1)
+		bzeros=zeros(poped_db["parameters"]["NumRanEff"], 1)
+		bones = np.array([1]).reshape([int(poped_db["parameters"]["NumRanEff"]), 1])
 		bocczeros=zeros(poped_db["parameters"]["NumDocc"],1)
-		boccones=np.array([1]).reshape(poped_db["parameters"]["NumDocc"],1)
+		boccones=np.array([1]*int(poped_db["parameters"]["NumDocc"])).reshape([int(poped_db["parameters"]["NumDocc"]), 1])
 
 		poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"],max(poped_db["settings"]["iFOCENumInd"],iMaxCorrIndNeeded))
 
@@ -1236,14 +1254,14 @@ def create_poped_database(
 					poped_db["parameters"]["bocc_global"][[i]] = np.transpose(np.random.multivariate_normal(poped_db["parameters"]["NumOcc"],sigma=getfulld(docc_dist[i,],poped_db["parameters"]["covdocc"])))
 	else:
 		poped_db["parameters"]["bocc_global"]=zeros(poped_db["parameters"]["NumRanEff"],1)
-		poped_db["parameters"]["bocc_global"] = cell(1,1)
+		poped_db["parameters"]["bocc_global"] = cell(1, 1)
 		poped_db["parameters"]["bocc_global"][[1]]=zeros(size(docc)[0],poped_db["parameters"]["NumOcc"])
 		poped_db["settings"]["iFOCENumInd"] = 1
     
     
 	poped_db["settings"]["modtit"] = modtit
-	poped_db["settings"]["exptit"] = str('%s_exp["mat"]',modtit) #experiment settings title
-	poped_db["settings"]["opttit"] = str('%s_opt["mat"]',modtit) #optimization settings title
+	poped_db["settings"]["exptit"] = ('%s_exp["mat"]', modtit) #experiment settings title
+	poped_db["settings"]["opttit"] = ('%s_opt["mat"]', modtit) #optimization settings title
 	poped_db["settings"]["bShowGraphs"] = bShowGraphs
 
 	poped_db["settings"]["use_logfile"] = use_logfile
@@ -1252,13 +1270,13 @@ def create_poped_database(
 
 	poped_db["settings"]["optsw"] = optsw
 		
-	line_opta = poped_choose(line_opta,ones(1,size(poped_db["design"]["a"],2)))
-	if test_mat_size(np.array([1, size(poped_db["design"]["a"])[0]]),line_opta,"line_opta"):
+	line_opta = poped_choose(line_opta,ones(1,size(poped_db["design"]["a"],2)), 0)
+	if test_mat_size(np.array([1, size(poped_db["design"]["a"])[0]]), np.array(line_opta), "line_opta"):
 		poped_db["settings"]["line_opta"] = line_opta
     
     
-	line_optx = poped_choose(line_optx,ones(1,size(poped_db["design"]["x"],2)))
-	if test_mat_size(np.array([1, size(poped_db["design"]["x"])[0]]),line_optx,"line_optx"):
+	line_optx = poped_choose(line_optx,ones(1,size(poped_db["design"]["x"],2)), 0)
+	if test_mat_size(np.array([1, size(poped_db["design"]["x"])[0]]), np.array(line_opta), "line_optx"):
 		poped_db["settings"]["line_optx"] = line_optx
     
 
@@ -1302,7 +1320,7 @@ def create_poped_database(
 	## create ds_index if not already done
 	if poped_db["parameters"]["ds_index"] is not None: 
 		unfixed_params = get_unfixed_params(poped_db)
-		poped_db["parameters"]["ds_index"] = np.transposet(np.repeat(0,unfixed_params["all"].size))
+		poped_db["parameters"]["ds_index"] = np.transpose(np.repeat(0, unfixed_params["all"].size))
 		poped_db["parameters"]["ds_index"][(unfixed_params["bpop"].size+1):poped_db["parameters"]["ds_index"].size] = 1
 	else:
 		if type(poped_db["parameters"]["ds_index"]) is not np.ndarray:
@@ -1323,10 +1341,10 @@ def create_poped_database(
 			if strRunFile is not None:
 				poped_db["settings"]["run_file_pointer"] = strRunFile
 			else:
-				exec(open(popedInput["strRunFile"]).read)
+				exec(open(popedInput["strRunFile"]).read())
 				returnArgs =  fileparts(popedInput["strRunFile"]) 
-				strRunFilePath = returnArgs[[0]]
-				strRunFilename  = returnArgs[[1]]
+				strRunFilePath = list(returnArgs.values())[0]
+				strRunFilename  = list(returnArgs.values())[1]
 				## if (~strcmp(strErrorModelFilePath,''))
 				##    cd(strErrorModelFilePath);
 				## end
@@ -1334,13 +1352,13 @@ def create_poped_database(
 
     #poped_db = convert_popedInput(popedInput,...)
     
-	poped_db["settings"]["Engine"] = {"Type" : 1, "Version" : poped_version["version"].string}
+	poped_db["settings"]["Engine"] = {"Type": 1, "Version": poped_version["version"]}
 
 	poped_db = convert_variables(poped_db) ## need to transform here
     
 	param_val = get_all_params(poped_db)
 	tmp_names = param_val.keys()
-	eval(str('%s.val = param.val["%s"]',tmp_names,tmp_names))
+	eval('%s.val = param.val["%s"]' % (tmp_names, tmp_names))
 	""" 
 	#tools/spped_check.R
 
@@ -1375,8 +1393,8 @@ def create_poped_database(
 	#     poped_db$downsized.design$groupsize = poped_db["design"]groupsize
 
 	retargs = fileparts(poped_db["settings"]["output_file"])
-	poped_db["settings"]["strOutputFilePath"] = retargs[[0]]
-	poped_db["settings"]["strOutputFileName"] = retargs[[1]]
-	poped_db["settings"]["strOutputFileExtension"] = retargs[[2]]
+	poped_db["settings"]["strOutputFilePath"] = list(retargs.values())[0]
+	poped_db["settings"]["strOutputFileName"] = list(retargs.values())[1]
+	poped_db["settings"]["strOutputFileExtension"] = list(retargs.values())[2]
 
 	return poped_db

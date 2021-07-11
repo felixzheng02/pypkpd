@@ -37,7 +37,7 @@ import numpy as np
 
 def diag_matlab(mat:np.ndarray):
     dim_mat = np.shape(mat)
-    if dim_mat != None:
+    if dim_mat is not None:
         if any(dim_mat==1):
             if any(dim_mat!=1):
                 mat = np.mat.tolist()

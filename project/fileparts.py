@@ -33,5 +33,7 @@ def fileparts(filename_with_path):
     filename = re.sub("(.*)(\\.[^\\.]*)$", "\\1", filename)
     if fileext == filename:
         fileext = ""
-    fileparts_list = [pathname, filename, fileext]
+    fileparts_list = {"pathname": pathname, "filename": filename, "fileext": fileext}
     return fileparts_list
+
+print(fileparts("c:\asdfs\asdf.csv"))

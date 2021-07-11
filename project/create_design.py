@@ -113,7 +113,7 @@ def create_design(
 		a.set_axis(["grp_"+str(i) for i in range(1, m+1)], axis="index")
 		count = 0
 		for i in range(0, a.shape[1]):
-			if re.match(r'^X\d*$', str(a.columns[i])) != None:
+			if re.match(r'^X\d*$', str(a.columns[i])) is not None:
 				count += 1
 		if count == size(a)[1]:
 			a.set_axis([None] * a.shape[1], axis="column")
@@ -121,7 +121,7 @@ def create_design(
 
 
 	### for x ###
-	if x != None:
+	if x is not None:
 		if type(x) == list:
 			x = pd.DataFrame(x)
 		colnam = x.columns.values.tolist()

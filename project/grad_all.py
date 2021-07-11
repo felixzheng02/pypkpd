@@ -21,7 +21,7 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
     if currentOcc is None:
 
         idx = idx0 = len(def0)
-        if subset != None:
+        if subset is not None:
             idx0 = np.array([])
 
             for k in range(0, (np.cumsum(subset)*subset).size):

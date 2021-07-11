@@ -36,15 +36,14 @@ from project.feval import do_call
 #' @export
 
 
-def ff_PK_1_comp_oral_md_KE(model_switch,xt,parameters,poped_db):
+def ff_PK_1_comp_oral_md_KE(model_switch, xt, parameters: dict, poped_db):
     ##-- Model: One comp first order absorption
     ## -- Analytic solution for both mutiple and single dosing
-    list(parameters)
     y = xt
     N = np.floor(xt/parameters["TAU"]) + 1
     y = (parameters["DOSE"]*parameters["Favail"]/parameters["V"])*(parameters["KA"]/(parameters["KA"]-parameters["KE"]))*(np.exp(-parameters["KE"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KE"]*parameters["TAU"]))/(1-np.exp(-parameters["KE"]*parameters["TAU"]))-np.exp(-parameters["KA"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KA"]*parameters["TAU"]))/(1-np.exp(-parameters["KA"]*parameters["TAU"])))
 
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
 
 
 
@@ -70,15 +69,14 @@ def ff_PK_1_comp_oral_md_KE(model_switch,xt,parameters,poped_db):
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.md.CL.R
 #' 
 #' @export
-def ff_PK_1_comp_oral_md_CL(model_switch,xt,parameters,poped_db):
+def ff_PK_1_comp_oral_md_CL(model_switch, xt, parameters: dict, poped_db):
     ##-- Model: One comp first order absorption
     ## -- Analytic solution for both mutiple and single dosing
-    list(parameters)
     y = xt
     N = np.floor(xt/parameters["TAU"])+1
-    y = (parameters["DOSE"]*parameters["Favail"]/parameters["V"])*(parameters["KA"]/(parameters["KA"]-parameters["CL"]/parameters["V"]))*(np.exp(-parameters["CL"]/parameters["V"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["CL"]/parameters["V"]*parameters["TAU"]))/(1-np.exp(-parameters["CL"]/parameters["V"]*parameters["TAU"]))-np.exp(-parameters["KA"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KA"]*parameters["TAU"]))/(1-np.exp(-["KA"]*parameters["TAU"])))  
+    y = (parameters["DOSE"]*parameters["Favail"]/parameters["V"])*(parameters["KA"]/(parameters["KA"]-parameters["CL"]/parameters["V"]))*(np.exp(-parameters["CL"]/parameters["V"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["CL"]/parameters["V"]*parameters["TAU"]))/(1-np.exp(-parameters["CL"]/parameters["V"]*parameters["TAU"]))-np.exp(-parameters["KA"]*(xt-(N-1)*parameters["TAU"]))*(1-np.exp(-N*parameters["KA"]*parameters["TAU"]))/(1-np.exp(-parameters["KA"]*parameters["TAU"])))  
 
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
   
 
 #' Structural model: one-compartment, oral absorption, single bolus dose, parameterized using KE.
@@ -106,13 +104,12 @@ def ff_PK_1_comp_oral_md_CL(model_switch,xt,parameters,poped_db):
 ## TODO: change the parameterization to be a function option
 ## TODO: only use md and then turn off if single dose
 
-def ff_PK_1_comp_oral_sd_KE(model_switch,xt,parameters,poped_db):
+def ff_PK_1_comp_oral_sd_KE(model_switch, xt, parameters: dict, poped_db):
     ##-- Model: One comp first order absorption
-    list(parameters)
     y = xt
-    y = (parameters["DOSE"]*parameters["Favail"]*parameters["KA"]/(parameters["V"]*(["KA"]-["KE"])))*(np.exp(-parameters["KE"]*xt)-np.exp(-parameters["KA"]*xt))
+    y = (parameters["DOSE"]*parameters["Favail"]*parameters["KA"]/(parameters["V"]*(parameters["KA"]-parameters["KE"])))*(np.exp(-parameters["KE"]*xt)-np.exp(-parameters["KA"]*xt))
 
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
   
 
 #' Structural model: one-compartment, oral absorption, single bolus dose, parameterized using CL.
@@ -137,12 +134,11 @@ def ff_PK_1_comp_oral_sd_KE(model_switch,xt,parameters,poped_db):
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.sd.CL.R
 #' 
 #' @export
-def ff_PK_1_comp_oral_sd_CL(model_switch,xt,parameters,poped_db):
+def ff_PK_1_comp_oral_sd_CL(model_switch, xt, parameters: dict, poped_db):
     ##-- Model: One comp first order absorption
-    list(parameters)
     y = xt
     y = (parameters["DOSE"]*parameters["Favail"]*parameters["KA"]/(parameters["V"]*(parameters["KA"]-parameters["CL"]/parameters["V"])))*(np.exp(-parameters["CL"]/parameters["V"]*xt)-np.exp(-parameters["KA"]*xt))
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
     
 
 #' Structural model: one-compartment, single bolus IV dose, parameterized using CL driving an EMAX model with a direct effect.
@@ -165,8 +161,7 @@ def ff_PK_1_comp_oral_sd_CL(model_switch,xt,parameters,poped_db):
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PKPD.1.comp.sd.CL.emax.R
 #' 
 #' @export
-def ff_PKPD_1_comp_sd_CL_emax(model_switch,xt,parameters,poped_db):
-    list(parameters)
+def ff_PKPD_1_comp_sd_CL_emax(model_switch, xt, parameters: dict, poped_db):
     y = xt
     MS = model_switch
     
@@ -179,7 +174,7 @@ def ff_PKPD_1_comp_sd_CL_emax(model_switch,xt,parameters,poped_db):
     y[MS==1] = CONC[MS==1]
     y[MS==2] = EFF[MS==2]
     
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
   
 
 #' Structural model: one-compartment, oral absorption, multiple bolus dose, 
@@ -203,17 +198,16 @@ def ff_PKPD_1_comp_sd_CL_emax(model_switch,xt,parameters,poped_db):
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PKPD.1.comp.oral.md.CL.imax.R
 #' 
 #' @export
-def ff_PKPD_1_comp_oral_md_CL_imax(model_switch,xt,parameters,poped_db):
+def ff_PKPD_1_comp_oral_md_CL_imax(model_switch, xt, parameters: dict, poped_db):
     ##-- Model: One comp first order absorption + inhibitory imax
     ## -- works for both mutiple and single dosing  
-    list(parameters)
       
     y = xt
     MS = model_switch
     
     # PK model
   
-    returnArgs = ff_PK_1_comp_oral_md_CL(model_switch,xt,parameters,poped_db)
+    returnArgs = ff_PK_1_comp_oral_md_CL(model_switch, xt, parameters, poped_db)
     CONC = returnArgs["y"]
     
     # PD model
@@ -222,7 +216,7 @@ def ff_PKPD_1_comp_oral_md_CL_imax(model_switch,xt,parameters,poped_db):
     y[MS==1] = CONC[MS==1]
     y[MS==2] = EFF[MS==2]
       
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
   
 
 #' RUV model:  
@@ -247,15 +241,15 @@ def ff_PKPD_1_comp_oral_md_CL_imax(model_switch,xt,parameters,poped_db):
 #' 
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.md.CL.R
 #' @export
-def feps_add_prop(model_switch,xt,parameters,epsi,poped_db):
+def feps_add_prop(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Additive + Proportional 
-    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch,xt,parameters,poped_db]) 
+    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch, xt, parameters, poped_db]) 
     y = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     y = y*(1+epsi[:,0])+epsi[:,1]
     
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
 
 
 #' RUV model:  
@@ -280,15 +274,15 @@ def feps_add_prop(model_switch,xt,parameters,epsi,poped_db):
 #' 
 #' @example tests/testthat/examples_fcn_doc/examples_feps.add.R
 #' @export
-def feps_add(model_switch,xt,parameters,epsi,poped_db):
+def feps_add(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Additive 
-    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch,xt,parameters,poped_db]) 
+    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch, xt, parameters, poped_db]) 
     y = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     y = y+epsi[:,0]
     
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
 
 
 #' RUV model:  
@@ -315,14 +309,14 @@ def feps_add(model_switch,xt,parameters,epsi,poped_db):
 #' @example tests/testthat/examples_fcn_doc/examples_ff.PK.1.comp.oral.sd.CL.R
 #' 
 #' @export
-def feps_prop(model_switch,xt,parameters,epsi,poped_db):
+def feps_prop(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Proportional 
-    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch,xt,parameters,poped_db]) 
+    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch, xt, parameters, poped_db]) 
     y = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     y = y*(1+epsi[:,0])
 
-    return [y,poped_db]
+    return {"y": y, "poped_db": poped_db}
 
 

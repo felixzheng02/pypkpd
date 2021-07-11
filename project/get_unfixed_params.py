@@ -77,6 +77,6 @@ def get_unfixed_params(poped_db,params=None):
         var_derivative = np.array([[np.repeat(1,bpop.size), np.repeat(1,d.size), np.repeat(1,covd.size), np.repeat(1,docc.size), np.repeat(1,covdocc.size), np.repeat(0,sigma.size), np.repeat(1,covsigma.size)]])
     
     
-    return [bpop,d,covd,docc,covdocc,sigma,covsigma,all,var_derivative]
+    return {"bpop": bpop, "d": d, "covd": covd, "docc": docc, "covdocc": covdocc, "sigma": sigma, "covsigma": covsigma, "all": all, "var_derivative": var_derivative}
     
 

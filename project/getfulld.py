@@ -18,7 +18,7 @@
 def getfulld(variance_vector,covariance_vector=None):
     if (length(variance_vector) == 1) return(as.matrix(variance_vector))
     d = diag_matlab(variance_vector)
-    if ((!isempty(covariance_vector) & sum(covariance_vector != 0) > 0)) {
+    if ((!isempty(covariance_vector) and sum(covariance_vector != 0) > 0)) {
         d[lower.tri(d)] = covariance_vector
         d = t(d) # upper.tri has wrong order, so fill lower, transpose this to upper, then fill lower again
         d[lower.tri(d)] = covariance_vector

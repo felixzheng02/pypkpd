@@ -63,21 +63,21 @@
 from project.mftot import mftot
 
 def evaluate_fim(poped_db,
-                        fim_calc_type=None,
-                        approx_method=None, 
-                        FOCE_num = None,
-                        bpop_val=None,
-                        d_full=None,
-                        docc_full=None,
-                        sigma_full=None,
-                        model_switch=None,
-                        ni=None,
-                        xt=None,
-                        x=None,
-                        a=None,
-                        groupsize=None,
-                        deriv_type = None,
-                        *args):
+                fim_calc_type=None,
+                approx_method=None, 
+                FOCE_num = None,
+                bpop_val=None,
+                d_full=None,
+                docc_full=None,
+                sigma_full=None,
+                model_switch=None,
+                ni=None,
+                xt=None,
+                x=None,
+                a=None,
+                groupsize=None,
+                deriv_type = None,
+                *argv):
   
   
     if bpop_val is None:
@@ -124,7 +124,7 @@ def evaluate_fim(poped_db,
         poped_db["settings"]["gradfg_switch"] = deriv_type
     
 
-    output = mftot(model_switch,groupsize,ni,xt,x,a,bpop_val,d_full,sigma_full,docc_full,poped_db,*args)
+    output = mftot(model_switch,groupsize,ni,xt,x,a,bpop_val,d_full,sigma_full,docc_full,poped_db,*argv)
     FIM = output["ret"]
     
     return FIM

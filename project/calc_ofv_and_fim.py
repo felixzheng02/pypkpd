@@ -42,7 +42,7 @@ from project.getfulld import getfulld
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
 
 
-def calc_ofv_and_fim(poped_db, *args):
+def calc_ofv_and_fim(poped_db, *argv):
   
     ofv = 0,
     fim = 0, 
@@ -68,7 +68,7 @@ def calc_ofv_and_fim(poped_db, *args):
         if d_switch: 
             if ofv_fun is not None:
                 if type(fim) is np.ndarray: 
-                    fmf = evaluate_fim(poped_db,*args)
+                    fmf = evaluate_fim(poped_db,*argv)
                     bpop_val = bpop
                     d_full = d
                     docc_full = docc_full
@@ -85,7 +85,7 @@ def calc_ofv_and_fim(poped_db, *args):
                 #     fmf = returnArgs[[1]]
                 #     poped_db = returnArgs[[2]]
                 
-                dmf = ofv_fim(fmf,poped_db,*args)
+                dmf = ofv_fim(fmf,poped_db,*argv)
             else:
                 ## update poped_db with options supplied in function
                 called_args = match_call()
@@ -95,7 +95,7 @@ def calc_ofv_and_fim(poped_db, *args):
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i))) is not None:
                             eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
-                out_tmp = do_call(ofv_fun,[poped_db,*args])
+                out_tmp = do_call(ofv_fun,[poped_db,*argv])
                 dmf = out_tmp[[0]]
                 fmf = None
                 if len(out_tmp) > 1:
@@ -118,7 +118,7 @@ def calc_ofv_and_fim(poped_db, *args):
                                         groupsize=poped_db["design"]["groupsize"],
                                         use_laplace=use_laplace,
                                         laplace_fim=laplace_fim, 
-                                        *args)
+                                        *argv)
                 dmf = output["E_ofv"]
                 fmf = output["E_fim"] 
             else:
@@ -155,7 +155,7 @@ def calc_ofv_and_fim(poped_db, *args):
     
     if calc_fim is True:
         if d_switch is True:
-            fmf = evaluate_fim(poped_db,*args)
+            fmf = evaluate_fim(poped_db,*argv)
             bpop_val = bpop
             d_full = d
             docc_full = docc_full
@@ -171,7 +171,7 @@ def calc_ofv_and_fim(poped_db, *args):
         #     fmf = returnArgs[[1]]
         #     poped_db = returnArgs[[2]]
         else:
-            output = evaluate_e_ofv_fim(poped_db,*args)  
+            output = evaluate_e_ofv_fim(poped_db,*argv)  
             fim_calc_type = fim_calc_type
             bpop = bpopdescr
             d = ddescr

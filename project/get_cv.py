@@ -65,7 +65,7 @@ def get_cv(param_vars,poped_db):
 #' @export
 
 
-def get_rse(fim, poped_db,*args):
+def get_rse(fim, poped_db,*argv):
     bpop = poped_db["parameters"]["bpop"][:,1]
     #bpop=poped_db["parameters"]bpop[,2,drop=F],
     d = poped_db["parameters"]["d"][:,1]

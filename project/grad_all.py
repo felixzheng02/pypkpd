@@ -41,10 +41,22 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
         if type(def0) == np.ndarray and select_par > 6 and offdiag == True:
             tmp = 0 * def0
 ###potential problem: lower.tri to np.tril
-            tmp[lower.tri(tmp)] = idx0
+            """
+            up_tmp = np.tril(tmp, -1)
+            for i in range(0, tmp.shape[1]):
+                for j in range(0, tmp.shape[0]):
+                    if up_tmp[i,j] == 0:
+                        continue
+                    else:
+                        tmp[i,j] = up_tmp[i,j]
+                    j = j + 1
+                j = 0
+                i = i + 1
+            """
+            #tmp[lower.tri(tmp)] = idx0
             idx0 = tmp + np.transpose(tmp)
     else:
-        idx  = np.arange(size(def0,1))
+        idx  = np.arange(1, size(def0)[0]+1)
         idx0 = zeros(size(def0))
         idx0[:, currentOcc] = idx
   

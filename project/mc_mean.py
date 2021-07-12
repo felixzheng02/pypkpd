@@ -29,7 +29,7 @@ from project.feval import do_call
 from project.pargen import pargen
 
 
-def mc_mean(ofv_fcn,poped_db,*args):
+def mc_mean(ofv_fcn,poped_db,*argv):
 
     bpopdescr = poped_db["parameters"]["bpop"], 
     ddescr = poped_db["parameters"]["d"],
@@ -68,7 +68,7 @@ def mc_mean(ofv_fcn,poped_db,*args):
         poped_db_tmp["parameters"]["d"][:,1] = d_gen[ct,:]
         poped_db_tmp["parameters"]["docc"][:,1] = docc_gen[ct,:]
         
-        dmf_tmp = do_call(ofv_fcn, [poped_db_tmp,*args])
+        dmf_tmp = do_call(ofv_fcn, [poped_db_tmp,*argv])
         
         ofv_sum = ofv_sum + dmf_tmp
     

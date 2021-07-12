@@ -27,7 +27,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
                        uloq_method = 1,
                        uloq_start_time = None,
                        verbose = False,
-                       *args):
+                       *argv):
 
   
     # TODO: add to poped_db

@@ -24,11 +24,11 @@ def getfulld(variance_vector: np.ndarray,covariance_vector: np.ndarray=None):
         return variance_vector
 
     d = diag_matlab(variance_vector)
-    if covariance_vector.size and sum(covariance_vector != 0) > 0:
+    if covariance_vector.size > 0 and sum(covariance_vector != 0) > 0:
 
-        d[lower.tri(d)] = covariance_vector
+        #d[lower.tri(d)] = covariance_vector
         d = np.transpose(d) # upper.tri has wrong order, so fill lower, transpose this to upper, then fill lower again
-        d[lower.tri(d)] = covariance_vector
+        #d[lower.tri(d)] = covariance_vector
     
     return d 
 

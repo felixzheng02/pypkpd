@@ -20,10 +20,10 @@
 import builtins
 
 
-def do_call(what, *args):
-    return getattr(builtins, what)(*args)
+def do_call(what, *argv):
+    return getattr(builtins, what)(*argv)
 
-def feval (file_name, *args):
+def feval (file_name, *argv):
     #func.name = gsub("\\.R$","",file.name)
     for arg in args:
         for i in range(len(args)):

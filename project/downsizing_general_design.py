@@ -43,8 +43,8 @@ def downsizing_general_design(poped_db):
         mina = poped_db["design_space"]["mina"][0:poped_db["design"]["m"],0:size(poped_db["design"]["a"])[1]]
     else:
         a = zeros(poped_db["design"]["m"],0)
-        maxa = np.zeros(0)
-        mina = np.zeros(0)
+        maxa = np.zeros(1)
+        mina = np.zeros(1)
     
     bpop = poped_db["parameters"]["bpop"][0:poped_db["parameters"]["nbpop"],0:2]
     n = np.matmul(np.transpose(ni),np.ones(poped_db["design"]["m"],1))

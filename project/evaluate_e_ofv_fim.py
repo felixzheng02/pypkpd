@@ -34,7 +34,7 @@ import re
 from project.ed_mftot import ed_mftot
 from project.downsizing_general_design import downsizing_general_design
 
-def evaluate_e_ofv_fim(poped_db,*args):
+def evaluate_e_ofv_fim(poped_db,*argv):
     fim_calc_type = None
     bpop = poped_db["parameters"]["bpop"]
     d = poped_db["parameters"]["d"]
@@ -94,7 +94,7 @@ def evaluate_e_ofv_fim(poped_db,*args):
     E_ofv = None
     
     if use_laplace is False:
-        output = ed_mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,*args)
+        output = ed_mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,*argv)
         E_fim = output["ED_fim"]
         E_ofv = output["ED_ofv"]
         poped_db=output["poped_db"]

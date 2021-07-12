@@ -20,12 +20,12 @@
 from project.get_cv import get_rse
 from project.calc_ofv_and_fim import calc_ofv_and_fim
 
-def evaluate_design(poped_db, *args):
-    out = calc_ofv_and_fim(poped_db, *args)
+def evaluate_design(poped_db, *argv):
+    out = calc_ofv_and_fim(poped_db, *argv)
     if out["fim"] is None:
         out["rse"] = None
     else:
-        out["rse"] = get_rse(out["fim"], poped_db, *args)
+        out["rse"] = get_rse(out["fim"], poped_db, *argv)
     
     if out["rse"].keys() is not None:
         rownames(out["fim"]) = out["rse"].keys()

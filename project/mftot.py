@@ -39,7 +39,7 @@ from project.zeros import zeros
 from project.mf_all import mf_all
 from project.mf_all_loq import mf_all_loq
 
-def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*args):
+def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*argv):
     m = size(ni)[0]
     s = 0
     for i in range(0,m):

@@ -43,7 +43,7 @@ from project.get_cv import get_rse
 from project.trace_matrix import trace_matrix
 
 
-def ofv_fim(fmf,poped_db,*args):
+def ofv_fim(fmf,poped_db,*argv):
 
     ofv_calc_type = poped_db["settings"]["ofv_calc_type"]
     ds_index=poped_db["parameters"]["ds_index"]

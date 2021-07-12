@@ -38,7 +38,7 @@ from project.mftot import mftot
 from project.getfulld import getfulld
 from project.ofv_fim import ofv_fim
 
-def ed_mftot(model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,calc_fim=True,*args):
+def ed_mftot(model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,calc_fim=True,*argv):
     #+++++++++++++++++++++++ ED OFV(MF) VALUE
     s = 0
     s1 = 0

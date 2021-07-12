@@ -6,7 +6,7 @@
 import numpy as np
 from numpy.core.records import array
 from project.models import feps_prop
-from project.evaluate_design import evaluate_design
+# from project.evaluate_design import evaluate_design
 from project.create_poped_database import create_poped_database
 from project.models import ff_PK_1_comp_oral_sd_CL
 
@@ -41,19 +41,19 @@ def sfg (x,a,bpop,b,bocc):
 
 ## -- Define initial design  and design space
 poped_db = create_poped_database(ff_file=ff_PK_1_comp_oral_sd_CL,
-                                fg_file=sfg,
-                                fError_file=feps_prop,
-                                bpop=np.array([0.15, 8, 1.0, 1]), 
-                                notfixed_bpop=np.array([1,1,1,0]),
-                                d=np.array([0.07, 0.02, 0.6]), 
-                                sigma=0.01,
-                                groupsize=32,
-                                xt=np.array([0.5,1,2,6,24,36,72,120]),
-                                minxt=0,
-                                maxxt=120,
-                                a=70)
+                                 fg_file=sfg,
+                                 fError_file=feps_prop,
+                                 bpop=np.array([0.15, 8, 1.0, 1]), 
+                                 notfixed_bpop=np.array([1,1,1,0]),
+                                 d=np.array([0.07, 0.02, 0.6]), 
+                                 sigma=0.01,
+                                 groupsize=32,
+                                 xt=np.array([0.5,1,2,6,24,36,72,120]),
+                                 minxt=0,
+                                 maxxt=120,
+                                 a=70)
 #> Warning: cannot open file 'sfg': No such file or directory#> Error in file(filename, "r", encoding = encoding): cannot open the connection
 
 ## evaluate initial design
-evaluate_design(poped_db)
+# evaluate_design(poped_db)
 #> Error in calc_ofv_and_fim(poped_db, ...): object 'poped_db' not found

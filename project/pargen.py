@@ -33,8 +33,10 @@
 """
 
 
-import numpy
 from scipy import stats
+from scipy.stats import norm
+import numpy
+# from scipy.linalg import norm
 from project.size import size
 from project.zeros import zeros
 from project.feval import feval
@@ -77,7 +79,7 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     # var(data)
     
     
-    if bLHS == 0:#Random Sampling
+    if bLHS == 0: #Random Sampling
         for k in range(0,sample_size):
             np = size(par)[0]
             if np != 0:
@@ -108,10 +110,10 @@ def pargen (par,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
             P=(idx-ran[:,j])/sample_size 
                   # probability of the cdf
             returnArgs_list = [par[j,1],  #point
-                                par[j,1]+stats.norm.ppf(P)*numpy.sqrt(par[j,3]), # normal
+                                par[j,1]+norm.ppf(P)*numpy.sqrt(par[j,3]), # normal
                                 par[j,1]-par[j,3]/2+P*par[j,3], #uniform
                                 ret[:,j], #Do nothing
-                                numpy.exp((numpy.log(par[j,2]^2/numpy.sqrt(par[j,3]+par[j,2]^2)))+stats.norm.ppf(P)*(numpy.sqrt(numpy.log(par[j,3]/par[j,2]^2+1))))] #log-normal 
+                                numpy.exp((numpy.log(par[j,2]^2/numpy.sqrt(par[j,3]+par[j,2]^2)))+norm.ppf(P)*(numpy.sqrt(numpy.log(par[j,3]/par[j,2]^2+1))))] #log-normal 
                                 #par[j,2]*exp(qnorm(P)*sqrt(par[j,3])) #log-normal
             returnArgs = returnArgs_list[par[j,0]+1]
             

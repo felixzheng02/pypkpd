@@ -355,7 +355,8 @@ def create_poped_database(popedInput={}, **kwargs):
     # --------------------------
 
     # -- Matrix defining the initial sampling schedule --
-    xt = param_choose(popedInput, "'xt' needs to be defined", 1, 'design', 'xt')
+    if "xt" not in list(kwargs.keys()):
+        xt = param_choose(popedInput, "'xt' needs to be defined", 1, 'design', 'xt')
     # -- Number of groups/individuals --
     # size(,1) find number of rows
     #m=poped_choose(popedInput[['m']], size(xt,1)),
@@ -369,12 +370,13 @@ def create_poped_database(popedInput={}, **kwargs):
     nx = param_choose(popedInput, None, 0, 'design', 'nx')
     # -- Vector defining the initial covariate values --
     # a=poped_choose(popedInput$design[["a"]],zeros(m,0)),
-    a = param_choose(popedInput['design'][['a']], None, 0)
+    a = param_choose(popedInput, None, 0, 'design', 'a')
     # number of continuous design variables that are not time (e.g. continuous covariates)
     # na=poped_choose(popedInput['na'],size(a,2)),
     # na=poped_choose(popedInput['na'],None),
     # -- Vector defining the size of the different groups (num individuals in each group) --
-    groupsize = param_choose(popedInput, "'groupsize' needs to be defined", 1, 'design', 'groupsize')
+    if "groupsize" not in list(kwargs.keys()):
+        groupsize = param_choose(popedInput, "'groupsize' needs to be defined", 1, 'design', 'groupsize')
     # -- Vector defining the number of samples for each group --
     # ni=poped_choose(popedInput["design"]ni,matrix(size(xt,2),m,1)),
     ni = param_choose(popedInput, None, 0, 'design', 'ni')
@@ -440,63 +442,56 @@ def create_poped_database(popedInput={}, **kwargs):
     # 5=FULL FIM parameterized with A,B,C matrices & derivative of variance,
     # 6=Calculate one model switch at a time, good for large matrices,
     # 7=Reduced FIM parameterized with A,B,C matrices & derivative of variance) --
-    iFIMCalculationType = param_choose(
-        popedInput['settings']['iFIMCalculationType'], 1, 0)
+    iFIMCalculationType = param_choose(popedInput, 1, 0, 'settings', 'iFIMCalculationType')
     # -- Approximation method for model, 0=FO, 1=FOCE, 2=FOCEI, 3=FOI --
-    iApproximationMethod = param_choose(
-        popedInput['settings']['iApproximationMethod'], 0, 0)
+    iApproximationMethod = param_choose(popedInput, 0, 0, 'settings', 'iApproximationMethod')
     # -- Num individuals in each step of FOCE --
-    iFOCENumInd = param_choose(popedInput['settings']['iFOCENumInd'], 1000, 0)
+    iFOCENumInd = param_choose(popedInput, 1000, 0, 'settings', 'iFOCENumInd')
     # -- The prior FIM (added to calculated FIM) --
-    prior_fim = param_choose(
-        popedInput['settings']['prior_fim'], np.array([0]), 0)
+    prior_fim = param_choose(popedInput, np.array([0]), 0, 'settings', 'prior_fim')
     # -- Filname and path for the Autocorrelation function, empty string means no autocorrelation --
-    strAutoCorrelationFile = param_choose(
-        popedInput['model']['auto_pointer'], "", 0)
+    strAutoCorrelationFile = param_choose(popedInput, "", 0, 'model', 'auto_pointer')
 
     # --------------------------
     # ---- Criterion specification
     # --------------------------
 
     # -- D-family design (1) or ED-family design (0) (with or without parameter uncertainty) --
-    d_switch = param_choose(popedInput['settings']['d_switch'], 1, 0)
+    d_switch = param_choose(popedInput, 1, 0, 'settings', 'd_switch')
     # -- OFV calculation type for FIM (1=Determinant of FIM,4=log determinant of FIM,6=determinant of interesting part of FIM (Ds)) --
-    ofv_calc_type = param_choose(popedInput['settings']['ofv_calc_type'], 4, 0)
+    ofv_calc_type = param_choose(popedInput, 4, 0, 'settings', 'ofv_calc_type')
     # -- Ds_index, set index to 1 if a parameter is uninteresting, otherwise 0.
     # size=(1,num unfixed parameters). First unfixed bpop, then unfixed d, then unfixed docc and last unfixed sigma --
     # default is the fixed effects being important
-    ds_index = popedInput['parameters']['ds_index']
+    ds_index = param_choose(popedInput, None, 0, 'parameters', 'ds_index')
     # -- Penalty function, empty string means no penalty.  User defined criterion --
-    strEDPenaltyFile = param_choose(
-        popedInput['settings']['strEDPenaltyFile'], "", 0)
-    ofv_fun = param_choose(popedInput['settings']['ofv_fun'], None, 0)
+    strEDPenaltyFile = param_choose(popedInput, "", 0, 'settings', 'strEDPenaltyFile')
+    ofv_fun = param_choose(popedInput, None, 0, 'settings', 'ofv_fun')
 
     # --------------------------
     # ---- E-family Criterion options
     # --------------------------
     # -- ED Integral Calculation, 0=Monte-Carlo-Integration, 1=Laplace Approximation, 2=BFGS Laplace Approximation  -- --
-    iEDCalculationType = param_choose(
-        popedInput['settings']['iEDCalculationType'], 0, 0)
+    iEDCalculationType = param_choose(popedInput, 0, 0, 'settings', 'iEDCalculationType')
     # -- Sample size for E-family sampling --
-    ED_samp_size = param_choose(popedInput['settings']['ED_samp_size'], 45, 0)
+    ED_samp_size = param_choose(popedInput, 45, 0, 'settings', 'ED_samp_size')
     # -- How to sample from distributions in E-family calculations. 0=Random Sampling, 1=LatinHyperCube --
-    bLHS = param_choose(popedInput['settings']['bLHS'], 1, 0)
+    bLHS = param_choose(popedInput, 1, 0, 'settings', 'bLHS')
     # -- Filname and path for user defined distributions for E-family designs --
-    strUserDistributionFile = param_choose(
-        popedInput['model']['user_distribution_pointer'], "", 0)
+    strUserDistributionFile = param_choose(popedInput, "", 0, 'model', 'user_distribution_pointer')
 
     # --------------------------
     # ---- Model parameters
     # --------------------------
 
     # -- Number of typical values --
-    nbpop = popedInput['parameters']['nbpop']
+    nbpop = param_choose(popedInput, None, 0, 'parameters', 'nbpop')
     # -- Number of IIV parameters --
-    NumRanEff = popedInput['parameters']['NumRanEff']
+    NumRanEff = param_choose(popedInput, None, 0, 'parameters', 'NumRanEff')
     # -- Number of IOV variance parameters --
-    NumDocc = popedInput['parameters']['NumDocc']
+    NumDocc = param_choose(popedInput, None, 0, 'parameters', 'NumDocc')
     # -- Number of occassions --
-    NumOcc = popedInput['parameters']['NumOcc']
+    NumOcc = param_choose(popedInput, None, 0, 'parameters', 'NumOcc')
     # -- The length of the g parameter vector --
     # ng=popedInput["parameters"]ng,
 
@@ -506,71 +501,64 @@ def create_poped_database(popedInput={}, **kwargs):
     # The second column defines the mean.
     # The third column defines the variance of the distribution.
     # can also just supply the parameter values as a c()
-    bpop = param_choose(popedInput['parameters']
-                        ['bpop'], 'bpop must be defined', 1)
+    if "bpop" not in list(kwargs.keys()):
+        bpop = param_choose(popedInput, 'bpop must be defined', 1, 'parameters', 'bpop')
     # -- Matrix defining the diagonals of the IIV (same logic as for the fixed effects) --
     # can also just supply the parameter values as a c()
     # -- vector defining the row major lower triangle of the covariances of the IIV variances --
-    d = param_choose(popedInput['parameters']['d'], None, 0)
+    d = param_choose(popedInput, None, 0, 'parameters', 'd')
     # set to zero if not defined
-    covd = popedInput['parameters']['covd']
+    covd = param_choose(popedInput, None, 0, 'parameters', 'covd')
     # -- Matrix defining the variances of the residual variability terms --
     # REQUIRED! No defaults given.
     # can also just supply the diagonal values as a c()
-    sigma = popedInput['parameters']['sigma']
+    sigma = param_choose(popedInput, None, 0, 'parameters', 'sigma')
     # -- Matrix defining the IOV, the IOV variances and the IOV distribution --
-    docc = param_choose(popedInput['parameters']
-                        ['docc'], np.array([0, 0, 0]), 0)
+    docc = param_choose(popedInput, np.array([np.nan, np.nan, np.nan]), 0, 'parameters', 'docc')
     # -- Matrix defining the covariance of the IOV --
-    covdocc = param_choose(popedInput['parameters']['covdocc'], zeros(
-        1, len(docc[:, 1])*(len(docc[:, 2])-1)/2), 0)
+    if np.array_equal(docc, np.array([np.nan, np.nan, np.nan]), equal_nan=True):
+        tmp = 0
+    else:
+        tmp = len(docc[1])
+    covdocc = param_choose(popedInput, zeros(1, tmp*(tmp-1)/2), 0, 'parameters', 'covdocc')
 
     # --------------------------
     # ---- Model parameters fixed or not
     # --------------------------
     # -- Vector defining if a typical value is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_bpop = popedInput['parameters']['notfixed_bpop']
+    notfixed_bpop = param_choose(popedInput, None, 0, 'parameters', 'notfixed_bpop')
     # -- Vector defining if a IIV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_d = popedInput['parameters']['notfixed_d']
+    notfixed_d = param_choose(popedInput, None, 0, 'parameters', 'notfixed_d')
     # -- Vector defining if a covariance IIV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_covd = popedInput['parameters']['notfixed_covd']
+    notfixed_covd = param_choose(popedInput, None, 0, 'parameters', 'notfixed_covd')
     # -- Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_docc = popedInput['["parameters"]']['notfixed_docc']
+    notfixed_docc = param_choose(popedInput, None, 0, 'parameters', 'notfixed_docc')
     # -- Vector row major order for lower triangular matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_covdocc = param_choose(
-        popedInput['parameters']['notfixed_covdocc'], zeros(1, len(covdocc)), 0)
+    notfixed_covdocc = param_choose(popedInput, zeros(1, len(covdocc)), 0, 'parameters', 'notfixed_covdocc')
     # -- Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_sigma = param_choose(
-        popedInput['parameters']['notfixed_sigma'], np.ones(sigma.shape[1]), 0)
+    notfixed_sigma = param_choose(popedInput, np.ones(size(sigma)[1]), 0, 'parameters', 'notfixed_sigma')
     # -- Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed) --
     ## default is fixed
-    notfixed_covsigma = param_choose(popedInput['parameters']['notfixed_covsigma'], zeros(
-        1, len(notfixed_sigma)*(len(notfixed_sigma)-1)/2), 0)
+    notfixed_covsigma = param_choose(popedInput, zeros(1, len(notfixed_sigma)*(len(notfixed_sigma)-1)/2), 0, 'parameters', 'notfixed_covsigma')
 
     # --------------------------
     # ---- Optimization algorithm choices
     # --------------------------
 
     # -- Use random search (1=True, 0=False) --
-    bUseRandomSearch = param_choose(
-        popedInput['settings']['bUseRandomSearch'], True, 0)
+    bUseRandomSearch = param_choose(popedInput, True, 0, 'settings', 'bUseRandomSearch')
     # -- Use Stochastic Gradient search (1=True, 0=False) --
-    bUseStochasticGradient = param_choose(
-        popedInput['settings']['bUseStochasticGradient'], True, 0)
+    bUseStochasticGradient = param_choose(popedInput, True, 0, 'settings', 'bUseStochasticGradient')
     # -- Use Line search (1=True, 0=False) --
-    bUseLineSearch = param_choose(
-        popedInput['settings']['bUseLineSearch'], True, 0)
+    bUseLineSearch = param_choose(popedInput, True, 0, 'settings', 'bUseLineSearch')
     # -- Use Exchange algorithm (1=True, 0=False) --
-    bUseExchangeAlgorithm = param_choose(
-        popedInput['settings']['bUseExchangeAlgorithm'], False, 0)
+    bUseExchangeAlgorithm = param_choose(popedInput, False, 0, 'settings', 'bUseExchangeAlgorithm')
     # -- Use BFGS Minimizer (1=True, 0=False) --
-    bUseBFGSMinimizer = param_choose(
-        popedInput['settings']['bUseBFGSMinimizer'], False, 0)
+    bUseBFGSMinimizer = param_choose(popedInput, False, 0, 'settings', 'bUseBFGSMinimizer')
     # -- Exchange Algorithm Criteria, 1 = Modified, 2 = Fedorov --
-    EACriteria = param_choose(popedInput['settings']['EACriteria'], 1, 0)
+    EACriteria = param_choose(popedInput, 1, 0, 'settings', 'EACriteria')
     # -- Filename and path for a run file that is used instead of the regular PopED call --
-    strRunFile = param_choose(
-        popedInput['settings']['run_file_pointer'], "", 0)
+    strRunFile = param_choose(popedInput, "", 0, 'settings', 'run_file_pointer')
 
     # --------------------------
     # ---- Labeling and file names
@@ -578,146 +566,126 @@ def create_poped_database(popedInput={}, **kwargs):
 
     # -- The current PopED version --
 # ！！！没写 packageVersion("PopED")
-    poped_version = param_choose(
-        popedInput['settings']['poped_version'], "0.0.2", 0)
+    poped_version = param_choose(popedInput, "0.0.2", 0, 'settings', 'poped_version')
     # -- The model title --
-    modtit = param_choose(popedInput['settings']['modtit'], 'PopED model', 0)
+    modtit = param_choose(popedInput, 'PopED model', 0, 'settings', 'modtit')
     # -- Filname and path of the output file during search --
-    output_file = param_choose(
-        popedInput['settings']['output_file'], "PopED_output_summary", 0)
+    output_file = param_choose(popedInput, "PopED_output_summary", 0, 'settings', 'output_file')
     # -- Filname suffix of the result function file --
-    output_function_file = param_choose(
-        popedInput['settings']['output_function_file'], "PopED_output_", 0)
+    output_function_file = param_choose(popedInput, "PopED_output_", 0, 'settings', 'output_function_file')
     # -- Filename and path for storage of current optimal design --
-    strIterationFileName = param_choose(
-        popedInput['settings']['strIterationFileName'], "PopED_current.R", 0)
+    strIterationFileName = param_choose(popedInput, "PopED_current.R", 0, 'settings', 'strIterationFileName')
 
     # --------------------------
     # ---- Misc options
     # --------------------------
     # -- User defined data structure that, for example could be used to send in data to the model --
-    user_data = param_choose(
-        popedInput['settings']['user_data'], cell(0, 0), 0)
+    user_data = param_choose(popedInput, cell(0, 0), 0, 'settings', 'user_data')
     # -- Value to interpret as zero in design --
-    ourzero = param_choose(popedInput['settings']['ourzero'], 1e-5, 0)
+    ourzero = param_choose(popedInput, 1e-5, 0, 'settings', 'ourzero')
     # ourzero=param_choose(popedInput$ourzero,0),
     # -- The seed number used for optimization and sampling -- integer or -1 which creates a random seed
-    dSeed = param_choose(popedInput['settings']['dSeed'], None, 0)
+    dSeed = param_choose(popedInput, None, 0, 'settings', 'dSeed')
     # -- Vector for line search on continuous design variables (1=True,0=False) --
-    line_opta = param_choose(popedInput['settings']['line_opta'], None, 0)
+    line_opta = param_choose(popedInput, None, 0, 'settings', 'line_opta')
     # -- Vector for line search on discrete design variables (1=True,0=False) --
-    line_optx = param_choose(
-        popedInput['settings']['line_optx'], None, 0)  # matrix(0,0,1)
+    line_optx = param_choose(popedInput, None, 0, 'settings', 'line_optx')  # matrix(0,0,1)
     # -- Use graph output during search --
-    bShowGraphs = param_choose(popedInput['settings']['bShowGraphs'], False, 0)
+    bShowGraphs = param_choose(popedInput, False, 0, 'settings', 'bShowGraphs')
     # -- If a log file should be used (0=False, 1=True) --
-    use_logfile = param_choose(popedInput['settings']['use_logfile'], False, 0)
+    use_logfile = param_choose(popedInput, False, 0, 'settings', 'use_logfile')
     # -- Method used to calculate M1
     # (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    m1_switch = param_choose(popedInput['settings']['m1_switch'], 1, 0)
+    m1_switch = param_choose(popedInput, 1, 0, 'settings', 'm1_switch')
     # -- Method used to calculate M2
     # (0=Central difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    m2_switch = param_choose(popedInput['settings']['m2_switch'], 1, 0)
+    m2_switch = param_choose(popedInput, 1, 0, 'settings', 'm2_switch')
     # -- Method used to calculate linearization of residual error
     # (0=Complex difference, 1=Central difference, 30=Automatic differentiation) --
-    hle_switch = param_choose(popedInput['settings']['hle_switch'], 1, 0)
+    hle_switch = param_choose(popedInput, 1, 0, 'settings', 'hle_switch')
     # -- Method used to calculate the gradient of the model
     # (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    gradff_switch = param_choose(popedInput['settings']['gradff_switch'], 1, 0)
+    gradff_switch = param_choose(popedInput, 1, 0, 'settings', 'gradff_switch')
     # -- Method used to calculate the gradient of the parameter vector g
     # (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    gradfg_switch = param_choose(popedInput['settings']['gradfg_switch'], 1, 0)
+    gradfg_switch = param_choose(popedInput, 1, 0, 'settings', 'gradfg_switch')
     # -- Method used to calculate all the gradients
     # (0=Complex difference, 1=Central difference) --
-    grad_all_switch = param_choose(
-        popedInput['settings']['grad_all_switch'], 1, 0)
+    grad_all_switch = param_choose(popedInput, 1, 0, 'settings', 'grad_all_switch')
     # -- Number of iterations in random search between screen output --
-    rsit_output = param_choose(popedInput['settings']['rsit_output'], 5, 0)
+    rsit_output = param_choose(popedInput, 5, 0, 'settings', 'rsit_output')
     # -- Number of iterations in stochastic gradient search between screen output --
-    sgit_output = param_choose(popedInput['settings']['sgit_output'], 1, 0)
+    sgit_output = param_choose(popedInput, 1, 0, 'settings', 'sgit_output')
     # -- Step length of derivative of linearized model w.r.t. typical values --
-    hm1 = param_choose(popedInput['settings'][["hm1"]], 0.00001, 0)
+    hm1 = param_choose(popedInput, 0.00001, 0, 'settings', 'hm1')
     # -- Step length of derivative of model w.r.t. g --
-    hlf = param_choose(popedInput['settings'][["hlf"]], 0.00001, 0)
+    hlf = param_choose(popedInput, 0.00001, 0, 'settings', 'hlf')
     # -- Step length of derivative of g w.r.t. b --
-    hlg = param_choose(popedInput['settings'][["hlg"]], 0.00001, 0)
+    hlg = param_choose(popedInput, 0.00001, 0, 'settings', 'hlg')
     # -- Step length of derivative of variance w.r.t. typical values --
-    hm2 = param_choose(popedInput['settings'][["hm2"]], 0.00001, 0)
+    hm2 = param_choose(popedInput, 0.00001, 0, 'settings', 'hm2')
     # -- Step length of derivative of OFV w.r.t. time --
-    hgd = param_choose(popedInput['settings'][["hgd"]], 0.00001, 0)
+    hgd = param_choose(popedInput, 0.00001, 0, 'settings', 'hgd')
     # -- Step length of derivative of model w.r.t. sigma --
-    hle = param_choose(popedInput['settings'][["hle"]], 0.00001, 0)
+    hle = param_choose(popedInput, 0.00001, 0, 'settings', 'hle')
     # -- The absolute tolerance for the diff equation solver --
-    AbsTol = param_choose(popedInput['settings']['AbsTol'], 0.000001, 0)
+    AbsTol = param_choose(popedInput, 0.000001, 0, 'settings', 'AbsTol')
     # -- The relative tolerance for the diff equation solver --
-    RelTol = param_choose(popedInput['settings']['RelTol'], 0.000001, 0)
+    RelTol = param_choose(popedInput, 0.000001, 0, 'settings', 'RelTol')
     # -- The diff equation solver method, 0, no other option --
-    iDiffSolverMethod = param_choose(
-        popedInput['settings']['iDiffSolverMethod'], None, 0)
+    iDiffSolverMethod = param_choose(popedInput, None, 0, 'settings', 'iDiffSolverMethod')
     # -- If the differential equation results should be stored in memory (1) or not (0) --
-    bUseMemorySolver = param_choose(
-        popedInput['settings']['bUseMemorySolver'], False, 0)
+    bUseMemorySolver = param_choose(popedInput, False, 0, 'settings', 'bUseMemorySolver')
     # -- Number of Random search iterations --
-    rsit = param_choose(popedInput['settings'][["rsit"]], 300, 0)
+    rsit = param_choose(popedInput, 300, 0, 'settings', 'rsit')
     # -- Number of Stochastic gradient search iterations --
-    sgit = param_choose(popedInput['settings'][["sgit"]], 150, 0)
+    sgit = param_choose(popedInput, 150, 0, 'settings', 'sgit')
     # -- Number of Random search iterations with discrete optimization --
-    intrsit = param_choose(popedInput['settings']['intrsit'], 250, 0)
+    intrsit = param_choose(popedInput, 250, 0, 'settings', 'intrsit')
     # -- Number of Stochastic Gradient search iterations with discrete optimization --
-    intsgit = param_choose(popedInput['settings']['intsgit'], 50, 0)
+    intsgit = param_choose(popedInput, 50, 0, 'settings', 'intsgit')
     # -- Iterations until adaptive narrowing in random search --
-    maxrsnullit = param_choose(popedInput['settings']['maxrsnullit'], 50, 0)
+    maxrsnullit = param_choose(popedInput, 50, 0, 'settings', 'maxrsnullit')
     # -- Stoachstic Gradient convergence value,
     # (difference in OFV for D-optimal, difference in gradient for ED-optimal) --
-    convergence_eps = param_choose(
-        popedInput['settings']['convergence_eps'], 1e-08, 0)
+    convergence_eps = param_choose(popedInput, 1e-08, 0, 'settings', 'convergence_eps')
     # -- Random search locality factor for sample times --
-    rslxt = param_choose(popedInput['settings']['rslxt'], 10, 0)
+    rslxt = param_choose(popedInput, 10, 0, 'settings', 'rslxt')
     # -- Random search locality factor for covariates --
-    rsla = param_choose(popedInput['settings']['rsla'], 10, 0)
+    rsla = param_choose(popedInput, 10, 0, 'settings', 'rsla')
     # -- Stochastic Gradient search first step factor for sample times --
-    cfaxt = param_choose(popedInput['settings']['cfaxt'], 0.001, 0)
+    cfaxt = param_choose(popedInput, 0.001, 0, 'settings', 'cfaxt')
     # -- Stochastic Gradient search first step factor for covariates --
-    cfaa = param_choose(popedInput['settings']['cfaa'], 0.001, 0)
+    cfaa = param_choose(popedInput, 0.001, 0, 'settings', 'cfaa')
     # -- Use greedy algorithm for group assignment optimization --
-    bGreedyGroupOpt = param_choose(
-        popedInput['settings']['bGreedyGroupOpt'], False, 0)
+    bGreedyGroupOpt = param_choose(popedInput, False, 0, 'settings', 'bGreedyGroupOpt')
     # -- Exchange Algorithm StepSize --
-    EAStepSize = param_choose(popedInput['settings']['EAStepSize'], 0.01, 0)
+    EAStepSize = param_choose(popedInput, 0.01, 0, 'settings', 'EAStepSize')
     # -- Exchange Algorithm NumPoints --
-    EANumPoints = param_choose(popedInput['settings']['EANumPoints'], False, 0)
+    EANumPoints = param_choose(popedInput, False, 0, 'settings', 'EANumPoints')
     # -- Exchange Algorithm Convergence Limit/Criteria --
-    EAConvergenceCriteria = param_choose(
-        popedInput['settings']['EAConvergenceCriteria'], 1e-20, 0)
+    EAConvergenceCriteria = param_choose(popedInput, 1e-20, 0, 'settings', 'EAConvergenceCriteria')
     # -- Avoid replicate samples when using Exchange Algorithm --
-    bEANoReplicates = param_choose(
-        popedInput['settings']['bEANoReplicates'], False, 0)
+    bEANoReplicates = param_choose(popedInput, False, 0, 'settings', 'bEANoReplicates')
     # -- BFGS Minimizer Convergence Criteria Minimum Step --
     BFGSConvergenceCriteriaMinStep = None,
     # param_choose(popedInput["settings"]BFGSConvergenceCriteriaMinStep,1e-08),
     # -- BFGS Minimizer Convergence Criteria Normalized Projected Gradient Tolerance --
-    BFGSProjectedGradientTol = param_choose(
-        popedInput['settings']['BFGSProjectedGradientTol'], 0.0001, 0)
+    BFGSProjectedGradientTol = param_choose(popedInput, 0.0001, 0, 'settings', 'BFGSProjectedGradientTol')
     # -- BFGS Minimizer Line Search Tolerance f --
-    BFGSTolerancef = param_choose(
-        popedInput['settings']['BFGSTolerancef'], 0.001, 0)
+    BFGSTolerancef = param_choose(popedInput, 0.001, 0, 'settings', 'BFGSTolerancef')
     # -- BFGS Minimizer Line Search Tolerance g --
-    BFGSToleranceg = param_choose(
-        popedInput['settings']['BFGSToleranceg'], 0.9, 0)
+    BFGSToleranceg = param_choose(popedInput, 0.9, 0, 'settings', 'BFGSToleranceg')
     # -- BFGS Minimizer Line Search Tolerance x --
-    BFGSTolerancex = param_choose(
-        popedInput['settings']['BFGSTolerancex'], 0.1, 0)
+    BFGSTolerancex = param_choose(popedInput, 0.1, 0, 'settings', 'BFGSTolerancex')
     # -- Number of iterations in ED-optimal design to calculate convergence criteria --
-    ED_diff_it = param_choose(popedInput['settings']['ED_diff_it'], 30, 0)
+    ED_diff_it = param_choose(popedInput, 30, 0, 'settings', 'ED_diff_it')
     # -- ED-optimal design convergence criteria in percent --
-    ED_diff_percent = param_choose(
-        popedInput['settings']['ED_diff_percent'], 10, 0)
+    ED_diff_percent = param_choose(popedInput, 10, 0, 'settings', 'ED_diff_percent')
     # -- Number of grid points in the line search --
-    line_search_it = param_choose(
-        popedInput['settings']['ls_step_size'], 50, 0)
+    line_search_it = param_choose(popedInput, 50, 0, 'settings', 'ls_step_size')
     # -- Number of iterations of full Random search and full Stochastic Gradient if line search is not used --
-    Doptim_iter = param_choose(
-        popedInput['settings']['iNumSearchIterationsIfNotLineSearch'], 1, 0)
+    Doptim_iter = param_choose(popedInput, 1, 0, 'settings', 'iNumSearchIterationsIfNotLineSearch')
 
     # --------------------------
     # -- Parallel options for PopED -- --
@@ -728,51 +696,38 @@ def create_poped_database(popedInput={}, **kwargs):
     #     ## 1 or 4 = Only using MCC (shared lib),
     #     ## 2 or 5 = Only MPI,
     #     ## Option 0,1,2 runs PopED and option 3,4,5 stops after compilation --
-    iCompileOption = param_choose(
-        popedInput['settings']['parallel']['iCompileOption'], -1, 0)
+    iCompileOption = param_choose(popedInput, -1, 0, 'settings', 'parallel', 'iCompileOption')
     # -- Parallel method to use (0 = Matlab PCT, 1 = MPI) --
-    iUseParallelMethod = param_choose(
-        popedInput['settings']['parallel']['iUseParallelMethod'], 1, 0)
+    iUseParallelMethod = param_choose(popedInput, 1, 0, 'settings', 'parallel', 'iUseParallelMethod')
     # -- Additional dependencies used in MCC compilation (mat-files), if several space separated --
     MCC_Dep = None,
     # param_choose(popedInput["settings"]parallel$strAdditionalMCCCompilerDependencies, ''),
     # -- Compilation output executable name --
-    strExecuteName = param_choose(
-        popedInput['settings']['parallel']['strExecuteName'], 'calc_fim.exe', 0)
+    strExecuteName = param_choose(popedInput, 'calc_fim.exe', 0, 'settings', 'parallel', 'strExecuteName')
     # -- Number of processes to use when running in parallel (e.g. 3 = 2 workers, 1 job manager) --
-    iNumProcesses = param_choose(
-        popedInput['settings']['parallel']['iNumProcesses'], 2, 0)
+    iNumProcesses = param_choose(popedInput, 2, 0, 'settings', 'parallel', 'iNumProcesses')
     # -- Number of design evaluations that should be evaluated in each process before getting new work from job manager --
-    iNumChunkDesignEvals = param_choose(
-        popedInput['settings']['parallel']['iNumChunkDesignEvals'], -2, 0)
+    iNumChunkDesignEvals = param_choose(popedInput, -2, 0, 'settings', 'parallel', 'iNumChunkDesignEvals')
     # -- The prefix of the input mat file to communicate with the executable --
     # strMatFileInputPrefix = param_choose(
     #   popedInput["settings"]parallel$strMatFileInputPrefix,
     #   'parallel_input'),
     # -- The prefix of the output mat file to communicate with the executable --
-    Mat_Out_Pre = param_choose(
-        popedInput['settings']['parallel']['strMatFileOutputPrefix'], 'parallel_output', 0)
+    Mat_Out_Pre = param_choose(popedInput, 'parallel_output', 0, 'settings', 'parallel', 'strMatFileOutputPrefix')
     # -- Extra options send to e$g. the MPI executable or a batch script, see execute_parallel$m for more information and options --
-    strExtraRunOptions = param_choose(
-        popedInput['settings']['parallel']['strExtraRunOptions'], '', 0)
+    strExtraRunOptions = param_choose(popedInput, '', 0, 'settings', 'parallel', 'strExtraRunOptions')
     # -- Polling time to check if the parallel execution is finished --
-    dPollResultTime = param_choose(
-        popedInput['settings']['parallel']['dPollResultTime'], 0.1, 0)
+    dPollResultTime = param_choose(popedInput, 0.1, 0, 'settings', 'parallel', 'dPollResultTime')
     # -- The file containing the popedInput structure that should be used to evaluate the designs --
-    strFunctionInputName = param_choose(
-        popedInput['settings']['parallel']['strFunctionInputName'], 'function_input', 0)
+    strFunctionInputName = param_choose(popedInput, 'function_input', 0, 'settings', 'parallel', 'strFunctionInputName')
     # -- If the random search is going to be executed in parallel --
-    bParallelRS = param_choose(
-        popedInput['settings']['parallel']['bParallelRS'], False, 0)
+    bParallelRS = param_choose(popedInput, False, 0, 'settings', 'parallel', 'bParallelRS')
     # -- If the stochastic gradient search is going to be executed in parallel --
-    bParallelSG = param_choose(
-        popedInput['settings']['parallel']['bParallelSG'], False, 0)
+    bParallelSG = param_choose(popedInput, False, 0, 'settings', 'parallel', 'bParallelSG')
     # -- If the modified exchange algorithm is going to be executed in parallel --
-    bParallelMFEA = param_choose(
-        popedInput['settings']['parallel']['bParallelMFEA'], False, 0)
+    bParallelMFEA = param_choose(popedInput, False, 0, 'settings', 'parallel', 'bParallelMFEA')
     # -- If the line search is going to be executed in parallel --
-    bParallelLS = param_choose(
-        popedInput['settings']['parallel']['bParallelLS'], False, 0)
+    bParallelLS = param_choose(popedInput, False, 0, 'settings', 'parallel', 'bParallelLS')
 
     for k, v in kwargs.items():
         exec(k + " = " + str(v))
@@ -811,12 +766,10 @@ def create_poped_database(popedInput={}, **kwargs):
     poped_db["settings"]["poped_version"] = poped_version
 
     if BFGSConvergenceCriteriaMinStep is None:
-        BFGSConvergenceCriteriaMinStep = param_choose(
-            popedInput["settings"]["BFGSConvergenceCriteriaMinStep"], 1e-08, 0)
+        BFGSConvergenceCriteriaMinStep = param_choose(popedInput, 1e-08, 0, "settings", "BFGSConvergenceCriteriaMinStep")
 
     if MCC_Dep is None:
-        MCC_Dep = param_choose(
-            popedInput["settings"]["parallel"]["strAdditionalMCCCompilerDependencies"], "", 0)
+        MCC_Dep = param_choose(popedInput, "", 0, "settings", "parallel", "strAdditionalMCCCompilerDependencies")
 
     poped_db["model"] = {}
     poped_db["model"]["user_distribution_pointer"] = ""

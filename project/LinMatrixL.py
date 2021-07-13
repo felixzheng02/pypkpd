@@ -33,12 +33,12 @@ from project.gradfg import gradfg
 def LinMatrixL (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
   
     if poped_db["parameters"]["NumRanEff"] == 0:
-        y=0
+        y = 0
     else:
-        returnArgs = gradff(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db) 
-        grad_ff_tmp = returnArgs[[0]]
-        poped_db = returnArgs[[1]]
-        y = np.matmul(grad_ff_tmp, gradfg(x,a,bpop,b_ind,bocc_ind,poped_db))
+        returnArgs = gradff(model_switch, xt_ind, x, a, bpop, b_ind, bocc_ind, poped_db) 
+        grad_ff_tmp = returnArgs[0]
+        poped_db = returnArgs[1]
+        y = np.matmul(grad_ff_tmp, gradfg(x, a, bpop, b_ind, bocc_ind, poped_db))
     
     return {"y": y, "poped_db": poped_db}
 

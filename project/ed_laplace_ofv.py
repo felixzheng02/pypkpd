@@ -42,11 +42,11 @@
 ## right now function only works for normal and log-normal priors
 
 ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
-                           bpopdescr,ddescr,covd,sigma,docc,poped.db,
+                           bpopdescr,ddescr,covd,sigma,docc,poped_db,
                            method=1,
                            return_gradient=FALSE,
-                           optxt=poped.db$settings$optsw[2], 
-                           opta=poped.db$settings$optsw[4],
+                           optxt=poped_db$settings$optsw[2], 
+                           opta=poped_db$settings$optsw[4],
                            x=c(),...)
 {
   
@@ -66,19 +66,19 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
     x2=x
     if(!isempty(x)){
         if(optxt){
-        notfixed=poped.db$design_space$minxt!=poped.db$design_space$maxxt
-        if(poped.db$design_space$bUseGrouped_xt){
-            xtopto[notfixed]=x[poped.db$design_space$G_xt[notfixed]]
-            x[1:numel(unique(poped.db$design_space$G_xt[notfixed]))]=matrix(0,0,0)
+        notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
+        if(poped_db$design_space$bUseGrouped_xt){
+            xtopto[notfixed]=x[poped_db$design_space$G_xt[notfixed]]
+            x[1:numel(unique(poped_db$design_space$G_xt[notfixed]))]=matrix(0,0,0)
         } else {
             xtopto[notfixed]=x[1:numel(xtopto[notfixed])]
             x=x[-c(1:numel(xtopto[notfixed]))]
         }
         }
         if(opta){
-        notfixed=poped.db$design_space$mina!=poped.db$design_space$maxa
-        if(poped.db$design_space$bUseGrouped_a){
-            aopto[notfixed]=x[poped.db$design_space$G_a[notfixed]]
+        notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
+        if(poped_db$design_space$bUseGrouped_a){
+            aopto[notfixed]=x[poped_db$design_space$G_a[notfixed]]
         } else {
             aopto[notfixed]=x
         }
@@ -110,13 +110,13 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
     #calc initial k value and gradient
     ret_grad <- F
     if(method==0) ret_grad <- T
-    ret_args <- calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+    ret_args <- calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                         return_gradient=ret_grad) 
     f_k <- ret_args[[1]]
     gf_k <- NULL
     if(method==0) gf_k <- ret_args[["grad_k"]]
     
-    ret_args <- tryCatch.W.E(inv(evaluate.fim(poped.db)))
+    ret_args <- tryCatch.W.E(inv(evaluate.fim(poped_db)))
     if(any(class(ret_args$value)=="error")){
         warning("Inversion of the FIM is not possible, the current design cannot estimate all parameters")
         warning("In ", deparse(ret_args$value$call)," : \n    ", ret_args$value$message)
@@ -125,17 +125,17 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         return(list(f=f))
     }
     # tryCatch.W.E( numDeriv::grad(function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-    #                                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+    #                                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
     #                                                 return_gradient=F),
     #                              alpha_k) )
     # 
     # tryCatch.W.E( numDeriv::hessian(function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-    #                                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+    #                                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
     #                                                 return_gradient=F),
     #                              alpha_k) )
     # 
     #   ## test f_k value
-    #fim <- det(evaluate.fim(poped.db))
+    #fim <- det(evaluate.fim(poped_db))
     #   # assuming all normal distributions and only first 3 fixed effects
     #p <- prod(dnorm(bpopdescr[1:3,2],mean=bpopdescr[1:3,2],sd=sqrt(bpopdescr[1:3,3]))) 
     #k_test <- -log(fim*0.36)
@@ -143,7 +143,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
     
     #   ## test gf_k
     #   alpha_k_plus <- alpha_k+rbind(0.00001,0,0)
-    #   returnArgs.1 <- calc_k(alpha_k_plus,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+    #   returnArgs.1 <- calc_k(alpha_k_plus,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
     #                        return_gradient=F) 
     #   f_k_plus <- returnArgs.1[[1]]
     # 
@@ -177,8 +177,8 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         #determine search direction for line search
         p_k=-H_k%*%gf_k
         f_name  <- "calc_k"
-        #f_options <- list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine)
-        f_options <- list("replace",model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine)
+        #f_options <- list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
+        f_options <- list("replace",model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
         returnArgs <- line_search_uc(alpha_k_log,f_k,gf_k,p_k,f_name,f_options,exp_index)
         alpha_k1_log <- returnArgs[[1]]
         f_k1 <- returnArgs[[2]]
@@ -187,7 +187,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
             # check this that it is the same as in matlab
             break
         }
-        f_k1 <- calc_k(trans(alpha_k1_log),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+        f_k1 <- calc_k(trans(alpha_k1_log),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                         return_gradient=T) 
         gf_k1 <- attr(f_k1,"grad")
         #transform gradient for ds (log(alpha))
@@ -212,8 +212,8 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         
         #if the number of iterations is smaller than the dimension of the problem
         #we have to calculate the hessian explicitly
-        if((niter<length(B_k)||poped.db$settings$iEDCalculationType==1)){
-        hess=hesskalpha2(alpha_k, model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,1e-6,Engine)
+        if((niter<length(B_k)||poped_db$settings$iEDCalculationType==1)){
+        hess=hesskalpha2(alpha_k, model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6,Engine)
         detHessPi=det(hess)*(2*pi)^(-length(hess))
         } else {
         temp=matrix(1,size(gf_k))
@@ -236,7 +236,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         opt_meth <- "Nelder-Mead"
         if(length(alpha_k)==1) opt_meth <- "BFGS"
         # initial_k <- calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,
-        #                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+        #                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #                     return_gradient=F)
         # cat("alpha_k = ",alpha_k," initial k = ", initial_k, "\n")
         # cat("xt = ",xtopto, "\n")
@@ -246,33 +246,33 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         # d=ddescr[,2,drop=F]
         # d[ddescr[,1]==4]=alpha_k[(sum(bpopdescr[,1,drop=F]!=0)+1):length(alpha_k),drop=F]
         # d=getfulld(d,covd)
-        # retargs=mftot(model_switch,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db)
+        # retargs=mftot(model_switch,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db)
         # fim <- retargs$ret
         # det(fim)
         # inv(fim)
         # 
         # for(tmp in seq(0.0993,10, by=1)){
         #   cat(calc_k(tmp,model_switch,groupsize,ni,xtopto,xopto,
-        #              aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+        #              aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #              return_gradient=F),"\n")
         # }
         # 
         # nlme::fdHess(alpha_k,
         #              function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-        #                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+        #                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #                                 return_gradient=F)) 
         # 
         # numDeriv::hessian(function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-        #                                      aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+        #                                      aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #                                      return_gradient=F),
         #                   alpha_k)
         # 
         output <- optim(alpha_k, 
                         function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-                                        aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+                                        aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                                         return_gradient=F),
                         #gr=function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-                        #                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+                        #                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                         #                     return_gradient=T)[["grad_k"]],
                         method=opt_meth,
                         #method="BFGS",
@@ -294,7 +294,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         }
         k_vals <- nlme::fdHess(output$par,
                                 function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
-                                                    aopto,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+                                                    aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                                                     return_gradient=F)) 
         hess <- k_vals$Hessian
         }  
@@ -318,20 +318,20 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         gradxt=matrix(0,0,0)
         grada=matrix(0,0,0)
         if((optxt==TRUE)){
-        notfixed=poped.db$design_space$minxt!=poped.db$design_space$maxxt
-        gradxt=-graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE,gradxt=TRUE)
+        notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
+        gradxt=-graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE)
         gradxt=gradxt(notfixed)
-        if(poped.db$design_space$bUseGrouped_xt){
-            index=unique(poped.db$design_space$G_xt)
+        if(poped_db$design_space$bUseGrouped_xt){
+            index=unique(poped_db$design_space$G_xt)
             gradxt=gradxt(index)
         }
         }
         if((opta==TRUE)){
-        notfixed=poped.db$design_space$mina!=poped.db$design_space$maxa
-        grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE)
+        notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
+        grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
         grada=grada(notfixed)
-        if(poped.db$design_space$bUseGrouped_a){
-            index=unique(poped.db$design_space$G_a)
+        if(poped_db$design_space$bUseGrouped_a){
+            index=unique(poped_db$design_space$G_a)
             grada=grada(index)
         }
         }
@@ -350,20 +350,20 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
             d[ddescr[,1]!=0]=alpha_plus_plus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
             d=getfulld(d,covd)
             if((optxt==TRUE)){
-            notfixed=poped.db$design_space$minxt!=poped.db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE,gradxt=TRUE))
+            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
+            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
             gradxt=gradxt(notfixed)
-            if(poped.db$design_space$bUseGrouped_xt){
-                index=unique(poped.db$design_space$G_xt)
+            if(poped_db$design_space$bUseGrouped_xt){
+                index=unique(poped_db$design_space$G_xt)
                 gradxt=gradxt(index)
             }
             }
             if((opta==TRUE)){
-            notfixed=poped.db$design_space$mina!=poped.db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE)
+            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
+            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
             grada=grada(notfixed)
-            if(poped.db$design_space$bUseGrouped_a){
-                index=unique(poped.db$design_space$G_a)
+            if(poped_db$design_space$bUseGrouped_a){
+                index=unique(poped_db$design_space$G_a)
                 grada=grada(index)
             }
             }
@@ -378,20 +378,20 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
             d[ddescr[,1]!=0]=alpha_minus_plus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
             d=getfulld(d,covd)
             if((optxt==TRUE)){
-            notfixed=poped.db$design_space$minxt!=poped.db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE,gradxt=TRUE))
+            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
+            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
             gradxt=gradxt(notfixed)
-            if(poped.db$design_space$bUseGrouped_xt){
-                index=unique(poped.db$design_space$G_xt)
+            if(poped_db$design_space$bUseGrouped_xt){
+                index=unique(poped_db$design_space$G_xt)
                 gradxt=gradxt(index)
             }
             }
             if((opta==TRUE)){
-            notfixed=poped.db$design_space$mina!=poped.db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE)
+            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
+            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
             grada=grada(notfixed)
-            if(poped.db$design_space$bUseGrouped_a){
-                index=unique(poped.db$design_space$G_a)
+            if(poped_db$design_space$bUseGrouped_a){
+                index=unique(poped_db$design_space$G_a)
                 grada=grada(index)
             }
             }
@@ -406,20 +406,20 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
             d[ddescr[,1]!=0]=alpha_plus_minus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
             d=getfulld(d,covd)
             if((optxt==TRUE)){
-            notfixed=poped.db$design_space$minxt!=poped.db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE,gradxt=TRUE))
+            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
+            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
             gradxt=gradxt(notfixed)
-            if(poped.db$design_space$bUseGrouped_xt){
-                index=unique(poped.db$design_space$G_xt)
+            if(poped_db$design_space$bUseGrouped_xt){
+                index=unique(poped_db$design_space$G_xt)
                 gradxt=gradxt(index)
             }
             }
             if((opta==TRUE)){
-            notfixed=poped.db$design_space$mina!=poped.db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE)
+            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
+            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
             grada=grada(notfixed)
-            if(poped.db$design_space$bUseGrouped_a){
-                index=unique(poped.db$design_space$G_a)
+            if(poped_db$design_space$bUseGrouped_a){
+                index=unique(poped_db$design_space$G_a)
                 grada=grada(index)
             }
             }
@@ -434,20 +434,20 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
             d[ddescr[,1]!=0]=alpha_minus_minus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
             d=getfulld(d,covd)
             if((optxt==TRUE)){
-            notfixed=poped.db$design_space$minxt!=poped.db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE,gradxt=TRUE))
+            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
+            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
             gradxt=gradxt(notfixed)
-            if(poped.db$design_space$bUseGrouped_xt){
-                index=unique(poped.db$design_space$G_xt)
+            if(poped_db$design_space$bUseGrouped_xt){
+                index=unique(poped_db$design_space$G_xt)
                 gradxt=gradxt(index)
             }
             }
             if((opta==TRUE)){
-            notfixed=poped.db$design_space$mina!=poped.db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped.db,lndet=TRUE)
+            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
+            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
             grada=grada(notfixed)
-            if(poped.db$design_space$bUseGrouped_a){
-                index=unique(poped.db$design_space$G_a)
+            if(poped_db$design_space$bUseGrouped_a){
+                index=unique(poped_db$design_space$G_a)
                 grada=grada(index)
             }
             }
@@ -469,13 +469,13 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
     }
 
     calc_k <- function(alpha, model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,
-                    ddescr,covd,sigma,docc,poped.db,Engine,return_gradient=F){
+                    ddescr,covd,sigma,docc,poped_db,Engine,return_gradient=F){
     bpop=bpopdescr[,2,drop=F]
     bpop[bpopdescr[,1,drop=F]!=0]=alpha[1:sum(bpopdescr[,1,drop=F]!=0),drop=F]
     d=ddescr[,2,drop=F]
     d[ddescr[,1]==4]=alpha[(sum(bpopdescr[,1,drop=F]!=0)+1):length(alpha),drop=F]
     d=getfulld(d,covd)
-    retargs=mftot(model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpop,d,sigma,docc,poped.db)
+    retargs=mftot(model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpop,d,sigma,docc,poped_db)
     fim <- retargs$ret
     
     det_fim <- det(fim)
@@ -491,8 +491,8 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
     
     if(return_gradient){
         
-        comp_grad_1 <- function(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped.db, grad_p) {
-        returnArgs <- dfimdalpha(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped.db,1e-6) 
+        comp_grad_1 <- function(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) {
+        returnArgs <- dfimdalpha(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6) 
         d_fim <- returnArgs[[1]]
         fim <- returnArgs[[2]]
         ifim <- inv(fim)
@@ -502,15 +502,15 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         grad_k=-(gradlogdfim+grad_p)
         }
         
-        # foo <- tryCatch.W.E( comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped.db, grad_p) )
+        # foo <- tryCatch.W.E( comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) )
         # is.numeric(foo$value)
         # 
         # tryCatch.W.E( numDeriv::grad(function(x) calc_k(x,model_switch,groupsize,ni,xtoptn,xoptn,
-        #                                                 aoptn,bpopdescr,ddescr,covd,sigma,docc,poped.db,Engine,
+        #                                                 aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #                                                 return_gradient=F),
         #                              alpha) )
         # 
-        grad_k <- comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped.db, grad_p)
+        grad_k <- comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p)
         ## if not positive definite set grad_k=zeros(length(alpha),1)
         
         #tryCatch(log(det(fim)), warning = function(w) browser())

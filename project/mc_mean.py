@@ -68,7 +68,7 @@ def mc_mean(ofv_fcn,poped_db,*argv):
         poped_db_tmp["parameters"]["d"][:,1] = d_gen[ct,:]
         poped_db_tmp["parameters"]["docc"][:,1] = docc_gen[ct,:]
         
-        dmf_tmp = feval(ofv_fcn, poped_db_tmp,*argv)
+        dmf_tmp = feval(ofv_fcn, poped_db_tmp, *argv)
         
         ofv_sum = ofv_sum + dmf_tmp
     

@@ -6,7 +6,7 @@
 """
 
 import numpy as np
-from project.feval import do_call
+from project.feval import feval
 
 #' Structural model: one-compartment, oral absorption, multiple bolus dose, parameterized using KE.
 #' 
@@ -244,7 +244,7 @@ def ff_PKPD_1_comp_oral_md_CL_imax(model_switch, xt, parameters: dict, poped_db)
 def feps_add_prop(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Additive + Proportional 
-    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch, xt, parameters, poped_db]) 
+    returnArgs = feval(poped_db["model"]["ff_pointer"], model_switch, xt, parameters, poped_db) 
     y = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     y = y*(1+epsi[:,0])+epsi[:,1]
@@ -277,7 +277,7 @@ def feps_add_prop(model_switch, xt, parameters, epsi, poped_db):
 def feps_add(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Additive 
-    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch, xt, parameters, poped_db]) 
+    returnArgs = feval(poped_db["model"]["ff_pointer"], model_switch, xt, parameters, poped_db) 
     y = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     y = y+epsi[:,0]
@@ -312,7 +312,7 @@ def feps_add(model_switch, xt, parameters, epsi, poped_db):
 def feps_prop(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Proportional 
-    returnArgs = do_call(poped_db["model"]["ff_pointer"],[model_switch, xt, parameters, poped_db]) 
+    returnArgs = feval(poped_db["model"]["ff_pointer"], model_switch, xt, parameters, poped_db) 
     y = returnArgs[[0]]
     poped_db = returnArgs[[1]]
     y = y*(1+epsi[:,0])

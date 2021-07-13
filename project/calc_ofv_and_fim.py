@@ -35,7 +35,7 @@
 
 import re
 import numpy as np
-from project.feval import do_call
+from project.feval import feval
 from project.ofv_fim import ofv_fim
 from project.mc_mean import mc_mean
 from project.getfulld import getfulld
@@ -95,11 +95,11 @@ def calc_ofv_and_fim(poped_db, *argv):
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(parse(text=paste(i))) is not None:
                             eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
-                out_tmp = do_call(ofv_fun,[poped_db,*argv])
-                dmf = out_tmp[[0]]
+                out_tmp = feval(ofv_fun,poped_db,*argv)
+                dmf = out_tmp[0]
                 fmf = None
                 if len(out_tmp) > 1:
-                    fmf = out_tmp[[1]]
+                    fmf = out_tmp[1]
             
         else:   # e-family
             if ofv_fun is None:

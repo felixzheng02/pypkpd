@@ -8,7 +8,7 @@
 
 import numpy as np
 from project.size import size
-from project.feval import do_call
+from project.feval import feval
 from project.grad_bpop import grad_bpop
 
 
@@ -42,13 +42,13 @@ def m3(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,bUseVarSigmaDeri
     if sum(poped_db["parameters"]["notfixed_sigma"]) > 0:
         dv_dsig = grad_bpop(helper_v_EBE,9,size(xt_ind)[0]^2,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db, subset=poped_db["parameters"]["notfixed_sigma"])
         if bUseVarSigmaDerivative == False:
-            dv_dsig = np.transpose(2 * np.sqrt(np.diag(sigma))[poped_db["parameters"]["notfixed_sigma"]==1] * np.transpose(dv_dsig))
+            dv_dsig = np.transpose(2*np.sqrt(np.diag(sigma))[poped_db["parameters"]["notfixed_sigma"]==1] * np.transpose(dv_dsig))
 
 
     if sum(poped_db["parameters"]["notfixed_covsigma"]) > 0:
         dv_dcovsig = grad_bpop(helper_v_EBE,9,size(xt_ind)[0]^2,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db, subset=poped_db["parameters"]["notfixed_covsigma"], offdiag = True)
   
 
-    dv_db = do_call(np.hstack, [dv_dd, dv_covd, dv_ddocc, dv_covdocc, dv_dsig, dv_dcovsig])
+    dv_db = feval(np.concatenate, [dv_dd, dv_covd, dv_ddocc, dv_covdocc, dv_dsig, dv_dcovsig])
 
     return {"dv_db": dv_db, "poped_db": poped_db}

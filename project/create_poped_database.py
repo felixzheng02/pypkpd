@@ -1,15 +1,12 @@
 """
 create.poped.database.R
-
 Create a PopED database
-
 This function takes the input file (a previously created poped database) supplied by the user, or function arguments, 
 and creates a database that can then be used to 
 run all other PopED functions.  The function supplies default values to elements of the 
 database that are not specified in the
 input file or as function arguments. Default arguments are supplied in the Usage section 
 (easiest to use a text search to find values you are interested in).  
-
 @inheritParams create_design_space
 @param popedInput A PopED database file or an empty list \code{list()}.  List elements should match the values seen in 
 the Usage section (the defaults to function arguments). 
@@ -36,8 +33,6 @@ e.g. \code{"feps.prop"}.
  Row vector of optimization tasks (1=True,0=False) in the following order: 
 (Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group). 
 All elements set to zero => only calculate the FIM with current design
-
-
 @param xt  \itemize{
 \item \bold{******START OF INITIAL DESIGN OPTIONS**********}}
  Matrix defining the initial sampling schedule. 
@@ -57,8 +52,6 @@ same values.
 If only one number then the number will be the same in every group.
 @param ni Vector defining the number of samples for each group. 
 @param model_switch Matrix defining which response a certain sampling time belongs to.
-
-
 @param maxni  \itemize{
 \item \bold{******START OF DESIGN SPACE OPTIONS**********}}
 Max number of samples per group/individual
@@ -89,7 +82,6 @@ supplied then all xt values are given the same minimum value
 @param G_a Matrix defining the grouping of covariates. Matching integers mean that the points are matched.
 @param bUseGrouped_x Use grouped discrete design variables (1=True, 0=False).
 @param G_x  Matrix defining the grouping of discrete design variables. Matching integers mean that the points are matched.
-
 @param iFIMCalculationType  \itemize{
 \item \bold{******START OF FIM CALCULATION OPTIONS**********}}
 Fisher Information Matrix type
@@ -103,13 +95,11 @@ Fisher Information Matrix type
 \item 6=Calculate one model switch at a time, good for large matrices
 \item 7=Reduced FIM parameterized with A,B,C matrices & derivative of variance
 }
-
 @param iApproximationMethod Approximation method for model, 0=FO, 1=FOCE, 2=FOCEI, 3=FOI
 @param iFOCENumInd Num individuals in each step of FOCE 
 @param prior_fim The prior FIM (added to calculated FIM) 
 @param strAutoCorrelationFile Filename and path, or function name, for the Autocorrelation function, 
 empty string means no autocorrelation.
-
 @param d_switch  \itemize{
 \item \bold{******START OF CRITERION SPECIFICATION OPTIONS**********}}
 D-family design (1) or ED-family design (0) (with or without parameter uncertainty) 
@@ -132,14 +122,12 @@ User defined criterion can be defined this way.
 @param ofv_fun User defined function used to compute the objective function. The function must have a poped database object as its first
 argument and have "..." in its argument list.  Can be referenced as a function or as a file name where the function defined in the file has the same name as the file.
 e.g. "cost.txt" has a function named "cost" in it.
-
 @param iEDCalculationType  \itemize{
 \item \bold{******START OF E-FAMILY CRITERION SPECIFICATION OPTIONS**********}}
 ED Integral Calculation, 0=Monte-Carlo-Integration, 1=Laplace Approximation, 2=BFGS Laplace Approximation  -- --
 @param ED_samp_size Sample size for E-family sampling 
 @param bLHS How to sample from distributions in E-family calculations. 0=Random Sampling, 1=LatinHyperCube --
 @param strUserDistributionFile Filename and path, or function name, for user defined distributions for E-family designs 
-
 @param nbpop  \itemize{
 \item \bold{******START OF Model parameters  SPECIFICATION OPTIONS**********}}
 Number of typical values 
@@ -167,7 +155,6 @@ That is, from your full IIV matrix  \code{covd =  IIV[lower.tri(IIV)]}.
 can also just supply the diagonal parameter values (variances) as a \code{c()}. 
 @param docc Matrix defining the IOV, the IOV variances and the IOV distribution as for d and bpop. 
 @param covdocc Column major vector defining the covariance of the IOV, as in covd. 
-
 @param notfixed_bpop  \itemize{
 \item \bold{******START OF Model parameters fixed or not  SPECIFICATION OPTIONS**********}}
 Vector defining if a typical value is fixed or not (1=not fixed, 0=fixed). 
@@ -182,7 +169,6 @@ arguments in 'notfixed_d' then the order will be worked out automatically.
 @param notfixed_sigma Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) 
 @param notfixed_covsigma Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed). 
 Default is fixed.
-
 @param bUseRandomSearch  \itemize{
 \item \bold{******START OF Optimization algorithm  SPECIFICATION OPTIONS**********}}
 Use random search (1=True, 0=False)
@@ -192,7 +178,6 @@ Use random search (1=True, 0=False)
 @param bUseBFGSMinimizer Use BFGS Minimizer (1=True, 0=False) 
 @param EACriteria Exchange Algorithm Criteria, 1 = Modified, 2 = Fedorov 
 @param strRunFile Filename and path, or function name, for a run file that is used instead of the regular PopED call. 
-
 @param poped_version  \itemize{
 \item \bold{******START OF Labeling and file names  SPECIFICATION OPTIONS**********}}
 The current PopED version 
@@ -200,7 +185,6 @@ The current PopED version
 @param output_file Filename and path of the output file during search 
 @param output_function_file Filename suffix of the result function file 
 @param strIterationFileName Filename and path for storage of current optimal design 
-
 @param user_data  \itemize{
 \item \bold{******START OF Miscellaneous SPECIFICATION OPTIONS**********}}
 User defined data structure that, for example could be used to send in data to the model 
@@ -259,7 +243,6 @@ User defined data structure that, for example could be used to send in data to t
 @param ED_diff_percent ED-optimal design convergence criteria in percent 
 @param line_search_it Number of grid points in the line search 
 @param Doptim_iter Number of iterations of full Random search and full Stochastic Gradient if line search is not used 
-
 @param iCompileOption \bold{******START OF PARALLEL OPTIONS**********} Compile options for PopED
 \itemize{
 \item -1 = No compilation,
@@ -268,7 +251,6 @@ User defined data structure that, for example could be used to send in data to t
 \item 2 or 5 = Only MPI,
 \item Option 0,1,2 runs PopED and option 3,4,5 stops after compilation
 }
-
 @param iUseParallelMethod Parallel method to use (0 = Matlab PCT, 1 = MPI) 
 @param MCC_Dep Additional dependencies used in MCC compilation (mat-files), if several space separated 
 @param strExecuteName Compilation output executable name 
@@ -283,9 +265,7 @@ User defined data structure that, for example could be used to send in data to t
 @param bParallelSG If the stochastic gradient search is going to be executed in parallel 
 @param bParallelMFEA If the modified exchange algorithm is going to be executed in parallel 
 @param bParallelLS If the line search is going to be executed in parallel 
-
 @return A PopED database
-
 Author: Caiya Zhang, Yuchen Zheng
 """
 
@@ -299,7 +279,7 @@ from project.ones import ones
 from project.size import size
 from project.zeros import zeros
 from project.cell import cell
-from project.feval import do_call
+from project.feval import feval
 from project.pargen import pargen
 from project.getfulld import getfulld
 from project.fileparts import fileparts
@@ -1200,9 +1180,7 @@ def create_poped_database(popedInput={}, **kwargs):
     poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(
         poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
     # poped_db["parameters"]["ng"] = poped_choose(ng,length(do.call(poped_db["model"]fg_pointer,list(0,0,0,0,0))))
-    poped_db["parameters"]["ng"] = (do_call(poped_db["model"]["fg_pointer"],
-                                            [0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"],
-                                                               poped_db["parameters"]["NumOcc"])])).size
+    poped_db["parameters"]["ng"] = (feval(poped_db["model"]["fg_pointer"],0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"]))).size
 
     #xt[i] = np.pad(xt[i], (0, length-len(xt[i])), "constant", constant_values=np.nan)
     docc_arr = np.array([1])
@@ -1216,8 +1194,7 @@ def create_poped_database(popedInput={}, **kwargs):
         bpop_arr, (3, 2), "constant", constant_values=np.nan).reshape(1, poped_db["parameters"]["nbpop"]), 0)
 
 # reorder named values
-    fg_names = do_call(poped_db["model"]["fg_pointer"], [1, 1, 1, 1, ones(
-        poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])]).keys()
+    fg_names = feval(poped_db["model"]["fg_pointer"], 1, 1, 1, 1, ones(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])).keys()
 
     poped_db["parameters"]["notfixed_bpop"] = reorder_vec(
         poped_db["parameters"]["notfixed_bpop"], fg_names)
@@ -1440,7 +1417,6 @@ def create_poped_database(popedInput={}, **kwargs):
     eval('%s.val = param.val["%s"]' % (tmp_names, tmp_names))
     """ 
 	#tools/spped_check.R
-
 	d_val = d_val # for package check
 	covd_val = covd_val
 	docc_val = docc_val

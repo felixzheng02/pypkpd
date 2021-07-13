@@ -8,7 +8,7 @@ Author: Caiya Zhang, Yuchen Zheng
 import numpy as np
 from project.zeros import zeros
 from project.size import size
-from project.feval import do_call
+from project.feval import feval
 
 def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPopED=False, offdiag=False):
     
@@ -74,9 +74,9 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
     if grad_all_switch == 1:
         for i in idx:
             arg_list[[select_par]] = def0 + (idx0 == i) * hlf
-            def_plus = do_call(func, arg_list)
+            def_plus = feval(func, arg_list)
             arg_list[[select_par]] = def0 - (idx0 == i) * hlf
-            def_minus = do_call(func, arg_list)
+            def_minus = feval(func, arg_list)
             if noPopED == False:
                 def_plus = def_plus[[1]]        
                 def_minus = def_minus[[1]]        
@@ -87,7 +87,7 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
         if grad_all_switch == 0:
             for i in idx:
                 arg_list[[select_par]] = def0 + (idx0 == i) * complex(real = 0, imaginary = hlf)
-                def_plus = do_call(func, arg_list)[[1]]
+                def_plus = feval(func, arg_list)[1]
 ##没写！！！！pixel image
                 gradX[:,i] = Im(def_plus) / hlf
         else:

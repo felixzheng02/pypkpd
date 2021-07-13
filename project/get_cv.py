@@ -14,14 +14,14 @@ from project.diag_matlab import diag_matlab
 from project.get_all_params import get_all_params
 from project.get_unfixed_params import get_unfixed_params
 
-def get_cv(param_vars,poped_db):
+def get_cv(param_vars:np.ndarray,poped_db):
     #Return the RSE,CV of parameters
     ## Author: Andrew Hooker
-    params_all =  get_all_params(poped_db)[[7]] 
+    params_all =  get_all_params(poped_db)[7]
     
-    returnArgs =  get_unfixed_params(poped_db,params_all) 
-    params = returnArgs[[7]]
-    var_derivative = returnArgs[[8]]
+    returnArgs =  get_unfixed_params(poped_db, params_all) 
+    params:np.ndarray = returnArgs[7]
+    var_derivative = returnArgs[8]
     
     if param_vars.size != params.size:
         raise Exception("Number of unfixed parameters not the same as the size of the FIM,\nno RSE can be computed!\n")
@@ -73,20 +73,20 @@ def get_rse(fim, poped_db,*argv):
     docc = poped_db["parameters"]["docc"]
     sigma = poped_db["parameters"]["sigma"]
     use_percent = True
-    fim_calc_type = poped_db["settings"]["iFIMCalculationType"],
-    prior_fim = poped_db["settings"]["prior_fim"],
+    fim_calc_type = poped_db["settings"]["iFIMCalculationType"]
+    prior_fim = poped_db["settings"]["prior_fim"]
     #pseudo_on_fail = False,
     ## update poped_db with options supplied in function
     called_args = match_call()
     default_args = formals()
     for i in called_args.keys()[-1]:
-        if len(re.match("^poped\\.db\\$",capture_output(default_args[[i]]))) == 1:
+        if len(re.match("^poped\\.db\\$",str(default_args[i]))) == 1:
         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
         # if (i %in% c('bpop','d')) {
         #   if (eval(parse(text=paste("dim(",i,")[2]>1"))))
         #     (eval(parse(text=paste(i, "=",i,"[,2]"))))
         # }
-            eval(str(capture_output(default_args[[i]]) + "=" + i))
+            eval(str(default_args[[i]]) + "=" + str(i))
 
     ## if prior is given in poped_db then add it to the given fim
     if len(prior_fim) != 0 and all(size(prior_fim) == size(fim)):
@@ -100,13 +100,13 @@ def get_rse(fim, poped_db,*argv):
 
     if inv_fim is None:
         mess = "\n  Could not invert the FIM." + "\n  Is the design adequate to estimate all parameters?"
-        eig = eigen(fim)[["values"]]
+        eig = eigen(fim)["values"]
         eig.keys() = get_parnam(poped_db)
-        neg_vals = eig[eig< 0]
-        num_neg = length(neg_vals)
+        neg_vals:np.ndarray = eig[eig < 0]
+        num_neg = neg_vals.size
         if num_neg > 0:
             mess = mess + "\n  Potentially problematic parameters and associated eigenvalues:"
-            for i in range(0,num_neg):
+            for i in range(0, num_neg):
                 mess = mess + ("\n %12s  %8.7e",neg_vals[i].keys(),neg_vals[i])
         #warning(simpleWarning(mess,call="get_rse()"))
         warning(mess)
@@ -114,8 +114,8 @@ def get_rse(fim, poped_db,*argv):
 
     param_vars = diag_matlab(inv_fim)
     returnArgs =  get_cv(param_vars,poped_db) 
-    params = returnArgs[[1]]
-    params_rse = returnArgs[[2]]
+    params = returnArgs[1]
+    params_rse = returnArgs[2]
     parnam = get_parnam(poped_db)
     ret = params_rse[:,:,drop=T]
     if use_percent: 

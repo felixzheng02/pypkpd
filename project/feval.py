@@ -17,16 +17,9 @@
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 
-import builtins
 
 
-def do_call(what, *argv):
-    return getattr(builtins, what)(*argv)
 
-def feval (file_name, *argv):
-    #func.name = gsub("\\.R$","",file.name)
-    for arg in args:
-        for i in range(len(args)):
-            arglist = []
-            arglist[i] = arg
-    do_call(file_name, arglist)
+def feval (func_name, *argv):
+    #func_name = gsub("\\.R$","",file.name)
+    return eval(func_name)(*argv)

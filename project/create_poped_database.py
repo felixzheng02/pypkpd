@@ -304,6 +304,7 @@ def reorder_vec(your_vec, name_order):
 
 def create_poped_database(popedInput={}, **kwargs):
 
+    param = list(kwargs.keys())
     # parameters
 
     # --------------------------
@@ -312,7 +313,7 @@ def create_poped_database(popedInput={}, **kwargs):
     keys = list(popedInput.keys())
     # -- Filname and path of the model file --
     ff_file = None
-    ff_fun = param_choose(popedInput, None, 0, 'model', 'ff_pointer')
+    ff_fun = param_choose(popedInput, None, 0, param, 'model', 'ff_pointer')
 
     # -- Filname and path of the g parameter file --
     fg_file = None
@@ -710,7 +711,7 @@ def create_poped_database(popedInput={}, **kwargs):
     bParallelLS = param_choose(popedInput, False, 0, 'settings', 'parallel', 'bParallelLS')
 
     for k, v in kwargs.items():
-        exec(k + " = " + str(v))
+        exec("%s = %s" % (k, kwargs[k]))
 
 #####-------------- main part --------------#####
     poped_db = {}
@@ -1406,3 +1407,6 @@ def create_poped_database(popedInput={}, **kwargs):
     poped_db["settings"]["strOutputFileExtension"] = list(retargs.values())[2]
 
     return poped_db
+
+def somestring(**kwargs):
+    return ", ".join(f"{key}={value}" for key, value in kwargs.items())

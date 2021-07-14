@@ -5,7 +5,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-def param_choose(input: dict, rep_val, exp: int, *argv):
+def param_choose(input: dict, rep_val, exp: int, param: list, *argv):
 	tmp_dict = input
 	for k in argv:
 		if k not in list(tmp_dict.keys()):
@@ -15,4 +15,5 @@ def param_choose(input: dict, rep_val, exp: int, *argv):
 				return rep_val
 		else:
 			tmp_dict = tmp_dict[k]
-	return tmp_dict
+	if argv[-1] not in param:
+		return tmp_dict

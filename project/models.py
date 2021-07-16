@@ -245,8 +245,8 @@ def feps_add_prop(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Additive + Proportional 
     returnArgs = feval(poped_db["model"]["ff_pointer"], model_switch, xt, parameters, poped_db) 
-    y = returnArgs[[0]]
-    poped_db = returnArgs[[1]]
+    y = returnArgs[0]
+    poped_db = returnArgs[1]
     y = y*(1+epsi[:,0])+epsi[:,1]
     
     return {"y": y, "poped_db": poped_db}
@@ -278,8 +278,8 @@ def feps_add(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Additive 
     returnArgs = feval(poped_db["model"]["ff_pointer"], model_switch, xt, parameters, poped_db) 
-    y = returnArgs[[0]]
-    poped_db = returnArgs[[1]]
+    y = returnArgs[0]
+    poped_db = returnArgs[1]
     y = y+epsi[:,0]
     
     return {"y": y, "poped_db": poped_db}
@@ -313,8 +313,8 @@ def feps_prop(model_switch, xt, parameters, epsi, poped_db):
     ## -- Residual Error function
     ## -- Proportional 
     returnArgs = feval(poped_db["model"]["ff_pointer"], model_switch, xt, parameters, poped_db) 
-    y = returnArgs[[0]]
-    poped_db = returnArgs[[1]]
+    y = returnArgs[0]
+    poped_db = returnArgs[1]
     y = y*(1+epsi[:,0])
 
     return {"y": y, "poped_db": poped_db}

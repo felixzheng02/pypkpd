@@ -60,7 +60,7 @@ def helper_LinMatrix (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind,bocc_ind,d,s
     g_p = feval(poped_db["model"]["fg_pointer"],x,a,bpop,b_ind,bocc_ind)
   
     returnArgs = feval(poped_db["model"]["ferror_pointer"],model_switch,xt_ind,g_p,epsi0,poped_db)
-    ferror = returnArgs[[1]]
+    ferror = returnArgs[1]
     
     if (poped_db["settings"]["iApproximationMethod"] == 0 or poped_db["settings"]["iApproximationMethod"] == 3 or (len(b_ind) == 0 and len(bocc_ind) == 0)) :
         #FO, FOI
@@ -73,7 +73,7 @@ def helper_LinMatrix (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind,bocc_ind,d,s
     else:
         #FOCE, FOCEI
         returnArgs = LinMatrixL(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db)
-        l_plus = returnArgs[[1]]
+        l_plus = returnArgs[1]
 
         if len(b_ind) == 0:#No IIV present
             l_plus = zeros(size(xt_ind,1), 1)
@@ -84,7 +84,7 @@ def helper_LinMatrix (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind,bocc_ind,d,s
     if poped_db["parameters"]["NumOcc"] != 0:
         for m in range(poped_db["parameters"]["NumOcc"]): 
             returnArgs = LinMatrixL_occ(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,m,poped_db)
-            l_plus_occ = returnArgs[[0]]
+            l_plus_occ = returnArgs[0]
             occ_add_plus = occ_add_plus + l_plus_occ * (bocc_ind[:, 1])
     ferror = ferror - (l_plus+occ_add_plus)
   

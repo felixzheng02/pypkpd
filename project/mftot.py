@@ -67,8 +67,8 @@ def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*argv):
         
         if returnArgs is None:
             raise Exception("Unknown FIM-calculation type")
-        mf_tmp = returnArgs[[0]]
-        poped_db = returnArgs[[1]]
+        mf_tmp = returnArgs[0]
+        poped_db = returnArgs[1]
         s = s+groupsize[i]*mf_tmp
 
     return {"s": s, "poped_db": poped_db}

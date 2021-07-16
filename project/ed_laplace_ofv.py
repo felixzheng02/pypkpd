@@ -180,7 +180,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         #f_options <- list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
         f_options <- list("replace",model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
         returnArgs <- line_search_uc(alpha_k_log,f_k,gf_k,p_k,f_name,f_options,exp_index)
-        alpha_k1_log <- returnArgs[[1]]
+        alpha_k1_log <- returnArgs[1]
         f_k1 <- returnArgs[[2]]
         s_k=alpha_k1_log-alpha_k_log
         if(max(abs(t(s_k))/max(matrix(c(t(alpha_k1_log), matrix(1,1,length(t(alpha_k1_log)))),nrow=2,byrow=T)))<1e-3){ 
@@ -485,7 +485,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         return(c(k=NaN))
     }
     returnArgs <- log_prior_pdf(alpha, bpopdescr, ddescr,return_gradient=return_gradient) 
-    logp <- returnArgs[[1]]
+    logp <- returnArgs[1]
     if(return_gradient) grad_p <- returnArgs[["grad"]]
     k=-logp-log(det_fim)
     
@@ -493,7 +493,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         
         comp_grad_1 <- function(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) {
         returnArgs <- dfimdalpha(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6) 
-        d_fim <- returnArgs[[1]]
+        d_fim <- returnArgs[1]
         fim <- returnArgs[[2]]
         ifim <- inv(fim)
         dim(ifim) <- c(length(ifim),1)

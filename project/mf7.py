@@ -62,17 +62,17 @@ def mf7(model_switch,xt_ind,x,a,bpop,d,sigma,docc,poped_db):
         if len(xt_new) != 0:
             f1 = zeros(n+n*n,numnotfixed_bpop+numnotfixed_d+numnotfixed_covd+numnotfixed_docc+numnotfixed_covdocc+numnotfixed_sigma+numnotfixed_covsigma)
             returnArgs = m1(model_switch_new,xt_new,x,a,bpop,b_ind,bocc_ind,d,sigma,poped_db) 
-            f1[1:n,1:numnotfixed_bpop] = returnArgs[[1]]
+            f1[1:n,1:numnotfixed_bpop] = returnArgs[1]
             poped_db = returnArgs[[2]]
             returnArgs = m2(model_switch_new,xt_new,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db) 
-            f1[(n+1):(n+n*n),1:numnotfixed_bpop] <- returnArgs[[1]]
+            f1[(n+1):(n+n*n),1:numnotfixed_bpop] <- returnArgs[1]
             poped_db = returnArgs[[2]]
             returnArgs = m3(model_switch_new,xt_new,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,True,poped_db) 
-            f1[(n+1):(n+n*n),(numnotfixed_bpop+1):(numnotfixed_bpop+numnotfixed_d+numnotfixed_covd+numnotfixed_docc+numnotfixed_covdocc+numnotfixed_sigma+numnotfixed_covsigma)] = returnArgs[[0]]
+            f1[(n+1):(n+n*n),(numnotfixed_bpop+1):(numnotfixed_bpop+numnotfixed_d+numnotfixed_covd+numnotfixed_docc+numnotfixed_covdocc+numnotfixed_sigma+numnotfixed_covsigma)] = returnArgs[0]
             poped_db = returnArgs[[2]]
             f2 = zeros(n+n*n,n+n*n)
             returnArgs =  v(model_switch_new,xt_new,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db) 
-            v_tmp = returnArgs[[1]]
+            v_tmp = returnArgs[1]
             poped_db = returnArgs[[2]]
             if any(v_tmp != 0):
             

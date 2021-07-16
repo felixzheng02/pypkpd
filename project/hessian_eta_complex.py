@@ -25,8 +25,8 @@ def hessian_eta_complex(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db,ret
         #     b_init = hessianinit(b_ind)
         #     fg_init=feval(poped_db["model"]fg_pointer,x,a,bpop,b_init,bocc_ind)
         #      returnArgs =  feval(poped_db["model"]ferror_pointer,model_switch,xt_ind,fg_init,epsi0,poped_db) 
-        # val = returnArgs[[1]]
-        # poped_db = returnArgs[[1]]
+        # val = returnArgs[1]
+        # poped_db = returnArgs[1]
         #     hess = val$hx
     else:
         h = 1E-04

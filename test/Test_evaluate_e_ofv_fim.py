@@ -26,6 +26,8 @@ from numpy.core.records import array
 from project.tic import tic
 from project.toc import toc
 from project.ones import ones
+from project.models import feps_add_prop
+from project.models import ff_PK_1_comp_oral_sd_CL
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
 from project.create_poped_database import create_poped_database
 
@@ -48,7 +50,7 @@ KA = 1.0
 Favail = 1
 bpop_vals = np.array([CL,V,KA,Favail])
 bpop_vals_ed_ln = np.concatenate(ones(bpop_vals.size,1)*4, bpop_vals,ones(bpop_vals.size,1)*(bpop_vals*0.1)^2) ## log-normal distribution, 10% of bpop value
-bpop_vals_ed_ln["Favail",:]  = np.array(0,1,0)
+bpop_vals_ed_ln["Favail",:]  = np.array([0,1,0])
 bpop_vals_ed_ln
 #>          bpop_vals         
 #> CL     4      0.15 0.000225
@@ -56,9 +58,9 @@ bpop_vals_ed_ln
 #> KA     4      1.00 0.010000
 #> Favail 0      1.00 0.000000
 ## -- Define initial design  and design space
-poped_db = create_poped_database(ff_fun="ff_PK_1_comp_oral_sd_CL",
-                                fg_fun=sfg(),
-                                fError_fun="feps_add_prop",
+poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
+                                fg_fun=sfg,
+                                fError_fun=feps_add_prop,
                                 bpop=bpop_vals_ed_ln, 
                                 notfixed_bpop=np.array([1,1,1,0]),
                                 #CL=0.07, V=0.02, KA=0.6

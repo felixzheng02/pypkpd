@@ -41,9 +41,9 @@ def sfg (x,a,bpop,b,bocc):
 
 ## -- Define initial design  and design space
 poped_db = create_poped_database(
-                                # ff_file=ff_PK_1_comp_oral_sd_CL,
-                                #  fg_file=sfg,
-                                #  fError_file=feps_prop,
+                                 ff_file=ff_PK_1_comp_oral_sd_CL,
+                                 fg_file=sfg,
+                                 fError_file=feps_prop,
                                  bpop=np.array([0.15, 8, 1.0, 1]), 
                                  notfixed_bpop=np.array([1,1,1,0]),
                                  d=np.array([0.07, 0.02, 0.6]), 

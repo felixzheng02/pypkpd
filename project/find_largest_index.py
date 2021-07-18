@@ -4,23 +4,29 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
+import re
+import inspect
+
 
 def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
     if callable(func_str):
-        txt = capture_output(func_str)
+        txt = inspect.getsource(func_str)
     else:
-        txt = capture_output(eval(parse(text=func_str)))
-    
-    txt = grep(paste("^[^\\#]*",lab,"\\[",sep=""),txt,value=T)
+        txt = inspect.getsource(eval(func_str + "()"))
+
+    txt = re.match("^[^\\#]*" + lab + "\\[", txt)
+    txt = " ".join(list(txt.groups()))
+    # " ".join(list(
+    #     .groups()))
     ind = 0
     if len(txt) != 0 and mat is False: 
-        ind = gsub(paste("^[^\\#]*",lab,"\\[\\s*(\\d+)\\s*\\].*",sep=""),"\\1",txt)
+        ind = re.sub("^[^\\#]*" + lab + "\\[\\s*(\\d+)\\s*\\].*", "\\1", txt)
     if len(txt) != 0 and mat and mat_row is True: 
-        ind = gsub(paste("^[^\\#]*",lab,"\\[\\s*(\\d+)\\s*,.*?\\].*$",sep=""),"\\1",txt)
+        ind = re.sub("^[^\\#]*" + lab + "\\[\\s*(\\d+)\\s*,.*?\\].*$", "\\1", txt)
     if len(txt) != 0 and mat and mat_row is False: 
-        ind = gsub(paste("^[^\\#]*",lab,"\\[.*?,\\s*(\\d+)\\s*\\].*",sep=""),"\\1",txt)
+        ind = re.sub("^[^\\#]*" + lab + "\\[.*?,\\s*(\\d+)\\s*\\].*", "\\1", txt)
     
-    max(float(ind))
+    return (float(ind))
 
 # 
 #  find.largest.index("sfg","bpop")

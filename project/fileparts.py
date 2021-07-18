@@ -35,5 +35,3 @@ def fileparts(filename_with_path):
         fileext = ""
     fileparts_list = {"pathname": pathname, "filename": filename, "fileext": fileext}
     return fileparts_list
-
-print(fileparts("c:\asdfs\asdf.csv"))

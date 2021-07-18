@@ -322,17 +322,21 @@ def create_poped_database(popedInput={}, **kwargs):
     # --------------------------
     keys = list(popedInput.keys())
     # -- Filname and path of the model file --
-    if "ff_file" not in param:
-        ff_file = None
+    ff_file = param_choose(kwargs, None, 0, param, kwargs, "ff_file")
+
+    # if "ff_file" not in param:
+    #     ff_file = None
     ff_fun = param_choose(popedInput, None, 0, param, kwargs, 'model', 'ff_pointer')
 
     # -- Filname and path of the g parameter file --
-    if "fg_file" not in param:
-        fg_file = None
+    fg_file = param_choose(kwargs, None, 0, param, kwargs, "fg_file")
+    # if "fg_file" not in param:
+    #     fg_file = None
     fg_fun = param_choose(popedInput, None, 0, param, kwargs, 'model', 'fg_pointer')
     # -- Filname and path of the error model file --
-    if "fError_file" not in param:
-        fError_file = None
+    fError_file = param_choose(kwargs, None, 0, param, kwargs, "fError_file")
+    # if "fError_file" not in param:
+    #     fError_file = None
     fError_fun = param_choose(popedInput, None, 0, param, kwargs, 'model', 'ferror_pointer')
 
     # --------------------------

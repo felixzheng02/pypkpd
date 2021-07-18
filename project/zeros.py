@@ -15,5 +15,8 @@ import numpy as np
 
 
 def zeros(dim1, dim2 = None):
-	mat = np.zeros([int(dim1), int(dim2)])
+	if type(dim2) is int:
+		mat = np.zeros([dim1, dim2])
+	else:
+		mat = np.zeros([dim1, int(dim2)])
 	return mat

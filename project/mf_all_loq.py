@@ -4,10 +4,11 @@
 Author: Caiya Zhang, Yuchen Zheng
 """
 
+import itertools
 import numpy as np
-import scipy as sp
-from numpy.core.fromnumeric import repeat
+import pandas as pd
 from numpy.core.records import array
+from scipy import stats
 from project.v import v
 from project.feval import feval
 from project.zeros import zeros
@@ -47,13 +48,13 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
     n_mod_tmp, idx = np.unique(np.array([model_switch_i]), return_index=True)
     n_mod = n_mod_tmp[idx.argsort()]
     
-    loq_full = repeat(np.nan, pred.size)
-    uloq_full = repeat(np.nan, pred.size)
+    loq_full = np.repeat(np.nan, pred.size)
+    uloq_full = np.repeat(np.nan, pred.size)
     
     if loq.size == 1:
-        loq_full = repeat(loq,pred.size)
+        loq_full = np.repeat(loq,pred.size)
     if uloq.size == 1: 
-        uloq_full = repeat(uloq,pred.size)
+        uloq_full = np.repeat(uloq,pred.size)
     
     if loq.size == n_mod:
         for k in n_mod_tmp[idx.argsort()]:
@@ -85,7 +86,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         
         # compute points that have PI that overlaps LOQ
         PI_alpha = 1-loq_PI_conf_level
-        z_val = sp.stats.norm.ppf(1-PI_alpha/2)
+        z_val = stats.norm.ppf(1-PI_alpha/2)
         se_val = np.sqrt(np.diag(cov))
         ci_u = pred + z_val*se_val 
         ci_l = pred - z_val*se_val 
@@ -138,7 +139,15 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
     if n_pot_loq > 0: # D6 Method
         
         # combination of potential obs with datapoints above LOQ or below ULOQ
-        loq_obs_init = gtools::permutations(2,n_pot_loq,v=c(0,1),repeats.allowed=TRUE)
+        s = [None]*(2*n_pot_loq)
+        for i in range(0, n_pot_loq=1):
+            s[i] = 0
+            i = i + 1
+        for j in range(n_pot_loq, 2*n_pot_loq):
+            s[j] = 1
+            j = j + 1
+        loq_obs_init = sorted(set(itertools.permutations(s, n_pot_loq)))
+        loq_obs_init = np.asarray(list(loq_obs_init))
         
         # map for type of observation
         # 0 = normal observations
@@ -156,8 +165,10 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         
         
         # expand rows that could be BLOQ or ULOQ 
-        
-        exp_rows = apply(loq_obs_short==3,1,any)
+        exp_rows = np.empty(loq_obs_short.shape[0])
+        for i in range(0, loq_obs_short.shape[0]):
+                exp_rows[i] = any(loq_obs_short[i,:] == 3)
+                i = i + 1
         loq_obs = loq_obs_short[exp_rows is False,:]
         if any(exp_rows is True):
             loq_obs_tmp = loq_obs_short[exp_rows,]
@@ -166,8 +177,17 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
             for i in range(0, loq_obs_tmp.shape[0]):
                 #i = 1
                 obs_tmp = loq_obs_tmp[i,:]
-                perm_tmp = gtools::permutations(2,sum(obs_tmp==3),v=c(1,2),repeats.allowed=TRUE)
-                
+
+                s = [None]*(2*sum(int(obs_tmp==3)))
+                for i in range(0, sum(int(obs_tmp==3))+1):
+                    s[i] = 1
+                    i = i + 1
+                for j in range(sum(int(obs_tmp==3)), 2*sum(int(obs_tmp==3))):
+                    s[j] = 2
+                    j = j + 1
+                perm_tmp = sorted(set(itertools.permutations(s, sum(int(obs_tmp==3)))))
+                perm_tmp=np.asarray(list(perm_tmp))
+
                 obs_tmp_exp = np.array(obs_tmp).reshape(perm_tmp.shape[0], obs_tmp.shape[1])
                 obs_tmp_exp[obs_tmp_exp==3] = perm_tmp[:,:]
                 loq_obs = np.concatenate(loq_obs,obs_tmp_exp,axis=0)
@@ -180,35 +200,35 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         # cat(loq_obs,"\n")
         # cat(loq_obs_master,"\n")
         # if(sum(loq_obs_master==2)==1) browser()
-        lloq_mat = repeat(loq_full[loq_obs_master == 2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
-        uloq_mat = repeat(uloq_full[loq_obs_master == 2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
+        # by rows!!
+        lloq_mat = np.repeat(loq_full[loq_obs_master == 2], loq_obs.shape[0])
+        lloq_mat = lloq_mat.reshape(loq_obs.shape[0], (lloq_mat.size)/loq_obs.shape[0])
+        uloq_mat = np.repeat(uloq_full[loq_obs_master == 2], loq_obs.shape[0])
+        uloq_mat = uloq_mat.reshape(loq_obs.shape[0], (uloq_mat.size)/loq_obs.shape[0])
         
         
         loq_comb_l = loq_obs*np.nan
         loq_comb_u = loq_obs*np.nan
         
         # BLOQ
-        loq_comb_l[loq_obs==1] = -np.Infinity
-        loq_comb_u[loq_obs==1] = lloq_mat[loq_obs==1]
+        loq_comb_l[loq_obs == 1] = -np.Infinity
+        loq_comb_u[loq_obs == 1] = lloq_mat[loq_obs == 1]
         
         # ULOQ
-        loq_comb_l[loq_obs==2] = uloq_mat[loq_obs==2]
-        loq_comb_u[loq_obs==2] = np.Infinity
+        loq_comb_l[loq_obs == 2] = uloq_mat[loq_obs == 2]
+        loq_comb_u[loq_obs == 2] = np.Infinity
         
         # normal observations
-        loq_comb_l[loq_obs==0] = lloq_mat[loq_obs==0]
-        loq_comb_u[loq_obs==0] = uloq_mat[loq_obs==0]
+        loq_comb_l[loq_obs == 0] = lloq_mat[loq_obs == 0]
+        loq_comb_u[loq_obs == 0] = uloq_mat[loq_obs == 0]
         
         # compute all probabilities
-        pred_pot_loq = pred[loq_obs_master==2]
-        cov_pot_loq = cov[loq_obs_master==2,loq_obs_master==2]
-        p_loq_comb = repeat(0,loq_obs.shape[0])
-        p_loq_comb_full = repeat(0,loq_obs.shape[0]) # for diagnostics
+        pred_pot_loq = pred[loq_obs_master == 2]
+        cov_pot_loq = cov[loq_obs_master == 2,loq_obs_master == 2]
+        p_loq_comb = np.repeat(0, loq_obs.shape[0])
+        p_loq_comb_full = np.repeat(0, loq_obs.shape[0]) # for diagnostics
         for j in range(0,loq_obs.shape[0]):
-            p_loq_comb_tmp = mvtnorm::pmvnorm(loq_comb_l[j,],
-                                loq_comb_u[j,], 
-                                mean=pred_pot_loq, 
-                                sigma=cov_pot_loq)
+            p_loq_comb_tmp = stats.mvn.mvnun(loq_comb_l[j,:], loq_comb_u[j,:], pred_pot_loq, cov_pot_loq)
             #p_bloq_comb_tmp = mnormt::sadmvn(bloq_comb_l[j,],bloq_comb_u[j,], pred, cov)
         
             # filter out low probability values
@@ -220,9 +240,9 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         
         # sum of probabilities
         tot_p = sum(p_loq_comb_full)
-        max_diff = PI_alpha/2*len(loq_obs_master==2) # max p missed if all points are truncated with PI 
+        max_diff = PI_alpha/2*len(loq_obs_master == 2) # max p missed if all points are truncated with PI 
         if tot_p > 1.01 or tot_p < (1-max_diff):
-            raise Exception("Sum of initial probabilities: %6.5g\n" + "Probabilities do not add up to one!", tot_p)
+            raise Exception("Sum of initial probabilities: %6.5g\n" + "Probabilities do not add up to one!" % tot_p)
         
         # rescale probabilities
         p_loq_comb = p_loq_comb/sum(p_loq_comb)
@@ -233,19 +253,20 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
             model = xt
             for j in range(0, loq_obs.shape[0]):
                 loq_obs_tmp[loq_obs_master==2] = loq_obs[j,:] 
-                df_p = tibble::tibble(model=c(model_switch_i),xt=c(xt_i),pred=c(pred),LOQ=loq_obs_tmp)
-                df_p = df_p %>% dplyr::arrange(model,xt)
+                df_p = pd.DataFrame({"model": [model_switch_i],"xt": [xt_i], "pred": [pred], "LOQ":[loq_obs_tmp]})
+                df_p = df_p.sort_values(by=["model", "xt"])
                 #print(df_p)
-                print("Time: %1.f" + "\nLOQ: %1.f" + "\np_initial: %8.4g" + "\np_final: %8.4g" + "\n\n", df_p["xt"], df_p["LOQ"], p_loq_comb_full[j], p_loq_comb[j])
-            print("sum of initial probabilities: %6.5g\n", tot_p)
-            print("sum of final probabilities: %6.5g\n", sum(p_loq_comb))
+                print("Time: %1.f" + "\nLOQ: %1.f" + "\np_initial: %8.4g" + "\np_final: %8.4g" + "\n\n" % (df_p["xt"], df_p["LOQ"], p_loq_comb_full[j], p_loq_comb[j]))
+            
+            print("sum of initial probabilities: %6.5g\n" % tot_p)
+            print("sum of final probabilities: %6.5g\n" % sum(p_loq_comb))
             print("\n")
         
         
         # compute FIM for each case and combine
         fim = zeros(fim_size)
         loq_obs_tmp = loq_obs_master 
-        for j in range(0,loq_obs.shape[0]):
+        for j in range(0, loq_obs.shape[0]):
             #j=2
             loq_obs_tmp[loq_obs_master==2] = loq_obs[j,:] 
             if any(loq_obs_tmp==0) and p_loq_comb[j]!=0:
@@ -256,9 +277,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
     else: # D2 method for BLOQ
         fim = zeros(fim_size)
         if any(loq_obs_master==0):
-            fim = mf_all(model_switch_i[loq_obs_master==0,1],
-                        xt_i[loq_obs_master==0,1],
-                        x_i,a_i,bpop_val,d_full,sigma_full,docc_full,poped_db)["ret"]
+            fim = mf_all(model_switch_i[loq_obs_master==0,1], xt_i[loq_obs_master==0,1], x_i,a_i,bpop_val,d_full,sigma_full,docc_full,poped_db)["ret"]
                 
     
     return {"fim": fim, "poped_db": poped_db}

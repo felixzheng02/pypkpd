@@ -263,7 +263,7 @@ def create_design_space(design_,
 		raise Exception("sum of groupsizes is greater than maxtotgroupsize")
 	
 	# maxxt and minxt
-	if type(maxxt) is int:
+	if type(maxxt) is int or type(maxxt) is float:
 		maxxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt
 	elif maxxt.size == 1:
 		maxxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt
@@ -294,7 +294,7 @@ def create_design_space(design_,
 							 index=["grp_"+str(i+1) for i in range(0, design["m"])],
 							 columns=["obs_"+str(i+1) for i in range(0, maxxt.shape[1])])
 
-	if type(minxt) is int:
+	if type(minxt) is int or type(minxt) is float:
 		minxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * minxt
 	elif minxt.size == 1:
 		minxt = np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * minxt

@@ -27,19 +27,20 @@
 
 
 import re
+import builtins
 import numpy as np
+from project.models import ff_PK_1_comp_oral_sd_CL
 
 ## create an empty function
 def sfg_tmp(x1,a,bpop,b,bocc):
     return None
 
-def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
-                covariates=np.array("dose","tau"),
-                par_names=None,
-                etas="exp", # can be exp, prop, add, none. can be one for all or per parameter
-                no_etas=np.array("F","Favail"),
-                env = parent_frame()):
-
+def build_sfg(model=ff_PK_1_comp_oral_sd_CL,
+            covariates=np.array(["dose","tau"]),
+            par_names=None,
+            etas="exp", # can be exp, prop, add, none. can be one for all or per parameter
+            no_etas=np.array(["F","Favail"])):
+            #env = parent_frame()):
 
 #> <bytecode: 0x7fe20a979808>
 #> <environment: namespace:PopED>
@@ -49,18 +50,18 @@ def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
     ## get variable of function
     parameter_names_ff = par_names
     if parameter_names_ff is None: 
-        parameter_names_ff = globals(eval(model))["variables"]  
+        parameter_names_ff = locals(model)["variables"]  
     
     ## create an empty function
     sfg_tmp()
 
     ## get body of function
-    parameters = "parameters=c("
+    parameters = "parameters=np.array(["
     bpop_num = 1
     b_num = 1
     a_num = 1
     
-    cov_locs = re.match(("^" + "|".joint(covariates) +"$"), parameter_names_ff, re.I)
+    cov_locs = re.search(("^" + "|".joint(covariates) +"$"), parameter_names_ff, re.I)
     covariate_names = parameter_names_ff[cov_locs]
     parameter_names = parameter_names_ff
     if len(cov_locs) > 0:
@@ -68,8 +69,8 @@ def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
     
     # match names
     df = None
-    if etas is not None and etas.keys() is not None:
-        if all(parameter_names in etas.keys()):
+    if etas is not None:
+        if all(parameter_names in etas[0].keys()):
             eta_mod = etas[parameter_names]
             df = np.concatenate([parameter_names],[eta_mod],axis=1)
         
@@ -85,7 +86,7 @@ def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
     for k in range(0,df.shape[0]):
         ending = ", "
         if k == df.shape[0] and len(covariate_names) == 0:
-            ending = ")"
+            ending = "])"
         
         parameters = parameters + df[k,"parameter_names"] + "=bpop[" + bpop_num + "]"
         bpop_num = bpop_num + 1
@@ -102,8 +103,8 @@ def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
         parameters = parameters + ending        
     
     
-    if (len(covariate_names)!=0):
-        for k in range(0,len(covariate_names)):
+    if (len(covariate_names) != 0):
+        for k in range(0, len(covariate_names)):
             ending = ", "
             if k == len(covariate_names): 
                 ending = ")"
@@ -113,9 +114,10 @@ def build_sfg(  model=ff_PK_1_comp_oral_sd_CL(),
     
         
     ## add body of funciton and set environment
-    !!!!
+    '''
     text = parameters
     body(sfg_tmp) = text
     environment(sfg_tmp) = env
+    '''
 
     return sfg_tmp

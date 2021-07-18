@@ -99,7 +99,7 @@ def create_design(
 		colnam = None
 		if size(a)[0] == 1 and m != 1:
 			a_ = []
-			if type(a) is int:
+			if type(a) is int or size(a) == [1, 1]:
 				a = pd.DataFrame(np.tile([a], m).reshape(m, 1),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
 			else:

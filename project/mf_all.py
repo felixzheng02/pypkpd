@@ -34,8 +34,8 @@ def mf_all(model_switch,xt_ind,x,a,bpop,d,sigma,docc,poped_db):
     
     if returnArgs is None: 
         raise Exception("Unknown FIM-calculation type")
-    ret = returnArgs[[0]]
-    poped_db = returnArgs[[1]]
+    ret = returnArgs[0]
+    poped_db = returnArgs[1]
     
     return {"ret": ret, "poped_db": poped_db} 
 

@@ -82,7 +82,7 @@ def calc_ofv_and_fim(poped_db, *argv):
                     fim_calc_type=fim_calc_type
                 
                 #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
-                #     fmf = returnArgs[[1]]
+                #     fmf = returnArgs[1]
                 #     poped_db = returnArgs[[2]]
                 
                 dmf = ofv_fim(fmf,poped_db,*argv)
@@ -168,7 +168,7 @@ def calc_ofv_and_fim(poped_db, *argv):
             groupsize = poped_db["design"]["groupsize"]
             fim_calc_type = fim_calc_type
         #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
-        #     fmf = returnArgs[[1]]
+        #     fmf = returnArgs[1]
         #     poped_db = returnArgs[[2]]
         else:
             output = evaluate_e_ofv_fim(poped_db,*argv)  

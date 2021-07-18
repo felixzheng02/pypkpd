@@ -5,6 +5,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 import numpy as np
+import scipy as sp
 from numpy.core.fromnumeric import repeat
 from numpy.core.records import array
 from project.v import v
@@ -23,7 +24,7 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
                        loq_PI_conf_level = 0.95,#poped_db["settings"]loq_PI_conf_level,
                        loq_prob_limit = 0.001,#poped_db["settings"]loq_prob_limit,
                        loq_start_time = None,
-                       uloq = np.infinity,
+                       uloq = np.Infinity,
                        uloq_method = 1,
                        uloq_start_time = None,
                        verbose = False,
@@ -34,17 +35,20 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
     
     # PRED calculations based on FO
     b_ind = poped_db["parameters"]["b_global"][:,1]*0
-    bocc_ind = poped_db["parameters"]["bocc_global"][[1]]*0
-    g0 = feval(poped_db["model"]["fg_pointer"],x_i,a_i,bpop_val,b_ind,bocc_ind)
-    pred = feval(poped_db["model"]["ff_pointer"],model_switch_i,xt_i,g0,poped_db)
-    pred = pred[[1]].np.flatten()
+    bocc_ind = poped_db["parameters"]["bocc_global"][0]*0
+    g0 = feval(poped_db["model"]["fg_pointer"], x_i, a_i, bpop_val, b_ind, bocc_ind)
+    pred = feval(poped_db["model"]["ff_pointer"], model_switch_i, xt_i, g0, poped_db)
+    pred = pred[0]
+    pred = pred[1].np.flatten()
     
     fim_size = get_fim_size(poped_db)
+
     
-    n_mod = unique(np.array([model_switch_i]))
+    n_mod_tmp, idx = np.unique(np.array([model_switch_i]), return_index=True)
+    n_mod = n_mod_tmp[idx.argsort()]
     
-    loq_full = repeat(np.nan,pred.size)
-    uloq_full = repeat(np.nan,pred.size)
+    loq_full = repeat(np.nan, pred.size)
+    uloq_full = repeat(np.nan, pred.size)
     
     if loq.size == 1:
         loq_full = repeat(loq,pred.size)
@@ -52,36 +56,36 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         uloq_full = repeat(uloq,pred.size)
     
     if loq.size == n_mod:
-        for k in unique(np.array([model_switch_i])):
-            loq_full[model_switch_i==k] = loq[k]
+        for k in n_mod_tmp[idx.argsort()]:
+            loq_full[model_switch_i == k] = loq[k]
     
     if uloq.size == n_mod:
-        for k in unique(np.array(model_switch_i)):
-            uloq_full[model_switch_i==k] = uloq[k]
+        for k in n_mod_tmp[idx.argsort()]:
+            uloq_full[model_switch_i == k] = uloq[k]
     
     if loq_start_time is not None:
-        loq_full[xt_i<loq_start_time] = -np.Infinity
+        loq_full[xt_i < loq_start_time] = -np.Infinity
     if uloq_start_time is not None:
-        uloq_full[xt_i<uloq_start_time] = np.Infinity
+        uloq_full[xt_i < uloq_start_time] = np.Infinity
     
-    if any(np.is.nan(loq_full)) or any(np.is.nan(uloq_full)):
+    if any(np.isnan(loq_full)) or any(np.isnan(uloq_full)):
         raise Exception("loq or uloq not specified properly") 
     
     # D2 method
     if uloq_method == 2:
-        uloq_obs_master = pred>uloq_full
+        uloq_obs_master = pred > uloq_full
     if loq_method == 2:
-        bloq_obs_master = pred<loq_full
+        bloq_obs_master = pred < loq_full
     
     # D6 method
     if loq_method == 1 or uloq_method == 1: 
         
         # COV calculations based on FO
-        cov = v(model_switch_i,xt_i,x_i,a_i,bpop_val,b_ind,bocc_ind,d_full,sigma_full,docc_full,poped_db)[[1]]
+        cov = v(model_switch_i,xt_i,x_i,a_i,bpop_val,b_ind,bocc_ind,d_full,sigma_full,docc_full,poped_db)[0]
         
         # compute points that have PI that overlaps LOQ
         PI_alpha = 1-loq_PI_conf_level
-        z_val = qnorm(1-PI_alpha/2)
+        z_val = sp.stats.norm.ppf(1-PI_alpha/2)
         se_val = np.sqrt(np.diag(cov))
         ci_u = pred + z_val*se_val 
         ci_l = pred - z_val*se_val 
@@ -97,14 +101,14 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
             below = overlap
             above = below
         
-            above[ci_l>loq_full] = 1
-            below[ci_u<loq_full] = 1
-            overlap[ci_u>loq_full] = 1
-            overlap[ci_l<loq_full] = 1
+            above[ci_l > loq_full] = 1
+            below[ci_u < loq_full] = 1
+            overlap[ci_u > loq_full] = 1
+            overlap[ci_l < loq_full] = 1
             
             bloq_obs_master = 0*above + 2
-            bloq_obs_master[below==1 and overlap==0] = 1
-            bloq_obs_master[above==1 and overlap==0] = 0
+            bloq_obs_master[below == 1 and overlap == 0] = 1
+            bloq_obs_master[above == 1 and overlap == 0] = 0
         
 
         if uloq_method == 1:
@@ -112,24 +116,24 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
             below_u = overlap_u
             above_u = below_u
 
-            above_u[ci_l>uloq_full] = 1
-            below_u[ci_u<uloq_full] = 1
-            overlap_u[ci_u>uloq_full] = 1
-            overlap_u[ci_l<uloq_full] = 1
+            above_u[ci_l > uloq_full] = 1
+            below_u[ci_u < uloq_full] = 1
+            overlap_u[ci_u > uloq_full] = 1
+            overlap_u[ci_l < uloq_full] = 1
             
             uloq_obs_master = 0*above_u + 2
-            uloq_obs_master[below_u==1 and overlap_u==0] = 0
-            uloq_obs_master[above_u==1 and overlap_u==0] = 1
+            uloq_obs_master[below_u == 1 and overlap_u == 0] = 0
+            uloq_obs_master[above_u == 1 and overlap_u == 0] = 1
     
     #bloq_obs_master = df$bloq_obs
     #bloq_obs_master = bloq_obs_master*0+2
     
     loq_obs_master = bloq_obs_master
-    loq_obs_master[uloq_obs_master==1] = 1
-    loq_obs_master[uloq_obs_master==2 and bloq_obs_master!=1] = 2
+    loq_obs_master[uloq_obs_master == 1] = 1
+    loq_obs_master[uloq_obs_master == 2 and bloq_obs_master != 1] = 2
     
     # number of potential loq_obs
-    n_pot_loq = sum(loq_obs_master==2)
+    n_pot_loq = sum(loq_obs_master == 2)
     
     if n_pot_loq > 0: # D6 Method
         
@@ -141,26 +145,25 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         # 1 = BLOQ
         # 2 = ULOQ
         # 3 = Could be either BLOQ or ULOQ (and need expanding)
-        loq_obs_map = loq_obs_master[loq_obs_master==2]*0 + 1
-        uloq_obs_map = uloq_obs_master[loq_obs_master==2]
-        bloq_obs_map = bloq_obs_master[loq_obs_master==2]
-        loq_obs_map[uloq_obs_map==2 and bloq_obs_map!=2] = 2 
-        loq_obs_map[uloq_obs_map==2 and bloq_obs_map==2] = 3 
+        loq_obs_map = loq_obs_master[loq_obs_master == 2]*0 + 1
+        uloq_obs_map = uloq_obs_master[loq_obs_master == 2]
+        bloq_obs_map = bloq_obs_master[loq_obs_master == 2]
+        loq_obs_map[uloq_obs_map == 2 and bloq_obs_map != 2] = 2 
+        loq_obs_map[uloq_obs_map == 2 and bloq_obs_map == 2] = 3 
         
-        loq_obs_short = np.array(loq_obs_map).reshape[loq_obs_init.shape[0],loq_obs_map.size]
-        loq_obs_short[loq_obs_init==0] = 0
+        loq_obs_short = np.array(loq_obs_map).reshape[loq_obs_init.shape[0], loq_obs_map.size]
+        loq_obs_short[loq_obs_init == 0] = 0
         
         
         # expand rows that could be BLOQ or ULOQ 
         
-        for 
         exp_rows = apply(loq_obs_short==3,1,any)
         loq_obs = loq_obs_short[exp_rows is False,:]
         if any(exp_rows is True):
             loq_obs_tmp = loq_obs_short[exp_rows,]
             
             # expand rows
-            for i in range(0,loq_obs_tmp.shape[0]):
+            for i in range(0, loq_obs_tmp.shape[0]):
                 #i = 1
                 obs_tmp = loq_obs_tmp[i,:]
                 perm_tmp = gtools::permutations(2,sum(obs_tmp==3),v=c(1,2),repeats.allowed=TRUE)
@@ -177,8 +180,8 @@ def mf_all_loq(model_switch_i,xt_i,x_i,a_i,bpop_val,d_full,sigma_full,docc_full,
         # cat(loq_obs,"\n")
         # cat(loq_obs_master,"\n")
         # if(sum(loq_obs_master==2)==1) browser()
-        lloq_mat = repeat(loq_full[loq_obs_master==2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
-        uloq_mat = repeat(uloq_full[loq_obs_master==2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
+        lloq_mat = repeat(loq_full[loq_obs_master == 2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
+        uloq_mat = repeat(uloq_full[loq_obs_master == 2],loq_obs.shape[0]).reshape(nrow=loq_obs.shape[0],byrow=T)
         
         
         loq_comb_l = loq_obs*np.nan

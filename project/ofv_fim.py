@@ -107,7 +107,7 @@ def ofv_fim(fmf,poped_db,*argv):
         if sum(sum(fmf)) != 0 and np.isnan(sum(sum(fmf))) is False:
             #imf = inv(fmf)
             #returnArgs =  get_cv(diag_matlab(imf),poped_db["parameters"]bpop,poped_db["parameters"]d,poped_db["parameters"]docc,poped_db["parameters"]sigma,poped_db) 
-            #params = returnArgs[[1]]
+            #params = returnArgs[1]
             #params_cvs = returnArgs[[2]]
             params_cvs = get_rse(fmf,poped_db,use_percent=False)
             if np.isnan(sum(params_cvs)) is True:

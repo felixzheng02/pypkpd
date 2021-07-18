@@ -29,11 +29,11 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
     
   if poped_db["settings"]["m2_switch"][1] == 0 or poped_db["settings"]["m2_switch"][1] == 1:
     returnArgs = LinMatrixL(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db) 
-    l = returnArgs[[0]]
-    poped_db = returnArgs[[1]]
+    l = returnArgs[0]
+    poped_db = returnArgs[1]
     returnArgs = LinMatrixH(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db) 
-    h = returnArgs[[0]]
-    poped_db = returnArgs[[1]]
+    h = returnArgs[0]
+    poped_db = returnArgs[1]
     
     ret = zeros(0,1)
     
@@ -63,8 +63,8 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
       if poped_db["parameters"]["NumOcc"] == 0:
         continue
       returnArgs = LinMatrixL_occ(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,i,poped_db) 
-      locc_tmp = returnArgs[[0]]
-      poped_db = returnArgs[[1]]
+      locc_tmp = returnArgs[0]
+      poped_db = returnArgs[1]
       if len(ret) == 0:
         ret = np.matmul(np.matmul(locc_tmp,docc), np.transpose(locc_tmp))
       else: 
@@ -76,8 +76,8 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
       interact = zeros(0,1) 
       if len(d) != 0: #Calculate the interaction terms
           returnArgs = LinMatrixLH(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,size(sigma,1),poped_db) 
-          lh = returnArgs[[0]]
-          poped_db = returnArgs[[1]]
+          lh = returnArgs[0]
+          poped_db = returnArgs[1]
     ###numpy broadcasting???
           interact = lh
           d_sigma_prod = np.empty([d.shape[0], d.shape[1]])

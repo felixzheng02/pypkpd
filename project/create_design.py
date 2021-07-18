@@ -4,6 +4,7 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 #import project.all_modules as am
+from enum import IntFlag
 import re
 import numpy as np
 import pandas as pd
@@ -93,15 +94,19 @@ def create_design(
 	if a is not None:
 		if type(a) == list:
 			a = pd.DataFrame(a)
-		elif len(a.shape) == 1:
-			a = np.array([a])
+		# elif len(size(a)) == 1:
+		# 	a = np.array([a])
 		colnam = None
 		if size(a)[0] == 1 and m != 1:
 			a_ = []
-			for i in range(0, a.shape[1]):
-				for j in range(0, a.shape[0]):
-					a_.append(np.array(a)[j][i])
-			a = pd.DataFrame(np.tile(a_, m).reshape(m, a.size),
+			if type(a) is int:
+				a = pd.DataFrame(np.tile([a], m).reshape(m, 1),
+										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
+			else:
+				for i in range(0,size(a)[1]):
+					for j in range(0, size(a)[0]):
+						a_.append(np.array(a)[j][i])
+				a = pd.DataFrame(np.tile(a_, m).reshape(m, a.size),
 										 columns=colnam, index=["grp_"+str(i) for i in range(1, m+1)])
 
 		if type(a) is not np.ndarray and type(a) is not pd.DataFrame:

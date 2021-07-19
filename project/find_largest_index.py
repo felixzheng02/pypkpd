@@ -14,7 +14,7 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
     else:
         txt = inspect.getsource(eval(func_str + "()"))
 
-    txt = re.findall(("[a-z]*\\="+lab+"\\["+"[^\\,]*"), txt, re.I)
+    txt = re.findall(('\\"[a-z]*\\"\\:'+lab+"\\["+"[^\\,]*"), txt, re.I)
     txt = " ".join(txt)
     txt = "parameters=np.array(" + txt + ")"
     # " ".join(list(

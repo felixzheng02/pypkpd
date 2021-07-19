@@ -14,7 +14,7 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
     else:
         txt = inspect.getsource(eval(func_str + "()"))
 
-    txt = re.findall(('\\"[a-z]*\\"\\:'+lab+"\\["+"[^\\,]*"), txt, re.I)
+    txt = re.findall(('\\"[\S]*'+lab+"\\["+"[^\\,]*"), txt, re.I)
     txt = " ".join(txt)
     txt = "parameters=np.array(" + txt + ")"
     # " ".join(list(
@@ -34,16 +34,14 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
     return np.max(ind)
 
 # 
-#  find.largest.index("sfg","bpop")
-#  find.largest.index("sfg","b")
-#  find.largest.index("sfg","bocc",mat=T,mat.row=T)
-#  find.largest.index("sfg","x")
-#  find.largest.index("sfg","a")
+#  find_largest_index("sfg","bpop")
+#  find_largest_index("sfg","b")
+#  find_largest_index("sfg","bocc",mat=T,mat.row=T)
+#  find_largest_index("sfg","x")
+#  find_largest_index("sfg","a")
 # 
 # txt = capture.output(eval(parse(text="sfg")))
 # txt = grep(paste("^[^\\#]*bpop","\\[",sep=""),txt,value=T)
 # txt
 # ind = gsub(paste("^[^\\#]*","bpop","\\[","(\\d+)\\].*",sep=""),"\\1",txt)
 # max(as.numeric(ind))
-
-

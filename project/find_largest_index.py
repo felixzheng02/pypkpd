@@ -30,7 +30,8 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
         ind = re.findall("\d", txt)
         ind = np.unique(ind)
     
-    return (float(ind))
+    ind = np.array(ind).astype(float)
+    return np.max(ind)
 
 # 
 #  find.largest.index("sfg","bpop")

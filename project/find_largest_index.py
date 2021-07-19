@@ -13,7 +13,8 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
     else:
         txt = inspect.getsource(eval(func_str + "()"))
 
-    txt = re.search("^[^\\#]*" + lab + "\\[", txt)
+    txt = re.findall(("[a-z]*\\="+lab+"\\["+"[^\\,]*"), txt, re.I)
+    txt = "parameters=np.array(" + txt + ")"
     txt = " ".join(list(txt.groups()))
     # " ".join(list(
     #     .groups()))
@@ -39,3 +40,5 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
 # txt
 # ind = gsub(paste("^[^\\#]*","bpop","\\[","(\\d+)\\].*",sep=""),"\\1",txt)
 # max(as.numeric(ind))
+
+

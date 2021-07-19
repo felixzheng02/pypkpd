@@ -5,6 +5,7 @@ Author: Caiya Zhang, Yuchen Zheng
 
 import re
 import inspect
+import numpy as np
 
 
 def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
@@ -14,17 +15,20 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
         txt = inspect.getsource(eval(func_str + "()"))
 
     txt = re.findall(("[a-z]*\\="+lab+"\\["+"[^\\,]*"), txt, re.I)
+    txt = " ".join(txt)
     txt = "parameters=np.array(" + txt + ")"
-    txt = " ".join(list(txt.groups()))
     # " ".join(list(
     #     .groups()))
     ind = 0
     if len(txt) != 0 and mat is False: 
-        ind = re.sub("^[^\\#]*" + lab + "\\[\s*(\d+)\s*\\].*", "\\1", txt)
+        ind = re.findall("\d", txt)
+        ind = np.unique(ind)
     if len(txt) != 0 and mat and mat_row is True: 
-        ind = re.sub("^[^\\#]*" + lab + "\\[\s*(\d+)\s*,.*?\\].*$", "\\1", txt)
+        ind = re.findall("\d", txt)
+        ind = np.unique(ind)
     if len(txt) != 0 and mat and mat_row is False: 
-        ind = re.sub("^[^\\#]*" + lab + "\\[.*?,\s*(\d+)\\s*\\].*", "\\1", txt)
+        ind = re.findall("\d", txt)
+        ind = np.unique(ind)
     
     return (float(ind))
 

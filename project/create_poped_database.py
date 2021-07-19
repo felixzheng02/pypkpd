@@ -1139,7 +1139,6 @@ def create_poped_database(popedInput={}, **kwargs):
             poped_db["settings"]["dSeed"] = dSeed
         random.seed(poped_db["settings"]["dSeed"])
 
-#######################################################################################################
     poped_db["parameters"]["nbpop"] = poped_choose(
         nbpop, find_largest_index(poped_db["model"]["fg_pointer"], "bpop"), 0)
     poped_db["parameters"]["NumRanEff"] = poped_choose(
@@ -1162,7 +1161,6 @@ def create_poped_database(popedInput={}, **kwargs):
         d_arr.astype(float), (3, 2), "constant", constant_values=np.nan).reshape(1, poped_db["parameters"]["NumRanEff"]), 0)
     poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.pad(
         bpop_arr.astype(float), (3, 2), "constant", constant_values=np.nan).reshape(1, poped_db["parameters"]["nbpop"]), 0)
-#######################################################################################################
 
 
 # reorder named values

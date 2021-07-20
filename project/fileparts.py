@@ -1,6 +1,5 @@
 """
 fileparts.R
-
 MATLAB fileparts function
  
 Get the various parts of a file with path string.
@@ -11,7 +10,6 @@ Get the various parts of a file with path string.
 \item{pathname}{The path name}
 \item{filename}{The file name}
 \item{fileext}{The file extension}
-
 @note This is a modified version of the same function in the matlab R-package.
  
 @family MATLAB
@@ -19,7 +17,6 @@ Get the various parts of a file with path string.
 @export
 @keywords internal
 Function written to match MATLAB function
-
 Author: Caiya Zhang, Yuchen Zheng
 """
 

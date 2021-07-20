@@ -31,7 +31,9 @@
 
 
 import re
+import inspect
 from project.ed_mftot import ed_mftot
+from project.ed_laplace_ofv import ed_laplace_ofv
 from project.downsizing_general_design import downsizing_general_design
 
 def evaluate_e_ofv_fim(poped_db,*argv):
@@ -58,9 +60,9 @@ def evaluate_e_ofv_fim(poped_db,*argv):
     called_args = match_call()
     default_args = formals()
     for i in called_args.keys()[-1]:
-        if len(re.match("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
+        if len(re.findall('^poped\\_db\\["', inspect.getsource(default_args[[i]]))) == 1:
             #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
-            eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
+            eval(str(inspect.getsource(default_args[[i]])) + "=" + str(i))
         
        
     
@@ -99,8 +101,8 @@ def evaluate_e_ofv_fim(poped_db,*argv):
         E_ofv = output["ED_ofv"]
         poped_db=output["poped_db"]
     else:
-        E_ofv  = ed_laplace_ofv(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,...)[["f"]]   
+        E_ofv  = ed_laplace_ofv(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,*argv)["f"] 
         if laplace_fim is True:
-            E_fim = ed_mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,...)[["ED_fim"]]
+            E_fim = ed_mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,covd,sigma,docc,poped_db,*argv)["ED_fim"]
 
     return {"E_ofv": E_ofv, "E_fim": E_fim, "poped_db": poped_db}

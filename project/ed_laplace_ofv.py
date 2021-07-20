@@ -1,3 +1,4 @@
+"""
 #' Evaluate the expectation of determinant the Fisher Information Matrix (FIM)
 #' using the Laplace approximation.
 #' 
@@ -36,94 +37,168 @@
 #' @keywords internal
 # @importFrom nlme fdHess
 
-## Function translated using 'matlab.to.r()'
-## Then manually adjusted to make work
-## Author: Andrew Hooker
-## right now function only works for normal and log-normal priors
 
-ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
-                           bpopdescr,ddescr,covd,sigma,docc,poped_db,
-                           method=1,
-                           return_gradient=FALSE,
-                           optxt=poped_db$settings$optsw[2], 
-                           opta=poped_db$settings$optsw[4],
-                           x=c(),...)
-{
-  
-    if(any(ddescr[,1,drop=F]!=0&ddescr[,1,drop=F]!=4)){
-        stop(sprintf('Only lognormal prior is supported for random effects!')) 
-    }
-    if(any(bpopdescr[,1,drop=F]!=0 & 
-            bpopdescr[,1,drop=F]!=4 & 
-            #bpopdescr[,1,drop=F]!=2 & 
-            bpopdescr[,1,drop=F]!=1)){
-        #stop(sprintf('Only uniform, normal and lognormal priors are supported for fixed effects!')) 
-        stop(sprintf('Only normal and lognormal priors are supported for fixed effects!')) 
-        
-    }
-    Engine = list(Type=1,Version=version$version.string)
+## Author: Caiya Zhang, Yuchen Zheng
+## right now function only works for normal and log-normal priors
+"""
+
+import numpy as np
+import warnings
+
+from numpy.core.fromnumeric import transpose
+from project.size import size
+from project.util import trans
+from project.zeros import zeros
+from project.numel import numel
+from project.mftot import mftot
+from project.getfulld import getfulld
+from project.graddetmf import graddetmf
+from project.dfimdalpha import dfimdalpha
+from project.diag_matlab import diag_matlab
+from project.hesskalpha2 import hesskalpha2
+from project.d2fimdalpha2 import d2fimdalpha2
+from project.evaluate_fim import evaluate_fim
+from project.trace_matrix import trace_matrix
+from project.log_prior_pdf import log_prior_pdf
+from project.line_search_uc import line_search_uc
+
+
+def comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p):
+			returnArgs = dfimdalpha(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6) 
+			d_fim = returnArgs[0]
+			fim = returnArgs[1]
+			ifim = np.linalg.inv(fim)
+			ifim.reshape(ifim.size, 1)
+			d_fim.reshape(fim.size, len(grad_p))
+			gradlogdfim = np.matmul(np.transpose(d_fim), ifim)
+			grad_k = -(gradlogdfim + grad_p)
+
+def calc_k(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,
+                    ddescr,covd,sigma,docc,poped_db,Engine,return_gradient=False):
+    bpop = bpopdescr[:,2]
+    bpop[bpopdescr[:,1] != 0] = alpha[1:sum(bpopdescr[:,1]!=0)]
+    d = ddescr[:,2]
+    d[ddescr[:,1] == 4] = alpha[(sum(bpopdescr[:,1] != 0) + 1):(alpha)]
+    d = getfulld(d, covd)
+    retargs = mftot(model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpop, d, sigma, docc, poped_db)
+    fim = retargs["ret"]
     
-    x2=x
-    if(!isempty(x)){
-        if(optxt){
-        notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
-        if(poped_db$design_space$bUseGrouped_xt){
-            xtopto[notfixed]=x[poped_db$design_space$G_xt[notfixed]]
-            x[1:numel(unique(poped_db$design_space$G_xt[notfixed]))]=matrix(0,0,0)
-        } else {
-            xtopto[notfixed]=x[1:numel(xtopto[notfixed])]
-            x=x[-c(1:numel(xtopto[notfixed]))]
-        }
-        }
-        if(opta){
-        notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
-        if(poped_db$design_space$bUseGrouped_a){
-            aopto[notfixed]=x[poped_db$design_space$G_a[notfixed]]
-        } else {
-            aopto[notfixed]=x
-        }
-        }
-        x=x2    
-    }
+    det_fim = np.linalg.det(fim)
+    if det_fim < np.finfo(float).eps:
+        warnings.warn("Determinant of the FIM is not positive")
+        if return_gradient is True: 
+            return {"k": np.nan, "grad_k": np.nan}
+        return np.array({"k": np.nan})
+    
+    returnArgs = log_prior_pdf(alpha, bpopdescr, ddescr, return_gradient=return_gradient) 
+    logp = returnArgs[0]
+    if return_gradient is True:
+        grad_p = returnArgs["grad"]
+    k = -logp - np.log(det_fim)
+    
+    if return_gradient is True:
+        
+        # foo <- tryCatch.W.E( comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) )
+        # is.numeric(foo$value)
+        # 
+        # tryCatch.W.E( numDeriv::grad(function(x) calc_k(x,model_switch,groupsize,ni,xtoptn,xoptn,
+        #                                                 aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
+        #                                                 return_gradient=F),
+        #                              alpha) )
+        # 
+        grad_k = comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p)
+        ## if not positive definite set grad_k=zeros(length(alpha),1)
+        
+        #tryCatch(log(det(fim)), warning = function(w) browser())
+        return {"k": k, "grad_k": grad_k}
+    
+    
+    return np.array({"k": k})
+
+
+def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
+                           bpopdescr,ddescr,covd,sigma,docc,poped_db,
+                           method = 1,
+                           return_gradient = False,
+                           x = np.empty(),*argv):
+    
+    optxt=poped_db["settings"]["optsw"][1], 
+    opta=poped_db["settings"]["optsw"][3],
+  
+    if any(ddescr[:,0] != 0 and ddescr[:,0] != 4):
+        raise Exception("Only lognormal prior is supported for random effects!") 
+    
+    if any(bpopdescr[:,0] != 0 and 
+            bpopdescr[:,0] !=4 and 
+            #bpopdescr[:,0] != 2 and 
+            bpopdescr[:,0] != 1):
+        #stop(sprintf('Only uniform, normal and lognormal priors are supported for fixed effects!')) 
+        raise Exception("Only normal and lognormal priors are supported for fixed effects!") 
+        
+    Engine = {"Type": 1, "Version": version["version_string"]}
+    
+    x2 = x
+    if len(x) != 0:
+        if optxt is True:
+            notfixed=poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
+            if poped_db["design_space"]["bUseGrouped_xt"]:
+                xtopto[notfixed] = x[poped_db["design_space"]["G_xt"][notfixed]]
+                u_tmp, idx = np.unique(poped_db["design_space"]["G_xt"][notfixed], return_index=True)
+                u = u_tmp[idx.argsort()]
+                x[1:numel(u)] = np.zeros(1)
+            else:
+                xtopto[notfixed]=x[1:numel(xtopto[notfixed])]
+                x = x[-np.arrange(1, numel(xtopto[notfixed]))]
+        
+        if opta is True:
+            notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]
+            if poped_db["design_space"]["bUseGrouped_a"] is True:
+                aopto[notfixed] = x[poped_db["design_space"]["G_a"][notfixed]]
+            else:
+                aopto[notfixed] = x
+        x = x2    
+    
     
     # alpha parameter vector
-    alpha_k=matrix(c(bpopdescr[bpopdescr[,1]!=0,2], ddescr[ddescr[,1]!=0,2]),ncol=1,byrow=T)
+    alpha_k = np.array([bpopdescr[bpopdescr[:,0]!=0, 2], ddescr[ddescr[:,0]!=0, 2]]).reshape(2,1)
     
     ## do log transformation of ln bpop and d parameters for unconstrained optimization 
-    if(length(alpha_k)>sum(bpopdescr[,1]!=0)){
-        d_index <- (sum(bpopdescr[,1]!=0)+1):length(alpha_k)
-    } else {
-        d_index <- NULL
-    }  
-    bpop_index=1:sum(bpopdescr[,1]!=0)
-    unfixed_bpop <- bpopdescr[bpopdescr[,1]!=0,,drop=F]
-    exp_index=c(unfixed_bpop[,1]==4,d_index==d_index)
-    alpha_k_log=alpha_k
-    if(any(exp_index)) alpha_k_log[exp_index]=log(alpha_k[exp_index])
+    if alpha_k.size > sum(bpopdescr[:,0] != 0):
+        d_index = range(sum(bpopdescr[:,0] != 0)+1, len(alpha_k))
+    else:
+        d_index = None
+    
+    bpop_index = range(0, sum(bpopdescr[:,0] != 0))
+    unfixed_bpop = bpopdescr[bpopdescr[:,0] != 0,:]
+    exp_index = np.array([unfixed_bpop[:,0] == 4, d_index == d_index])
+    alpha_k_log = alpha_k
+    if any(exp_index) is True: 
+        alpha_k_log[exp_index] = np.log(alpha_k[exp_index])
     #alpha_k_log[d_index]=log(alpha_k[d_index])
-    trans  <- function(x){ 
-        x[exp_index] <- exp(x[exp_index])
-        return(x)
-    }
-    #trans  <- function(x) matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T)
+
+
     
     #calc initial k value and gradient
-    ret_grad <- F
-    if(method==0) ret_grad <- T
-    ret_args <- calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
-                        return_gradient=ret_grad) 
-    f_k <- ret_args[[1]]
-    gf_k <- NULL
-    if(method==0) gf_k <- ret_args[["grad_k"]]
+    ret_grad = False
+    if method == 0: 
+        ret_grad = True
     
-    ret_args <- tryCatch.W.E(inv(evaluate.fim(poped_db)))
-    if(any(class(ret_args$value)=="error")){
-        warning("Inversion of the FIM is not possible, the current design cannot estimate all parameters")
-        warning("In ", deparse(ret_args$value$call)," : \n    ", ret_args$value$message)
-        f=NaN
-        if(return_gradient) return(list( f= f,gf=NaN))
-        return(list(f=f))
-    }
+    ret_args = calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
+                        return_gradient=ret_grad) 
+    f_k = ret_args[0]
+    gf_k = None
+    if method == 0:
+        gf_k = ret_args["grad_k"]
+    
+    ret_args = tryCatch.W.E(np.linalg.inv(evaluate_fim(poped_db)))
+    if any(type(ret_args["value"]) is "error"):
+        warnings.warn("Inversion of the FIM is not possible, the current design cannot estimate all parameters")
+        warnings.warn("In "+ str(ret_args["value"]["call"]) + " : \n    " + ret_args["value"]["message"])
+        f = np.nan
+        if return_gradient: 
+            return {"f": f, "gf": np.nan}
+
+        return {"f": f}
     # tryCatch.W.E( numDeriv::grad(function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
     #                                                 aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
     #                                                 return_gradient=F),
@@ -153,78 +228,81 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
     #   if(!isempty(d_index)){
     #     gf_k[d_index]=gf_k[d_index]*exp(alpha_k_log[d_index])
     #   }
-    if(!isempty(exp_index) && !is.null(gf_k)){
-        gf_k[exp_index]=gf_k[exp_index]*exp(alpha_k_log[exp_index])
-    }
-    if(is.nan(f_k)){
-        f=0
-        gf=zeros(size(x))
-        if(return_gradient) return(list( f= f,gf=gf))
-        return(list(f=f))
-    }
+    if exp_index.size != 0 and gf_k is not None:
+        gf_k[exp_index] = gf_k[exp_index]*np.exp(alpha_k_log[exp_index])
+    
+    if np.isnan(f_k):
+        f = 0
+        gf = zeros(size(x))
+        if return_gradient is True: 
+            return {"f": f, "gf": gf}
+
+        return {"f": f}
+    
     
     ###################
     ## minimization of k(alpha) 
     ###################
     
-    if(method==0){ ## sebastian method
+    if method == 0: ## sebastian method
         #initialize optimization variables
-        dim=length(alpha_k)
-        H_k=diag_matlab(dim)
-        B_k=H_k
-        niter=0
-        while(norm(gf_k,type="2")>0.001){ 	# while inner conv. krit. not met
-        #determine search direction for line search
-        p_k=-H_k%*%gf_k
-        f_name  <- "calc_k"
-        #f_options <- list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
-        f_options <- list("replace",model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
-        returnArgs <- line_search_uc(alpha_k_log,f_k,gf_k,p_k,f_name,f_options,exp_index)
-        alpha_k1_log <- returnArgs[1]
-        f_k1 <- returnArgs[[2]]
-        s_k=alpha_k1_log-alpha_k_log
-        if(max(abs(t(s_k))/max(matrix(c(t(alpha_k1_log), matrix(1,1,length(t(alpha_k1_log)))),nrow=2,byrow=T)))<1e-3){ 
-            # check this that it is the same as in matlab
-            break
-        }
-        f_k1 <- calc_k(trans(alpha_k1_log),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
-                        return_gradient=T) 
-        gf_k1 <- attr(f_k1,"grad")
-        #transform gradient for ds (log(alpha))
-        #     if(!isempty(d_index)){
-        #       gf_k1[d_index]=gf_k1[d_index]*exp(alpha_k1_log(d_index))
-        #     }
-        if(!isempty(exp_index)){
-            gf_k1[exp_index]=gf_k1[exp_index]*exp(alpha_k1_log[exp_index])
-        }
-        y_k=gf_k1-gf_k
-        rho_k=1/(t(y_k)%*%s_k)
-        rho_k <- rho_k[,,drop=T]
-        if((t(y_k)%*%s_k)/(-t(gf_k)%*%s_k) > .Machine$double.eps){
-            H_k=(diag_matlab(dim)-rho_k*s_k%*%t(y_k))%*%H_k%*%(diag_matlab(dim)-rho_k*y_k%*%t(s_k))+rho_k*s_k%*%t(s_k)
-        }
-        alpha_k_log=alpha_k1_log
-        gf_k=gf_k1
-        f_k=f_k1
-        niter=niter+1
-        }
-        alpha_k=trans(alpha_k_log)
+        dim = alpha_k.size
+        H_k = diag_matlab(dim)
+        B_k = H_k
+        niter = 0
+        while np.linalg.norm(gf_k, type="2") > 0.001: # while inner conv. krit. not met
+            #determine search direction for line search
+            p_k = -np.matmul(H_k, gf_k)
+            f_name  = "calc_k"
+            #f_options <- list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
+            f_options = ["replace",model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine]
+            returnArgs = line_search_uc(alpha_k_log,f_k,gf_k,p_k,f_name,f_options,exp_index)
+            alpha_k1_log = returnArgs[0]
+            f_k1 = returnArgs[1]
+            s_k = alpha_k1_log - alpha_k_log
+            if max(abs(np.transpose(s_k))/max(np.array([np.transpose(alpha_k1_log), np.ones(1).reshape(1,np.transpose(alpha_k1_log).size)]).reshape(2,1))) < 1e-3:  
+                # check this that it is the same as in matlab
+                break
+            
+            f_k1 = calc_k(trans(alpha_k1_log),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,return_gradient=True) 
+            gf_k1 = attr(f_k1,"grad")
+            #transform gradient for ds (log(alpha))
+            #     if(!isempty(d_index)){
+            #       gf_k1[d_index]=gf_k1[d_index]*exp(alpha_k1_log(d_index))
+            #     }
+            if exp_index.size != 0:
+                gf_k1[exp_index] = gf_k1[exp_index]*np.exp(alpha_k1_log[exp_index])
+            
+            y_k = gf_k1 - gf_k
+            rho_k = 1/np.matmul(np.transpose(y_k), s_k)
+            rho_k = rho_k[:,:]
+            if np.matmul(np.transpose(y_k), s_k)/-np.matmul(np.transpose(gf_k), s_k) > np.finfo(float).eps:
+                tmp1 = np.matmul(rho_k*s_k, np.transpose(y_k))
+                tmp2 = np.matmul(rho_k*y_k, np.transpose(s_k))
+                H_k= np.matmul(np.matmul((diag_matlab(dim) - tmp1), H_k), (diag_matlab(dim)-tmp2)) + np.matmul(rho_k*s_k, np.transpose(s_k))
+      
+
+            alpha_k_log = alpha_k1_log
+            gf_k = gf_k1
+            f_k = f_k1
+            niter = niter + 1
+        
+        alpha_k = trans(alpha_k_log)
         
         #if the number of iterations is smaller than the dimension of the problem
         #we have to calculate the hessian explicitly
-        if((niter<length(B_k)||poped_db$settings$iEDCalculationType==1)){
-        hess=hesskalpha2(alpha_k, model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6,Engine)
-        detHessPi=det(hess)*(2*pi)^(-length(hess))
-        } else {
-        temp=matrix(1,size(gf_k))
-        #temp[d_index]=1/alpha_k[d_index]
-        temp[exp_index]=1/alpha_k[exp_index]
-        
-        iH_k=inv(H_k)
-        hess=iH_k*(temp%*%t(temp))
-        detHessPi=det(hess)*(2*pi)^(-length(hess))
-        }
-    } else { # end sebastian method
+        if niter < B_k.size or poped_db["settings"]["iEDCalculationType"] == 1:
+            hess = hesskalpha2(alpha_k, model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6,Engine)
+            detHessPi = np.linalg.det(hess)*(2*np.pi)^(-hess.size)
+        else:
+            temp = np.ones(size(gf_k)).reshape(size(gf_k),1)
+            #temp[d_index]=1/alpha_k[d_index]
+            temp[exp_index] = 1/alpha_k[exp_index]
+            
+            iH_k = np.linalg.inv(H_k)
+            hess = iH_k*np.matmul(temp, np.transpose(temp))
+            detHessPi = np.linalg.det(hess)*(2*np.pi)^(-hess.size)
+    else:  # end sebastian method
         
         #     priordescr <- rbind(bpopdescr,ddescr)
         #     priordescr <- priordescr[priordescr[,1]==2,]
@@ -233,8 +311,9 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         
         
         ## minimize K(alpha_k)
-        opt_meth <- "Nelder-Mead"
-        if(length(alpha_k)==1) opt_meth <- "BFGS"
+        opt_meth = "Nelder-Mead"
+        if alpha_k.size == 1: 
+            opt_meth = "BFGS"
         # initial_k <- calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,
         #                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #                     return_gradient=F)
@@ -267,7 +346,7 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
         #                                      return_gradient=F),
         #                   alpha_k)
         # 
-        output <- optim(alpha_k, 
+        output = optim(alpha_k, 
                         function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
                                         aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                                         return_gradient=F),
@@ -283,241 +362,179 @@ ed_laplace_ofv <- function(model_switch,groupsize,ni,xtopto,xopto,aopto,
                         #lower=lb,
                         #upper=1000,
                         hessian=T)
-        hess <- output$hessian
-        f_k <- output$value
+        hess = output["hessian"]
+        f_k = output["value"]
         
         ## Different hessian and gradient calculation
-        if(method==2){ 
-        if (!requireNamespace("nlme", quietly = TRUE)) {
-            stop("nlme package needed for this function to work with option 'method=2'. Please install it.",
-                call. = FALSE)
-        }
-        k_vals <- nlme::fdHess(output$par,
+        if method == 2: 
+            if requireNamespace("nlme", quietly = True) is not True:
+                raise Exception("nlme package needed for this function to work with option 'method=2'. Please install it.")
+            
+        k_vals = nlme::fdHess(output["par"],
                                 function(x) calc_k(x,model_switch,groupsize,ni,xtopto,xopto,
                                                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
                                                     return_gradient=F)) 
-        hess <- k_vals$Hessian
-        }  
-    }
+        hess = k_vals["Hessian"]
+        
     #f=Re(-exp(-f_k)/sqrt(detHessPi))
-    det_hess_pi <- det(hess*(2*pi)^(-1))
-    if(det_hess_pi < 0) {
-        warning("The laplace OFV is ", NaN, " because det(hessian)<0.")
-        f <- NaN
-    } else {
-        f <- sqrt(det_hess_pi)^(-1)*exp(-f_k)
-    }
+    det_hess_pi = np.linalg.det(hess*(2*np.pi)^(-1))
+    if det_hess_pi < 0:
+        warnings.warn("The laplace OFV is nan, because det(hessian) < 0.")
+        f = np.nan
+    else:
+        f = np.sqrt(det_hess_pi)^(-1)*np.exp(-f_k)
     
-    if(return_gradient){
-        bpop=bpopdescr[,2,drop=F]
-        bpop[bpopdescr[,1,drop=F]!=0]=alpha_k[1:sum(bpopdescr[,1,drop=F]!=0),drop=F]
-        d=ddescr[,2,drop=F]
-        d[ddescr[,1]!=0]=alpha_k[sum(bpopdescr[,1,drop=F]!=0)+1:end,drop=F]
-        d=getfulld(d,covd)
+    if return_gradient is True:
+        bpop = bpopdescr[:,1]
+        bpop[bpopdescr[:,0] != 0] = alpha_k[1:sum(bpopdescr[:,0] != 0)]
+        d = ddescr[:,1]
+        d[ddescr[:,0] != 0] = alpha_k[sum(bpopdescr[:,0] != 0)+1:end]
+        d = getfulld(d, covd)
         
-        gradxt=matrix(0,0,0)
-        grada=matrix(0,0,0)
-        if((optxt==TRUE)){
-        notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
-        gradxt=-graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE)
-        gradxt=gradxt(notfixed)
-        if(poped_db$design_space$bUseGrouped_xt){
-            index=unique(poped_db$design_space$G_xt)
-            gradxt=gradxt(index)
-        }
-        }
-        if((opta==TRUE)){
-        notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
-        grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
-        grada=grada(notfixed)
-        if(poped_db$design_space$bUseGrouped_a){
-            index=unique(poped_db$design_space$G_a)
-            grada=grada(index)
-        }
-        }
-        dkdxt=matrix(c(gradxt,grada),nrow=1,byrow=T)
+        gradxt = np.zeros(1)
+        grada = np.zeros(1)
+        if optxt is True:
+            notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
+            gradxt = -graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True)
+            gradxt = gradxt(notfixed)
+            if poped_db["design_space"]["bUseGrouped_xt"]:
+                index = unique(poped_db["design_space"]["G_xt"])
+                gradxt=gradxt(index)
+            
+        if opta is True:
+            notfixed = poped_db["design_space"]["mina"]!=poped_db["design_space"]["maxa"]
+            grada = -graddetmf(model_switch, np.ones(size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
+            grada = grada(notfixed)
+            if poped_db["design_space"]["bUseGrouped_a"]:
+                index = unique(poped_db["design_space"]["G_a"])
+                grada = grada(index)
+            
+        dkdxt = np.array([gradxt,grada]).reshape(1,2)
         
-        h_alpha=1e-4
-        tensor=array(0,dim=c(length(alpha_k), length(alpha_k), length(dkdxt)))
-        for(i in 1:length(alpha_k)){
-        for(j in 1:i){
-            alpha_plus_plus=alpha_k
-            alpha_plus_plus[i]=alpha_plus_plus[i]+h_alpha
-            alpha_plus_plus[j]=alpha_plus_plus[j]+h_alpha
-            bpop=bpopdescr[,2,drop=F]
-            bpop[bpopdescr[,1,drop=F]!=0]=alpha_plus_plus[1:sum(bpopdescr[,1,drop=F]!=0)]
-            d=ddescr[,2,drop=F]
-            d[ddescr[,1]!=0]=alpha_plus_plus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
-            d=getfulld(d,covd)
-            if((optxt==TRUE)){
-            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
-            gradxt=gradxt(notfixed)
-            if(poped_db$design_space$bUseGrouped_xt){
-                index=unique(poped_db$design_space$G_xt)
-                gradxt=gradxt(index)
-            }
-            }
-            if((opta==TRUE)){
-            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
-            grada=grada(notfixed)
-            if(poped_db$design_space$bUseGrouped_a){
-                index=unique(poped_db$design_space$G_a)
-                grada=grada(index)
-            }
-            }
-            dkdxt_plus_plus=matrix(c(gradxt,grada),nrow=1,byrow=T)
-            
-            alpha_minus_plus=alpha_k
-            alpha_minus_plus[i]=alpha_minus_plus[i]-h_alpha
-            alpha_minus_plus[j]=alpha_minus_plus[j]+h_alpha
-            bpop=bpopdescr[,2,drop=F]
-            bpop[bpopdescr[,1,drop=F]!=0]=alpha_minus_plus[1:sum(bpopdescr[,1,drop=F]!=0)]
-            d=ddescr[,2,drop=F]
-            d[ddescr[,1]!=0]=alpha_minus_plus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
-            d=getfulld(d,covd)
-            if((optxt==TRUE)){
-            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
-            gradxt=gradxt(notfixed)
-            if(poped_db$design_space$bUseGrouped_xt){
-                index=unique(poped_db$design_space$G_xt)
-                gradxt=gradxt(index)
-            }
-            }
-            if((opta==TRUE)){
-            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
-            grada=grada(notfixed)
-            if(poped_db$design_space$bUseGrouped_a){
-                index=unique(poped_db$design_space$G_a)
-                grada=grada(index)
-            }
-            }
-            dkdxt_minus_plus=matrix(c(gradxt,grada),nrow=1,byrow=T)
-            
-            alpha_plus_minus=alpha_k
-            alpha_plus_minus[i]=alpha_plus_minus[i]+h_alpha
-            alpha_plus_minus[j]=alpha_plus_minus[j]-h_alpha
-            bpop=bpopdescr[,2,drop=F]
-            bpop[bpopdescr[,1,drop=F]!=0]=alpha_plus_minus[1:sum(bpopdescr[,1,drop=F]!=0)]
-            d=ddescr[,2,drop=F]
-            d[ddescr[,1]!=0]=alpha_plus_minus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
-            d=getfulld(d,covd)
-            if((optxt==TRUE)){
-            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
-            gradxt=gradxt(notfixed)
-            if(poped_db$design_space$bUseGrouped_xt){
-                index=unique(poped_db$design_space$G_xt)
-                gradxt=gradxt(index)
-            }
-            }
-            if((opta==TRUE)){
-            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
-            grada=grada(notfixed)
-            if(poped_db$design_space$bUseGrouped_a){
-                index=unique(poped_db$design_space$G_a)
-                grada=grada(index)
-            }
-            }
-            dkdxt_plus_minus=matrix(c(gradxt,grada),nrow=1,byrow=T)
-            
-            alpha_minus_minus=alpha_k
-            alpha_minus_minus[i]=alpha_minus_minus[i]-h_alpha
-            alpha_minus_minus[j]=alpha_minus_minus[j]-h_alpha
-            bpop=bpopdescr[,2,drop=F]
-            bpop[bpopdescr[,1,drop=F]!=0]=alpha_minus_minus[1:sum(bpopdescr[,1,drop=F]!=0)]
-            d=ddescr[,2,drop=F]
-            d[ddescr[,1]!=0]=alpha_minus_minus[sum(bpopdescr[,1,drop=F]!=0)+1:end]
-            d=getfulld(d,covd)
-            if((optxt==TRUE)){
-            notfixed=poped_db$design_space$minxt!=poped_db$design_space$maxxt
-            gradxt=t(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE,gradxt=TRUE))
-            gradxt=gradxt(notfixed)
-            if(poped_db$design_space$bUseGrouped_xt){
-                index=unique(poped_db$design_space$G_xt)
-                gradxt=gradxt(index)
-            }
-            }
-            if((opta==TRUE)){
-            notfixed=poped_db$design_space$mina!=poped_db$design_space$maxa
-            grada=-graddetmf(model_switch,matrix(1,size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
-            grada=grada(notfixed)
-            if(poped_db$design_space$bUseGrouped_a){
-                index=unique(poped_db$design_space$G_a)
-                grada=grada(index)
-            }
-            }
-            dkdxt_minus_minus=matrix(c(gradxt,grada),nrow=1,byrow=T)
-            
-            tensor[i,j,]=((dkdxt_plus_plus-dkdxt_plus_minus-dkdxt_minus_plus+dkdxt_minus_minus))/(4*h_alpha^2)
-            tensor[j,i,]=tensor[i,j,]
-        }
-        }
-        ddetHessdxt=zeros(length(dkdxt),1)
-        for(i in 1:length(dkdxt)){
-        ddetHessdxt[i]=detHessPi*trace_matrix(inv(hess)*(-tensor[,,i]))
-        }
-        
-        gf=Re(exp(-f_k)*(2*detHessPi*dkdxt+ddetHessdxt)/(2*detHessPi^(3/2)))
-        return(list( f= f,gf=gf))
-    }
-    return(list(f=f))
-    }
+        h_alpha = 1e-4
+        tensor = np.zeros(1).reshape(alpha_k.size, alpha_k.size, dkdxt.size)
+        for i in range(0, alpha_k.size):
+            for j in range(0, i):
 
-    calc_k <- function(alpha, model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,
-                    ddescr,covd,sigma,docc,poped_db,Engine,return_gradient=F){
-    bpop=bpopdescr[,2,drop=F]
-    bpop[bpopdescr[,1,drop=F]!=0]=alpha[1:sum(bpopdescr[,1,drop=F]!=0),drop=F]
-    d=ddescr[,2,drop=F]
-    d[ddescr[,1]==4]=alpha[(sum(bpopdescr[,1,drop=F]!=0)+1):length(alpha),drop=F]
-    d=getfulld(d,covd)
-    retargs=mftot(model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpop,d,sigma,docc,poped_db)
-    fim <- retargs$ret
-    
-    det_fim <- det(fim)
-    if(det_fim<.Machine$double.eps){
-        warning("Determinant of the FIM is not positive")
-        if(return_gradient) return(list(k=NaN,grad_k = NaN))
-        return(c(k=NaN))
-    }
-    returnArgs <- log_prior_pdf(alpha, bpopdescr, ddescr,return_gradient=return_gradient) 
-    logp <- returnArgs[1]
-    if(return_gradient) grad_p <- returnArgs[["grad"]]
-    k=-logp-log(det_fim)
-    
-    if(return_gradient){
+                alpha_plus_plus = alpha_k
+                alpha_plus_plus[i] = alpha_plus_plus[i] + h_alpha
+                alpha_plus_plus[j] = alpha_plus_plus[j] + h_alpha
+                bpop = bpopdescr[:,1]
+                bpop[bpopdescr[:,0] != 0] = alpha_plus_plus[1:sum(bpopdescr[:,0] != 0)]
+                d = ddescr[:,1]
+                d[ddescr[:,0] != 0] = alpha_plus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d = getfulld(d, covd)
+                if optxt is True:
+                    notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
+                    gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
+                    gradxt = gradxt(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_xt"]:
+                        index = unique(poped_db["design_space"]["G_xt"])
+                        gradxt = gradxt(index)
+                    
+                if opta is True:
+                    notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]
+                    grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
+                    grada = grada(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_a"]:
+                        index = unique(poped_db["design_space"]["G_a"])
+                        grada = grada(index)
+                    
+                dkdxt_plus_plus = np.array([gradxt,grada])
+                
+                alpha_minus_plus = alpha_k
+                alpha_minus_plus[i] = alpha_minus_plus[i] - h_alpha
+                alpha_minus_plus[j] = alpha_minus_plus[j] + h_alpha
+                bpop = bpopdescr[:,1]
+                bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[1:sum(bpopdescr[:,0] != 0)]
+                d = ddescr[:,1]
+                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d = getfulld(d, covd)
+                if optxt is True:
+                    notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
+                    gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
+                    gradxt = gradxt(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_xt"]:
+                        index = unique(poped_db["design_space"]["G_xt"])
+                        gradxt = gradxt(index)
+                
+                if opta is True:
+                    notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]
+                    grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
+                    grada = grada(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_a"]:
+                        index = unique(poped_db["design_space"]["G_a"])
+                        grada = grada(index)
+                    
+                dkdxt_minus_plus = np.array([gradxt,grada])
+                
+                alpha_plus_minus = alpha_k
+                alpha_plus_minus[i] = alpha_plus_minus[i]+h_alpha
+                alpha_plus_minus[j]=alpha_plus_minus[j]-h_alpha
+                bpop = bpopdescr[:,1]
+                bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[1:sum(bpopdescr[:,0] != 0)]
+                d = ddescr[:,1]
+                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d = getfulld(d, covd)
+                if optxt is True:
+                    notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
+                    gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
+                    gradxt = gradxt(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_xt"]:
+                        index = unique(poped_db["design_space"]["G_xt"])
+                        gradxt = gradxt(index)
+                
+                if opta is True:
+                    notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]
+                    grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
+                    grada = grada(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_a"]:
+                        index = unique(poped_db["design_space"]["G_a"])
+                        grada = grada(index)
+                
+                dkdxt_plus_minus = np.array([gradxt,grada])
+                
+                alpha_minus_minus = alpha_k
+                alpha_minus_minus[i]=alpha_minus_minus[i]-h_alpha
+                alpha_minus_minus[j]=alpha_minus_minus[j]-h_alpha
+                bpop = bpopdescr[:,1]
+                bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[1:sum(bpopdescr[:,0] != 0)]
+                d = ddescr[:,1]
+                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d = getfulld(d, covd)
+                if optxt is True:
+                    notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
+                    gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
+                    gradxt = gradxt(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_xt"]:
+                        index = unique(poped_db["design_space"]["G_xt"])
+                        gradxt = gradxt(index)
+                
+                if opta is True:
+                    notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]
+                    grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
+                    grada = grada(notfixed)
+                    if poped_db["design_space"]["bUseGrouped_a"]:
+                        index = unique(poped_db["design_space"]["G_a"])
+                        grada = grada(index)
+                    
+                dkdxt_minus_minus = np.array([gradxt,grada])
+            
+            tensor[i,j,:] = ((dkdxt_plus_plus-dkdxt_plus_minus-dkdxt_minus_plus+dkdxt_minus_minus))/(4*h_alpha^2)
+            tensor[j,i,:] = tensor[i,j,:]
         
-        comp_grad_1 <- function(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) {
-        returnArgs <- dfimdalpha(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-6) 
-        d_fim <- returnArgs[1]
-        fim <- returnArgs[[2]]
-        ifim <- inv(fim)
-        dim(ifim) <- c(length(ifim),1)
-        dim(d_fim) = c(length(fim),length(grad_p))
-        gradlogdfim=t(d_fim)%*%ifim
-        grad_k=-(gradlogdfim+grad_p)
-        }
+        ddetHessdxt = zeros(dkdxt.size, 1)
+        for i in range(0, dkdxt.size):
+            ddetHessdxt[i] = detHessPi*trace_matrix(np.linalg.inv(hess)*(-tensor[:,:,i]))
         
-        # foo <- tryCatch.W.E( comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) )
-        # is.numeric(foo$value)
-        # 
-        # tryCatch.W.E( numDeriv::grad(function(x) calc_k(x,model_switch,groupsize,ni,xtoptn,xoptn,
-        #                                                 aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
-        #                                                 return_gradient=F),
-        #                              alpha) )
-        # 
-        grad_k <- comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p)
-        ## if not positive definite set grad_k=zeros(length(alpha),1)
         
-        #tryCatch(log(det(fim)), warning = function(w) browser())
-        return(list(k=k,grad_k=grad_k)) 
-    }
+        gf = Re(np.exp(-f_k)*(2*detHessPi*dkdxt+ddetHessdxt)/(2*detHessPi^(3/2)))
+        
+        return {"f": f, "gf": gf}
     
-    return(c(k=k)) 
-}
+    return {"f": f}
+    
+
+
 
 

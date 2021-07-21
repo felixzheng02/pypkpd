@@ -31,7 +31,10 @@ def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
         ind = np.unique(ind)
     
     ind = np.array(ind).astype(float)
-    return np.max(ind)
+    if np.size(ind) == 0:
+        return 0
+    else:
+        return np.max(ind)
 
 # 
 #  find_largest_index("sfg","bpop")

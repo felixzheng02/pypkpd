@@ -8,20 +8,21 @@ import numpy as np
 from project.size import size
 from project.zeros import zeros
 from project.dfimdalpha import dfimdalpha
+from project.d2fimdalpha2 import d2fimdalpha2
 from project.trace_matrix import trace_matrix
 from project.log_prior_pdf import log_prior_pdf
 
 
 
-def hesskalpha2(alpha, model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,ha,Engine):
+def hesskalpha2(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,ha,Engine):
     #D2KALPHA2 calculates the hessian of k with respect to alpha
     #   Detailed explanation goes here
-    returnArgs = log_prior_pdf(alpha,bpopdescr,ddescr,return_gradient=True,return_hessian=True) 
+    returnArgs = log_prior_pdf(alpha, bpopdescr, ddescr, return_gradient=True, return_hessian=True) 
     p = returnArgs[0]
     gradp = returnArgs[1]
     hessp = returnArgs[2]
     #get dF/dAlpha and fim
-    returnArgs = dfimdalpha(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,ha) 
+    returnArgs = dfimdalpha(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, ha) 
     d_fim = returnArgs[0]
     fim = returnArgs[1]
     ifim = np.linalg.inv(fim)
@@ -31,11 +32,9 @@ def hesskalpha2(alpha, model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,dd
             tigi[i,j] = trace_matrix(ifim*d_fim[:,:,i]*ifim*d_fim[:,:,j])
             tigi[j,i] = tigi[i,j]
         
-    d2=d2fimdalpha2(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,ddescr,covd,sigma,docc,poped_db,1e-4)["hess"]
-    dim(d2) = c(length(fim),length(hessp))
-    d2logdfim=t(d2)%*%cbind(as.vector(ifim))
-    dim(d2logdfim) = c(size(hessp,1),size(hessp,2))
-    hess=-(hessp+d2logdfim-tigi)
+    d2 = d2fimdalpha2(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, 1e-4)["hess"].reshape(fim.size, hessp.size)
+    d2logdfim = np.matmul(np.transpose(d2), np.asarray(ifim)).reshape(size(hessp)[0] ,size(hessp)[1])
+    hess = -(hessp + d2logdfim - tigi)
     #   try({
     #     L=chol(fim)
     #     # calc inverse

@@ -1011,7 +1011,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # end
             poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
 
-    # if(is.null(ofv_fun) || is.function(ofv_fun)){
+    # if(is.null(ofv_fun) or is.function(ofv_fun)){
 #   poped_db["settings"]ofv_fun = ofv_fun
 # } else {
 #   stop("ofv_fun must be a function or None")

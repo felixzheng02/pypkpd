@@ -7,6 +7,7 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import re
+import warnings
 import numpy as np
 from project.size import size
 from project.zeros import zeros
@@ -80,7 +81,7 @@ def get_rse(fim, poped_db,*argv):
     called_args = match_call()
     default_args = formals()
     for i in called_args.keys()[-1]:
-        if len(re.match("^poped\\.db\\$",str(default_args[i]))) == 1:
+        if len(re.search('^poped\\_db\\[\\"[\s]*\\"\\]', str(default_args[i]))) == 1:
         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
         # if (i %in% c('bpop','d')) {
         #   if (eval(parse(text=paste("dim(",i,")[2]>1"))))
@@ -107,9 +108,9 @@ def get_rse(fim, poped_db,*argv):
         if num_neg > 0:
             mess = mess + "\n  Potentially problematic parameters and associated eigenvalues:"
             for i in range(0, num_neg):
-                mess = mess + ("\n %12s  %8.7e",neg_vals[i].keys(),neg_vals[i])
+                mess = mess + ("\n %12s  %8.7e" %(neg_vals[i].keys(),neg_vals[i]))
         #warning(simpleWarning(mess,call="get_rse()"))
-        warning(mess)
+        warnings.warn(mess)
         return (np.repeat(np.nan, length(get_parnam(poped_db))))
 
     param_vars = diag_matlab(inv_fim)
@@ -124,7 +125,8 @@ def get_rse(fim, poped_db,*argv):
     if any(ret==0):
         zero_ret = ret[ret==0].keys()
         mess = "  The following parameters are not estimable:\n  " + ", ".joint(zero_ret) + "\n  Is the design adequate to estimate all parameters?"
-        warning(mess, call. = False)
+        warnings.warn(mess)
+        ##warnings.warn(mess, call. = False)
         ret[ret==0] = np.nan
     
     return ret

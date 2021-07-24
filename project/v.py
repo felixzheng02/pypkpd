@@ -122,7 +122,7 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
 
 ## %This function fixes a bug in FreeMat 4.0
 ## function ret=diag(a)
-##     if (~isempty(a) && size(a,1)==1 && size(a,2)==1)
+##     if (~isempty(a) and size(a,1)==1 and size(a,2)==1)
 ##         ret=builtin('diag',[a]);
 ##     else
 ##         ret=builtin('diag',a);

@@ -78,7 +78,7 @@ def calc_k(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,
     bpop = bpopdescr[:,2]
     bpop[bpopdescr[:,1] != 0] = alpha[1:sum(bpopdescr[:,1]!=0)]
     d = ddescr[:,2]
-    d[ddescr[:,1] == 4] = alpha[(sum(bpopdescr[:,1] != 0) + 1):(alpha)]
+    d[ddescr[:,1] == 4] = alpha[sum(bpopdescr[:,1]!=0):(alpha)]
     d = getfulld(d, covd)
     retargs = mftot(model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpop, d, sigma, docc, poped_db)
     fim = retargs["ret"]
@@ -147,7 +147,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                 u = u_tmp[idx.argsort()]
                 x[1:numel(u)] = np.zeros(1)
             else:
-                xtopto[notfixed]=x[1:numel(xtopto[notfixed])]
+                xtopto[notfixed]=x[0:numel(xtopto[notfixed])]
                 x = x[-np.arrange(1, numel(xtopto[notfixed]))]
         
         if opta is True:
@@ -164,7 +164,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
     
     ## do log transformation of ln bpop and d parameters for unconstrained optimization 
     if alpha_k.size > sum(bpopdescr[:,0] != 0):
-        d_index = range(sum(bpopdescr[:,0] != 0)+1, len(alpha_k))
+        d_index = range(sum(bpopdescr[:,0] != 0), len(alpha_k))
     else:
         d_index = None
     
@@ -388,7 +388,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
         bpop = bpopdescr[:,1]
         bpop[bpopdescr[:,0] != 0] = alpha_k[1:sum(bpopdescr[:,0] != 0)]
         d = ddescr[:,1]
-        d[ddescr[:,0] != 0] = alpha_k[sum(bpopdescr[:,0] != 0)+1:end]
+        d[ddescr[:,0] != 0] = alpha_k[sum(bpopdescr[:,0] != 0):alpha_k.size]
         d = getfulld(d, covd)
         
         gradxt = np.zeros(1)
@@ -397,8 +397,9 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
             notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
             gradxt = -graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True)
             gradxt = gradxt(notfixed)
-            if poped_db["design_space"]["bUseGrouped_xt"]:
-                index = unique(poped_db["design_space"]["G_xt"])
+            if poped_db["design_space"]["bUseGrouped_xt"]:                
+                index_tmp, idx = np.unique(poped_db["design_space"]["G_xt"], return_index=True) 
+                index = index_tmp[idx.argsort()] 
                 gradxt=gradxt(index)
             
         if opta is True:
@@ -406,7 +407,8 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
             grada = -graddetmf(model_switch, np.ones(size(aopto)),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
             grada = grada(notfixed)
             if poped_db["design_space"]["bUseGrouped_a"]:
-                index = unique(poped_db["design_space"]["G_a"])
+                index_tmp, idx = np.unique(poped_db["design_space"]["G_a"], return_index=True) 
+                index = index_tmp[idx.argsort()]
                 grada = grada(index)
             
         dkdxt = np.array([gradxt,grada]).reshape(1,2)
@@ -422,14 +424,15 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                 bpop = bpopdescr[:,1]
                 bpop[bpopdescr[:,0] != 0] = alpha_plus_plus[1:sum(bpopdescr[:,0] != 0)]
                 d = ddescr[:,1]
-                d[ddescr[:,0] != 0] = alpha_plus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d[ddescr[:,0] != 0] = alpha_plus_plus[sum(bpopdescr[:,0] != 0):alpha_plus_plus.size]
                 d = getfulld(d, covd)
                 if optxt is True:
                     notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
                     gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
                     gradxt = gradxt(notfixed)
                     if poped_db["design_space"]["bUseGrouped_xt"]:
-                        index = unique(poped_db["design_space"]["G_xt"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_xt"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         gradxt = gradxt(index)
                     
                 if opta is True:
@@ -437,7 +440,8 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                     grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
                     grada = grada(notfixed)
                     if poped_db["design_space"]["bUseGrouped_a"]:
-                        index = unique(poped_db["design_space"]["G_a"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_a"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         grada = grada(index)
                     
                 dkdxt_plus_plus = np.array([gradxt,grada])
@@ -446,16 +450,17 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                 alpha_minus_plus[i] = alpha_minus_plus[i] - h_alpha
                 alpha_minus_plus[j] = alpha_minus_plus[j] + h_alpha
                 bpop = bpopdescr[:,1]
-                bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[1:sum(bpopdescr[:,0] != 0)]
+                bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[0:sum(bpopdescr[:,0] != 0)]
                 d = ddescr[:,1]
-                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0):alpha_minus_plus.size]
                 d = getfulld(d, covd)
                 if optxt is True:
                     notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
                     gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
                     gradxt = gradxt(notfixed)
                     if poped_db["design_space"]["bUseGrouped_xt"]:
-                        index = unique(poped_db["design_space"]["G_xt"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_xt"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         gradxt = gradxt(index)
                 
                 if opta is True:
@@ -463,25 +468,27 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                     grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
                     grada = grada(notfixed)
                     if poped_db["design_space"]["bUseGrouped_a"]:
-                        index = unique(poped_db["design_space"]["G_a"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_a"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         grada = grada(index)
                     
                 dkdxt_minus_plus = np.array([gradxt,grada])
                 
                 alpha_plus_minus = alpha_k
-                alpha_plus_minus[i] = alpha_plus_minus[i]+h_alpha
-                alpha_plus_minus[j]=alpha_plus_minus[j]-h_alpha
+                alpha_plus_minus[i] = alpha_plus_minus[i] + h_alpha
+                alpha_plus_minus[j] = alpha_plus_minus[j] - h_alpha
                 bpop = bpopdescr[:,1]
                 bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[1:sum(bpopdescr[:,0] != 0)]
                 d = ddescr[:,1]
-                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0):alpha_minus_plus.size]
                 d = getfulld(d, covd)
                 if optxt is True:
                     notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
                     gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
                     gradxt = gradxt(notfixed)
                     if poped_db["design_space"]["bUseGrouped_xt"]:
-                        index = unique(poped_db["design_space"]["G_xt"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_xt"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         gradxt = gradxt(index)
                 
                 if opta is True:
@@ -489,25 +496,27 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                     grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
                     grada = grada(notfixed)
                     if poped_db["design_space"]["bUseGrouped_a"]:
-                        index = unique(poped_db["design_space"]["G_a"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_a"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         grada = grada(index)
                 
                 dkdxt_plus_minus = np.array([gradxt,grada])
                 
                 alpha_minus_minus = alpha_k
-                alpha_minus_minus[i]=alpha_minus_minus[i]-h_alpha
-                alpha_minus_minus[j]=alpha_minus_minus[j]-h_alpha
+                alpha_minus_minus[i] = alpha_minus_minus[i] - h_alpha
+                alpha_minus_minus[j] = alpha_minus_minus[j] - h_alpha
                 bpop = bpopdescr[:,1]
                 bpop[bpopdescr[:,0] != 0] = alpha_minus_plus[1:sum(bpopdescr[:,0] != 0)]
                 d = ddescr[:,1]
-                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0)+1:end]
+                d[ddescr[:,0] != 0] = alpha_minus_plus[sum(bpopdescr[:,0] != 0):alpha_minus_plus.size]
                 d = getfulld(d, covd)
                 if optxt is True:
                     notfixed = poped_db["design_space"]["minxt"] != poped_db["design_space"]["maxxt"]
                     gradxt = np.transpose(graddetmf(model_switch,xtopto,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True,gradxt=True))
                     gradxt = gradxt(notfixed)
                     if poped_db["design_space"]["bUseGrouped_xt"]:
-                        index = unique(poped_db["design_space"]["G_xt"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_xt"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         gradxt = gradxt(index)
                 
                 if opta is True:
@@ -515,7 +524,8 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                     grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
                     grada = grada(notfixed)
                     if poped_db["design_space"]["bUseGrouped_a"]:
-                        index = unique(poped_db["design_space"]["G_a"])
+                        index_tmp, idx = np.unique(poped_db["design_space"]["G_a"], return_index=True) 
+                        index = index_tmp[idx.argsort()]
                         grada = grada(index)
                     
                 dkdxt_minus_minus = np.array([gradxt,grada])

@@ -20,6 +20,5 @@
 from test.Test_create_poped_database import sfg
 
 def feval (func_name, *argv):
-    sfg(0,0,0,0,0)
     #func_name = gsub("\\.R$","",file.name)
     return eval(func_name.__name__ + str(argv))

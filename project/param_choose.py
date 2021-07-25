@@ -5,7 +5,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-def param_choose(input: dict, rep_val, exp: int, param: list, kwargs: dict, *argv):
+def param_choose(input: dict, rep_val, exp: int, param: list = None, kwargs: dict = None, *argv):
 	if argv[-1] in param:
 		return kwargs[argv[-1]]
 	else:

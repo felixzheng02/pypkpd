@@ -14,14 +14,12 @@
 #' @return A parameter model function to be used as input to PopED calculations.
 #' @export
 #' @importFrom codetools findGlobals
-
 #'
 #' @examples
 #' build_sfg(model="ff.PK.1.comp.oral.md.CL")
 #' 
 #' etas <- c(Favail="exp",KA="exp",V="add",CL="exp")
 #' build_sfg(model="ff.PK.1.comp.oral.md.CL",etas = etas)
-
 #' Author: Caiya Zhang, Yuchen Zheng
 """
 
@@ -56,12 +54,12 @@ def build_sfg(model=ff_PK_1_comp_oral_sd_CL,
     sfg_tmp()
 
     ## get body of function
-    parameters = "parameters=np.array(["
+    parameters = "parameters = np.array(["
     bpop_num = 1
     b_num = 1
     a_num = 1
     
-    cov_locs = re.search(("^" + "|".joint(covariates) +"$"), parameter_names_ff, re.I)
+    cov_locs = re.search(("^" + "|".joint(covariates) +'["'), parameter_names_ff, re.I)
     covariate_names = parameter_names_ff[cov_locs]
     parameter_names = parameter_names_ff
     if len(cov_locs) > 0:
@@ -80,7 +78,7 @@ def build_sfg(model=ff_PK_1_comp_oral_sd_CL,
         df = np.concatenate(parameter_names,eta_mod,axis=1)
     
     if no_etas is not None or len(etas)==1:
-        df[parameter_names in no_etas,"eta_mod"] = "none"
+        df[parameter_names in no_etas,"eta_mod"] = "None"
     
     
     for k in range(0,df.shape[0]):
@@ -90,15 +88,15 @@ def build_sfg(model=ff_PK_1_comp_oral_sd_CL,
         
         parameters = parameters + df[k,"parameter_names"] + "=bpop[" + bpop_num + "]"
         bpop_num = bpop_num + 1
-        if df[k,"eta_mod"]=="exp": 
-            parameters = parameters + "*exp(b[" + b_num + "])"
-        if df[k,"eta_mod"]=="prop": 
-            parameters = parameters + "*(1+b[" + b_num + "])"
-        if df[k,"eta_mod"]=="add":
-            parameters = parameters + "+ b[" + b_num + "]"  
-        if df[k,"eta_mod"]=="none":
+        if df[k,"eta_mod"] == "exp": 
+            parameters = parameters + '*exp(b["' + b_num + '"])'
+        if df[k,"eta_mod"] == "prop": 
+            parameters = parameters + '*(1+b["' + b_num + '"])'
+        if df[k,"eta_mod"] == "add":
+            parameters = parameters + '+ b["' + b_num + '"]'  
+        if df[k,"eta_mod"] == "None":
             parameters = parameters  
-        if df[k,"eta_mod"]!="none":
+        if df[k,"eta_mod"] != "None":
             b_num = b_num + 1
         parameters = parameters + ending        
     
@@ -108,7 +106,7 @@ def build_sfg(model=ff_PK_1_comp_oral_sd_CL,
             ending = ", "
             if k == len(covariate_names): 
                 ending = ")"
-            parameters = parameters + covariate_names[k] + "=a[" + a_num + "]" + ending
+            parameters = parameters + covariate_names[k] + '=a["' + a_num + '"]' + ending
             a_num = a_num + 1
         
     

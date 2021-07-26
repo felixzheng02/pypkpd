@@ -276,6 +276,7 @@ from project.util import is_not_none
 import numpy as np
 import pandas as pd
 import random
+import warnings
 from project.ones import ones
 from project.size import size
 from project.zeros import zeros
@@ -1149,8 +1150,11 @@ def create_poped_database(popedInput={}, **kwargs):
     poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(
         poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
 
-    poped_db["parameters"]["ng"] = (feval(poped_db["model"]["fg_pointer"],0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"]))).size
-
+    #poped_db["parameters"]["ng"] = len(feval(poped_db["model"]["fg_pointer"], 0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
+    if str(poped_db["model"]["fg_pointer"]) == "sfg":
+        poped_db["parameters"]["ng"] = len(sfg(0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
+    else:
+        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
    
     docc_arr = np.array([1])
     d_arr = np.array([1])
@@ -1426,3 +1430,11 @@ def create_poped_database(popedInput={}, **kwargs):
 
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
+
+def sfg(x,a,bpop,b,bocc):
+    parameters = np.array({"CL": bpop[0]*np.exp(b[0]),
+                "V": bpop[1]*np.exp(b[1]),
+                "KA": bpop[2]*np.exp(b[2]),
+                "Favail": bpop[3],
+                "DOSE": a[0]})
+    return parameters

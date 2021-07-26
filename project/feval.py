@@ -17,8 +17,14 @@
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 
-from test.Test_create_poped_database import sfg
+
 
 def feval (func_name, *argv):
     #func_name = gsub("\\.R$","",file.name)
+    
     return eval(func_name.__name__ + str(argv))
+
+
+
+
+    

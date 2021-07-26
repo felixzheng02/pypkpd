@@ -29,18 +29,9 @@ from project.ones import ones
 from project.models import feps_add_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
+from project.create_poped_database import sfg
 from project.create_poped_database import create_poped_database
 
-
-
-def sfg(x,a,bpop,b,bocc):
-    CL = bpop[1]*np.exp(b[1]),
-    V = bpop[2]*np.exp(b[2]),
-    KA = bpop[3]*np.exp(b[3]),
-    Favail = bpop[4],
-    DOSE = a[1]
-    parameters = np.array([CL,V,KA,Favail,DOSE])
-    return parameters
 
 
 # Adding 10% log-normal Uncertainty to fixed effects (not Favail)

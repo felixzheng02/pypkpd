@@ -36,22 +36,18 @@ ff.PK.1.comp.oral.sd.CL
 
 import numpy as np
 from project.evaluate_fim import evaluate_fim
+from project.create_poped_database import sfg
 from project.create_poped_database import create_poped_database
 from project.models import feps_add_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
 
-def sfg(x,a,bpop,b,bocc):
-    parameters=np.arrayCL=bpop[1]*np.exp(b[1]),
-    V=bpop[2]*np.exp(b[2]),
-    KA=bpop[3]*np.exp(b[3]),
-    Favail=bpop[4],
-    DOSE=a[1]
-    return parameters
+
+
 
 
 ## -- Define initial design  and design space
 poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
-                                  fg_fun=sfg(),
+                                  fg_fun=sfg,
                                   fError_fun=feps_add_prop,
                                   bpop=np.array([0.15,8,1.0,1]), 
                                   notfixed_bpop=np.array([1,1,1,0]),

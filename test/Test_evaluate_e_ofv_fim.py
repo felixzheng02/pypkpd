@@ -23,9 +23,9 @@
 
 import numpy as np
 from numpy.core.records import array
-from project.tic import tic
-from project.toc import toc
 from project.ones import ones
+from project.tictoc import tic
+from project.tictoc import toc
 from project.models import feps_add_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
@@ -35,12 +35,8 @@ from project.create_poped_database import create_poped_database
 
 
 # Adding 10% log-normal Uncertainty to fixed effects (not Favail)
-CL = 0.15
-V = 8
-KA = 1.0
-Favail = 1
-bpop_vals = np.array([CL,V,KA,Favail])
-bpop_vals_ed_ln = np.concatenate(ones(bpop_vals.size,1)*4, bpop_vals,ones(bpop_vals.size,1)*(bpop_vals*0.1)^2) ## log-normal distribution, 10% of bpop value
+bpop_vals = {"CL": 0.15, "V": 8, "KA": 1.0, "Favail": 1}
+bpop_vals_ed_ln = np.concatenate(ones(len(bpop_vals), 1)*4, bpop_vals,ones(len(bpop_vals), 1)*(bpop_vals*0.1)^2) ## log-normal distribution, 10% of bpop value
 bpop_vals_ed_ln["Favail",:]  = np.array([0,1,0])
 bpop_vals_ed_ln
 #>          bpop_vals         
@@ -73,16 +69,16 @@ poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
 
 
 ## ED evaluate (with very few samples)
-output = evaluate_e_ofv_fim(poped_db,ED_samp_size=10)
+output = evaluate_e_ofv_fim(poped_db, ED_samp_size=10)
 output["E_ofv"]
 #> [1] 55.45214
 ## API evaluate (with very few samples)
-output = evaluate_e_ofv_fim(poped_db,ED_samp_size=10,ofv_calc_type=4)
+output = evaluate_e_ofv_fim(poped_db, ED_samp_size=10, ofv_calc_type=4)
 output["E_ofv"]
 #> [1] 55.46088
 ## ED evaluate using Laplace approximation 
 tic()
-output = evaluate_e_ofv_fim(poped_db,use_laplace=True)
+output = evaluate_e_ofv_fim(poped_db, use_laplace=True)
 toc()
 #> Elapsed time: 1.3 seconds.output$E_ofv
 #> [1] 1.302806e+24

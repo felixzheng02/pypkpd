@@ -101,6 +101,7 @@ def transform_back_par(ps_tbl,*args):
 ##'   'value' may be an error caught.
 ##' @author Martin Maechler, The R Core Team
 ##' @keywords internal
+"""
 def tryCatch_W_E(expr):
 	W = None
 	w_handler <- function(w){ # warning handler
@@ -109,6 +110,7 @@ def tryCatch_W_E(expr):
 	}
 	return {"value": withCallingHandlers(tryCatch(expr, error = function(e) e),warning = w.handler),
 			"warning": W}
+"""
 
 
 

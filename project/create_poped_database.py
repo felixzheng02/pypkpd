@@ -1159,12 +1159,9 @@ def create_poped_database(popedInput={}, **kwargs):
     docc_arr = np.array([1])
     d_arr = np.array([1])
     bpop_arr = np.array([1])
-    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.pad(
-        docc_arr.astype(float), (3, 2), "constant", constant_values=np.nan).reshape(1, poped_db["parameters"]["NumDocc"]), 0)
-    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.pad(
-        d_arr.astype(float), (3, 2), "constant", constant_values=np.nan).reshape(1, poped_db["parameters"]["NumRanEff"]), 0)
-    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.pad(
-        bpop_arr.astype(float), (3, 2), "constant", constant_values=np.nan).reshape(1, poped_db["parameters"]["nbpop"]), 0)
+    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.ones([1, poped_db["parameters"]["NumDocc"]]), 0)
+    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.ones([1, poped_db["parameters"]["NumRanEff"]]), 0)
+    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.ones([1, poped_db["parameters"]["nbpop"]]), 0)
 
 
 # reorder named values

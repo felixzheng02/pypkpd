@@ -8,9 +8,9 @@ import numpy as np
 #from project.models import feps_prop
 # from project.evaluate_design import evaluate_design
 
+from project.sfg import sfg
 from project.models import feps_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
-from project.create_poped_database import sfg
 from project.create_poped_database import create_poped_database
 
 

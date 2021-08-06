@@ -6,13 +6,14 @@ Author: Caiya Zhang, Yuchen Zheng
 import re
 import inspect
 import numpy as np
+from project.sfg import sfg
 
 
 def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):
     if callable(func_str):
         txt = inspect.getsource(func_str)
-    else:
-        txt = inspect.getsource(eval(func_str + "()"))
+    else: 
+        txt = inspect.getsource(eval(func_str))
 
     txt = re.findall(('\\"[\S]*'+lab+"\\["+"[^\\,]*"), txt, re.I)
     txt = " ".join(txt)

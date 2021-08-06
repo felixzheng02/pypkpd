@@ -18,11 +18,12 @@
 """
 
 
-
 def feval (func_name, *argv):
     #func_name = gsub("\\.R$","",file.name)
-    
-    return eval(func_name.__name__ + str(argv))
+    if callable(func_name):
+        return eval(func_name.__name__ + str(argv))
+    elif type(func_name) is str:
+        return eval(func_name + str(argv))
 
 
 

@@ -271,18 +271,20 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 # from am.poped_choose import am.poped_choose
+import random
 import datetime
-from project.util import is_not_none
 import numpy as np
 import pandas as pd
-import random
-import warnings
+from os import name
+from matpy.matpy import matpy
+from project.sfg import sfg
 from project.ones import ones
 from project.size import size
 from project.zeros import zeros
 from project.cell import cell
 from project.feval import feval
 from project.pargen import pargen
+from project.util import is_not_none
 from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
@@ -327,18 +329,18 @@ def create_poped_database(popedInput={}, **kwargs):
 
     # if "ff_file" not in param:
     #     ff_file = None
-    ff_fun = param_choose(popedInput, None, 0, param, kwargs, 'model', 'ff_pointer')
+    ff_fun = param_choose(popedInput, None, 0, param, kwargs, "model", "ff_pointer")
 
     # -- Filname and path of the g parameter file --
     fg_file = param_choose(kwargs, None, 0, param, kwargs, "fg_file")
     # if "fg_file" not in param:
     #     fg_file = None
-    fg_fun = param_choose(popedInput, None, 0, param, kwargs, 'model', 'fg_pointer')
+    fg_fun = param_choose(popedInput, None, 0, param, kwargs, "model", "fg_pointer")
     # -- Filname and path of the error model file --
     fError_file = param_choose(kwargs, None, 0, param, kwargs, "fError_file")
     # if "fError_file" not in param:
     #     fError_file = None
-    fError_fun = param_choose(popedInput, None, 0, param, kwargs, 'model', 'ferror_pointer')
+    fError_fun = param_choose(popedInput, None, 0, param, kwargs, "model", "ferror_pointer")
 
     # --------------------------
     # ---- What to optimize
@@ -449,7 +451,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- The prior FIM (added to calculated FIM) --
     prior_fim = param_choose(popedInput, np.array([0]), 0, param, kwargs, 'settings', 'prior_fim')
     # -- Filname and path for the Autocorrelation function, empty string means no autocorrelation --
-    strAutoCorrelationFile = param_choose(popedInput, "", 0, param, kwargs, 'model', 'auto_pointer')
+    strAutoCorrelationFile = param_choose(popedInput, "", 0, param, kwargs, "model", 'auto_pointer')
 
     # --------------------------
     # ---- Criterion specification
@@ -477,7 +479,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- How to sample from distributions in E-family calculations. 0=Random Sampling, 1=LatinHyperCube --
     bLHS = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'bLHS')
     # -- Filname and path for user defined distributions for E-family designs --
-    strUserDistributionFile = param_choose(popedInput, "", 0, param, kwargs, 'model', 'user_distribution_pointer')
+    strUserDistributionFile = param_choose(popedInput, "", 0, param, kwargs, "model", 'user_distribution_pointer')
 
     # --------------------------
     # ---- Model parameters
@@ -996,7 +998,7 @@ def create_poped_database(popedInput={}, **kwargs):
             # end
             poped_db["model"]["fg_pointer"] = strfgModelFilename
         else:
-            poped_db["model"]["fg_pointer"] = fg_file
+            poped_db["model"]["fg_pointer"] = fg_file.__name__
 
     poped_db["settings"]["ed_penalty_pointer"] = zeros(1, 0)
     if str(strEDPenaltyFile) != "":
@@ -1140,53 +1142,27 @@ def create_poped_database(popedInput={}, **kwargs):
             poped_db["settings"]["dSeed"] = dSeed
         random.seed(poped_db["settings"]["dSeed"])
 
-    ##poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(poped_db["model"]["fg_pointer"], "bpop"), 0)
-    if str(poped_db["model"]["fg_pointer"]) == "sfg":
-        poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index("sfg", "bpop"), 0)
-    else:
-        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
-   
-    ##poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(poped_db["model"]["fg_pointer"], "b"), 0)
-    if str(poped_db["model"]["fg_pointer"]) == "sfg":
-        poped_db["parameters"]["NumRanEff"] = poped_choose(nbpop, find_largest_index("sfg", "b"), 0)
-    else:
-        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
-   
-    ##poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
-    if str(poped_db["model"]["fg_pointer"]) == "sfg":
-        poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index("sfg", "bocc", mat=True, mat_row=True), 0)
-    else:
-        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
-   
-
-    ##poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
-    if str(poped_db["model"]["fg_pointer"]) == "sfg":
-        poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index("sfg", "bocc", mat=True, mat_row=False), 0)
-    else:
-        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
-
-    ##poped_db["parameters"]["ng"] = len(feval(poped_db["model"]["fg_pointer"], 0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
-    if str(poped_db["model"]["fg_pointer"]) == "sfg":
-        poped_db["parameters"]["ng"] = len(sfg(0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
-    else:
-        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
-   
+    poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(poped_db["model"]["fg_pointer"], "bpop"), 0)
+    poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(poped_db["model"]["fg_pointer"], "b"), 0)
+    poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
+    poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
+    
+    poped_db["parameters"]["ng"] = len(eval(poped_db["model"]["fg_pointer"] + "(0, 0, 0, 0," + str(zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"]))+")"))
+    
     docc_arr = np.array([1])
     d_arr = np.array([1])
     bpop_arr = np.array([1])
-    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.ones([1, poped_choose(poped_db["parameters"]["NumDocc"], 0, 0)]), 0)
-    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.ones([1, poped_choose(poped_db["parameters"]["NumRanEff"], 0, 0)]), 0)
-    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.ones([1, poped_choose(poped_db["parameters"]["nbpop"], 0, 0)]), 0)
+    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")]), 0)
+    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")]), 0)
+    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")]), 0)
 
 
 # reorder named values
-    fg_names = feval(poped_db["model"]["fg_pointer"], 1, 1, 1, 1, ones(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])).keys()
+    fg_names = feval(poped_db["model"]["fg_pointer"], 1, 1, 1, 1, ones(param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"), param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"))).keys()
+    
+    poped_db["parameters"]["notfixed_bpop"] = reorder_vec(poped_db["parameters"]["notfixed_bpop"], fg_names)
 
-    poped_db["parameters"]["notfixed_bpop"] = reorder_vec(
-        poped_db["parameters"]["notfixed_bpop"], fg_names)
-
-    poped_db["parameters"]["notfixed_d"] = reorder_vec(
-        poped_db["parameters"]["notfixed_d"], fg_names)
+    poped_db["parameters"]["notfixed_d"] = reorder_vec(poped_db["parameters"]["notfixed_d"], fg_names)
 
     # we have just the parameter values not the uncertainty
     if size(d)[0] == 1 and size(d)[1] == poped_db["parameters"]["NumRanEff"]:
@@ -1443,10 +1419,3 @@ def create_poped_database(popedInput={}, **kwargs):
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
 
-def sfg(x,a,bpop,b,bocc):
-    parameters = np.array({"CL": bpop[0]*np.exp(b[0]),
-                "V": bpop[1]*np.exp(b[1]),
-                "KA": bpop[2]*np.exp(b[2]),
-                "Favail": bpop[3],
-                "DOSE": a[0]})
-    return parameters

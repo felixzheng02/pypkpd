@@ -1140,17 +1140,32 @@ def create_poped_database(popedInput={}, **kwargs):
             poped_db["settings"]["dSeed"] = dSeed
         random.seed(poped_db["settings"]["dSeed"])
 
-    poped_db["parameters"]["nbpop"] = poped_choose(
-        nbpop, find_largest_index(poped_db["model"]["fg_pointer"], "bpop"), 0)
-    poped_db["parameters"]["NumRanEff"] = poped_choose(
-        NumRanEff, find_largest_index(poped_db["model"]["fg_pointer"], "b"), 0)
+    ##poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(poped_db["model"]["fg_pointer"], "bpop"), 0)
+    if str(poped_db["model"]["fg_pointer"]) == "sfg":
+        poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index("sfg", "bpop"), 0)
+    else:
+        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
+   
+    ##poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(poped_db["model"]["fg_pointer"], "b"), 0)
+    if str(poped_db["model"]["fg_pointer"]) == "sfg":
+        poped_db["parameters"]["NumRanEff"] = poped_choose(nbpop, find_largest_index("sfg", "b"), 0)
+    else:
+        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
+   
+    ##poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
+    if str(poped_db["model"]["fg_pointer"]) == "sfg":
+        poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index("sfg", "bocc", mat=True, mat_row=True), 0)
+    else:
+        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
+   
 
-    poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(
-        poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
-    poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(
-        poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
+    ##poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
+    if str(poped_db["model"]["fg_pointer"]) == "sfg":
+        poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index("sfg", "bocc", mat=True, mat_row=False), 0)
+    else:
+        warnings.warn('Do not have a valid poped_db["model"]["fg_pointer"] parameter. Here should have a sfg function.')
 
-    #poped_db["parameters"]["ng"] = len(feval(poped_db["model"]["fg_pointer"], 0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
+    ##poped_db["parameters"]["ng"] = len(feval(poped_db["model"]["fg_pointer"], 0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
     if str(poped_db["model"]["fg_pointer"]) == "sfg":
         poped_db["parameters"]["ng"] = len(sfg(0, 0, 0, 0, zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])))
     else:
@@ -1159,9 +1174,9 @@ def create_poped_database(popedInput={}, **kwargs):
     docc_arr = np.array([1])
     d_arr = np.array([1])
     bpop_arr = np.array([1])
-    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.ones([1, poped_db["parameters"]["NumDocc"]]), 0)
-    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.ones([1, poped_db["parameters"]["NumRanEff"]]), 0)
-    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.ones([1, poped_db["parameters"]["nbpop"]]), 0)
+    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.ones([1, poped_choose(poped_db["parameters"]["NumDocc"], 0, 0)]), 0)
+    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.ones([1, poped_choose(poped_db["parameters"]["NumRanEff"], 0, 0)]), 0)
+    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.ones([1, poped_choose(poped_db["parameters"]["nbpop"], 0, 0)]), 0)
 
 
 # reorder named values

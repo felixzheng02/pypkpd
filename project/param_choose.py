@@ -6,9 +6,13 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 def param_choose(input: dict, rep_val, exp: int, param: list = None, kwargs: dict = None, *argv):
-	if param is not None:
+	
+	# determine if parameter's value is given as function input
+	if param is not None and kwargs is not None:
 		if argv[-1] in param:
 			return kwargs[argv[-1]]
+	
+	# look for keys in dicts
 	tmp_dict = input
 	for k in argv:
 		if k not in list(tmp_dict.keys()):

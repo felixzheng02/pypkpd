@@ -276,12 +276,13 @@ import datetime
 import numpy as np
 import pandas as pd
 from os import name
-from matpy.matpy import matpy
 from project.sfg import sfg
+from project.cell import cell
 from project.ones import ones
 from project.size import size
+from matpy.num import num
+from matpy.matrix import matrix
 from project.zeros import zeros
-from project.cell import cell
 from project.feval import feval
 from project.pargen import pargen
 from project.util import is_not_none
@@ -298,10 +299,10 @@ from project.get_all_params import get_all_params
 from project.get_unfixed_params import get_unfixed_params
 
 
-def reorder_vec(your_vec, name_order):
-    if your_vec.keys() is not None:
-        if all(your_vec.keys()) in name_order:
-            your_vec = your_vec[name_order[name_order in your_vec.keys()]]
+def reorder_vec(your_vec: matrix, name_order):
+    if your_vec.get_datanam() is not None:
+        if all(your_vec.get_datanam()) in name_order:
+            your_vec = your_vec[name_order[name_order in your_vec.get_datanam()]]
 
     return your_vec
 
@@ -998,7 +999,7 @@ def create_poped_database(popedInput={}, **kwargs):
             # end
             poped_db["model"]["fg_pointer"] = strfgModelFilename
         else:
-            poped_db["model"]["fg_pointer"] = fg_file.__name__
+            poped_db["model"]["fg_pointer"] = fg_file
 
     poped_db["settings"]["ed_penalty_pointer"] = zeros(1, 0)
     if str(strEDPenaltyFile) != "":
@@ -1027,11 +1028,9 @@ def create_poped_database(popedInput={}, **kwargs):
         # here I assume that function in file has same name as filename minus .txt and pathnames
         if ofv_fun is not None:
             exec(open(str(ofv_fun)).read())
-            poped_db["settings"]["ofv_fun"] = eval(
-                'text=fileparts(ofv_fun)["filename"]')
+            poped_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)["filename"]')
         else:
-            raise Exception(
-                "ofv_fun is not a function or None, and no file with that name was found")
+            raise Exception("ofv_fun is not a function or None, and no file with that name was found")
 
     # if(is.function(ofv_fun)){
 #   poped_db["settings"]ofv_fun = ofv_fun
@@ -1092,15 +1091,13 @@ def create_poped_database(popedInput={}, **kwargs):
                 if elem_key == ("ff_file%d" % i):
                     # ok<np.nanSGU>
                     exec(eval('popedInput["SubModels"]["ff_file"]%d' % i))
-                    returnArgs = fileparts(
-                        eval('popedInput["SubModels"]["ff_file"]%d' % i))  # ok<np.nanSGU>
+                    returnArgs = fileparts(eval('popedInput["SubModels"]["ff_file"]%d' % i))  # ok<np.nanSGU>
                     strffModelFilePath = list(returnArgs.values())[0]
                     strffModelFilename = list(returnArgs.values())[1]
                     # if (~strcmp(strffModelFilePath,''))
                     # cd(strffModelFilePath);
                     # end
-                    poped_db["model"]["subffPointers"]["".join(
-                        ["ff_pointer", str(i)])] = strffModelFilename
+                    poped_db["model"]["subffPointers"]["".join(["ff_pointer", str(i)])] = strffModelFilename
                     i = i + 1
 
     if callable(fError_fun):
@@ -1147,18 +1144,21 @@ def create_poped_database(popedInput={}, **kwargs):
     poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
     poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
     
-    poped_db["parameters"]["ng"] = len(eval(poped_db["model"]["fg_pointer"] + "(0, 0, 0, 0," + str(zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"]))+")"))
+    poped_db["parameters"]["ng"] = eval(poped_db["model"]["fg_pointer"] + "(num(0), num(0), num(0), num(0)," + str(zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])) + ")").get_size()
     
     docc_arr = np.array([1])
     d_arr = np.array([1])
     bpop_arr = np.array([1])
-    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")]), 0)
-    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")]), 0)
-    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")]), 0)
+    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, 
+        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")]), None, None, None, None), 0)
+    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, 
+        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")]), None, None, None, None), 0)
+    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, 
+        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")]), None, None, None, None), 0)
 
 
 # reorder named values
-    fg_names = feval(poped_db["model"]["fg_pointer"], 1, 1, 1, 1, ones(param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"), param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"))).keys()
+    fg_names = eval(poped_db["model"]["fg_pointer"] + "(num(1), num(1), num(1), num(1)," + str(ones(param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"), param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"))) + ")").get_datanam()
     
     poped_db["parameters"]["notfixed_bpop"] = reorder_vec(poped_db["parameters"]["notfixed_bpop"], fg_names)
 
@@ -1175,7 +1175,7 @@ def create_poped_database(popedInput={}, **kwargs):
         d_descr[:, 0] = 0  # point values
         d_descr[:, 2] = 0  # variance
         d_descr = pd.DataFrame(d_descr,
-                               columns=d.keys())
+                               columns=d.get_datanam())
         # d_descr.columns.values = d.keys()
         d = d_descr
 
@@ -1190,7 +1190,7 @@ def create_poped_database(popedInput={}, **kwargs):
         bpop_descr[:, 0] = 0  # point values
         bpop_descr[:, 2] = 0  # variance
         bpop_descr = pd.DataFrame(bpop_descr,
-                                  columns=bpop.keys())
+                                  columns=bpop.get_datanam())
         # bpop_descr.columns.values = bpop.keys()
         bpop = bpop_descr
 
@@ -1212,9 +1212,8 @@ def create_poped_database(popedInput={}, **kwargs):
         for i in range(0, len(covd)):
             if covd[i] == 0:
                 tmp[i] = 0
-#tmp[covd==0] = 0
-    poped_db["parameters"]["notfixed_covd"] = poped_choose(
-        notfixed_covd, tmp, 0)
+    #tmp[covd==0] = 0
+    poped_db["parameters"]["notfixed_covd"] = poped_choose(notfixed_covd, tmp, 0)
 
     # ==================================
     # Sample the individual eta's for FOCE and FOCEI
@@ -1226,8 +1225,8 @@ def create_poped_database(popedInput={}, **kwargs):
         bones = np.array([1]).reshape(
             [int(poped_db["parameters"]["NumRanEff"]), 1])
         bocczeros = zeros(poped_db["parameters"]["NumDocc"], 1)
-        boccones = np.array([1]*int(poped_db["parameters"]["NumDocc"])
-                            ).reshape([int(poped_db["parameters"]["NumDocc"]), 1])
+        boccones = np.array([1]*int(poped_db["parameters"]["NumDocc"])).reshape(
+            [int(poped_db["parameters"]["NumDocc"]), 1])
 
         poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"], max(
             poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded))

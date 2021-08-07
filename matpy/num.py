@@ -20,10 +20,8 @@ class num:
 		"""return self.value as an np.ndarray"""
 		if self.get_type() is int or self.get_type() is float:
 			return np.array([self.get_value()])
-		elif self.get_type() is list:
+		else: # self.get_type() is list or np.ndarray
 			return np.array(self.get_value())
-		elif self.get_type() is np.ndarray:
-			return self.get_value()
 
 	def get_by_index(self, index: int): # only 1-d array is considered
 		"""return value by index, nan if out of index"""

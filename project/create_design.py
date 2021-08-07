@@ -9,6 +9,7 @@ import re
 import numpy as np
 import pandas as pd
 import itertools
+from matpy.matrix import matrix
 from project.poped_choose import poped_choose
 from project.test_mat_size import test_mat_size
 from project.size import size
@@ -43,15 +44,14 @@ def create_design(
 	if size(xt)[0] == 1 and m != 1:
 		xt = np.tile(xt.flatten(), m).reshape(m, xt.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
-	if type(xt) is not np.ndarray and type(xt) is not pd.DataFrame:
-		xt = np.array(xt)
+	if type(xt) is not matrix:
+		xt = matrix(xt, )
 	
 	if (size(xt)[0] != m):
 		raise Exception("The number of rows in xt (" + str(size(xt)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
 	
-	xt = pd.DataFrame(xt, 
-					   index=["grp_"+str(i) for i in range(1, m+1)], 
-					   columns=["obs_"+str(i) for i in range(1, xt.shape[1]+1)]) # same as "size(xt)[1]+1"
+	xt.set_rownam(["grp_"+str(i) for i in range(1, m+1)]) 
+	xt.set_colnam(["obs_"+str(i) for i in range(1, xt.shape[1]+1)]) # same as "size(xt)[1]+1"
 	
 	design["xt"] = xt
 # 没写！！！names(m) = "n_grp"
@@ -60,7 +60,7 @@ def create_design(
 
 	### for ni ###
 	if ni is None:
-		ni = np.count_nonzero(1-np.isnan(xt), axis=1).reshape(xt.shape[0], 1)
+		ni = np.count_nonzero(1-np.isnan(xt.get_data()), axis=1).reshape(xt.get_shape()[0], 1)
 	
 	if type(ni) != np.ndarray:
 		ni = np.array(ni).reshape([len(ni), 1])
@@ -76,7 +76,7 @@ def create_design(
 		length = max([len(i) for i in model_switch])
 		model_switch = np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch]) # convert a list of vectors to an array
 	if model_switch is None:
-		model_switch = xt * 0 + 1
+		model_switch = xt.get_data() * 0 + 1
 	if size(model_switch)[0] == 1 and m != 1:
 		model_switch  = np.tile(model_switch.flatten(), m).reshape(m, model_switch.size) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 

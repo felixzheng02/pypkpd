@@ -12,6 +12,7 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import numpy as np
+from matpy.matrix import matrix
 
 
 def zeros(dim1, dim2 = None):
@@ -19,4 +20,4 @@ def zeros(dim1, dim2 = None):
 		mat = np.zeros([dim1, dim2])
 	else:
 		mat = np.zeros([dim1, int(dim2)])
-	return mat
+	return matrix(mat, shape=(dim1, dim2))

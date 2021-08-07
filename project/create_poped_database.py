@@ -350,7 +350,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Vector of optimization tasks (1=True,0=False)
     # (Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group)
     # -- All elements set to zero => only calculate the FIM with current design --
-    optsw = param_choose(popedInput, np.array([0, 0, 0, 0, 0]), 0, param, kwargs, 'settings', 'optsw')
+    optsw = param_choose(popedInput, matrix(np.array([0, 0, 0, 0, 0])), 0, param, kwargs, 'settings', 'optsw')
 
     # --------------------------
     # ---- Initial Design
@@ -450,7 +450,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Num individuals in each step of FOCE --
     iFOCENumInd = param_choose(popedInput, 1000, 0, param, kwargs, 'settings', 'iFOCENumInd')
     # -- The prior FIM (added to calculated FIM) --
-    prior_fim = param_choose(popedInput, np.array([0]), 0, param, kwargs, 'settings', 'prior_fim')
+    prior_fim = param_choose(popedInput, matrix(np.array([0])), 0, param, kwargs, 'settings', 'prior_fim')
     # -- Filname and path for the Autocorrelation function, empty string means no autocorrelation --
     strAutoCorrelationFile = param_choose(popedInput, "", 0, param, kwargs, "model", 'auto_pointer')
 
@@ -516,12 +516,12 @@ def create_poped_database(popedInput={}, **kwargs):
     # can also just supply the diagonal values as a c()
     sigma = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'sigma')
     # -- Matrix defining the IOV, the IOV variances and the IOV distribution --
-    docc = param_choose(popedInput, np.array([np.nan, np.nan, np.nan]), 0, param, kwargs, 'parameters', 'docc')
+    docc = param_choose(popedInput, matrix(np.array([np.nan, np.nan, np.nan])), 0, param, kwargs, 'parameters', 'docc')
     # -- Matrix defining the covariance of the IOV --
-    if np.array_equal(docc, np.array([np.nan, np.nan, np.nan]), equal_nan=True):
+    if np.array_equal(docc.get_data(), np.array([np.nan, np.nan, np.nan]), equal_nan=True):
         tmp = 0
     else:
-        tmp = len(docc[1])
+        tmp = len(docc.get_data()[1])
     covdocc = param_choose(popedInput, zeros(1, tmp*(tmp-1)/2), 0, param, kwargs, 'parameters', 'covdocc')
 
     # --------------------------
@@ -538,7 +538,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Vector row major order for lower triangular matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
     notfixed_covdocc = param_choose(popedInput, zeros(1, len(covdocc)), 0, param, kwargs, 'parameters', 'notfixed_covdocc')
     # -- Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_sigma = param_choose(popedInput, np.ones(size(sigma)[1]), 0, param, kwargs, 'parameters', 'notfixed_sigma')
+    notfixed_sigma = param_choose(popedInput, matrix(np.ones(size(sigma)[1])), 0, param, kwargs, 'parameters', 'notfixed_sigma')
     # -- Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed) --
     ## default is fixed
     notfixed_covsigma = param_choose(popedInput, zeros(1, len(notfixed_sigma)*(len(notfixed_sigma)-1)/2), 0, param, kwargs, 'parameters', 'notfixed_covsigma')
@@ -1150,11 +1150,11 @@ def create_poped_database(popedInput={}, **kwargs):
     d_arr = np.array([1])
     bpop_arr = np.array([1])
     poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, 
-        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")]), None, None, None, None), 0)
+        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")])), 0)
     poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, 
-        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")]), None, None, None, None), 0)
+        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")])), 0)
     poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, 
-        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")]), None, None, None, None), 0)
+        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")])), 0)
 
 
 # reorder named values
@@ -1171,35 +1171,32 @@ def create_poped_database(popedInput={}, **kwargs):
         # reorder named values
         d = reorder_vec(d, fg_names)
 
-        d_descr[:, 1] = d
-        d_descr[:, 0] = 0  # point values
-        d_descr[:, 2] = 0  # variance
-        d_descr = pd.DataFrame(d_descr,
-                               columns=d.get_datanam())
+        d_descr.get_data()[:, 1] = d
+        d_descr.get_data()[:, 0] = 0  # point values
+        d_descr.get_data()[:, 2] = 0  # variance
+        d_descr.set_colnam(d.get_datanam())
         # d_descr.columns.values = d.keys()
         d = d_descr
 
     # we have just the parameter values not the uncertainty
     if size(bpop)[0] == 1 and size(bpop)[1] == poped_db["parameters"]["nbpop"]:
-        bpop_descr = pd.DataFrame(zeros(poped_db["parameters"]["nbpop"], 3))
+        bpop_descr = zeros(poped_db["parameters"]["nbpop"], 3)
 
         # reorder named values
         bpop = reorder_vec(bpop, fg_names)
 
-        bpop_descr[:, 1] = bpop
-        bpop_descr[:, 0] = 0  # point values
-        bpop_descr[:, 2] = 0  # variance
-        bpop_descr = pd.DataFrame(bpop_descr,
-                                  columns=bpop.get_datanam())
+        bpop_descr.get_data()[:, 1] = bpop
+        bpop_descr.get_data()[:, 0] = 0  # point values
+        bpop_descr.get_data()[:, 2] = 0  # variance
+        bpop_descr.set_colnam(bpop.get_datanam())
         # bpop_descr.columns.values = bpop.keys()
         bpop = bpop_descr
 
     # we have just the diagonal parameter values
-    if size(sigma)[0] == 1 and type(sigma) is not np.ndarray:
-        sigma_tmp = pd.DataFrame(
+    if size(sigma)[0] == 1 and (type(sigma) is not np.ndarray or type(sigma) is not matrix):
+        sigma_tmp = matrix(
             np.diag(sigma, size(sigma)[1], size(sigma)[1]))
-        sigma_tmp = pd.DataFrame(sigma_tmp,
-                                 columns=sigma.keys())
+        sigma_tmp.set_colnam(sigma.keys())
         # sigma_tmp.columns.values = sigma.keys()
         sigma = sigma_tmp
 

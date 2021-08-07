@@ -16,11 +16,13 @@ class matrix:
 		# data field:
 		# data
 		# shape
+		# size
 		# datanam
 		# colnam
 		# rownam
 		self.data = data.reshape(shape)
 		self.shape = shape
+		self.size = self.get_data().size
 		self.datanam = datanam
 		self.colnam = colnam
 		self.rownam = rownam
@@ -30,6 +32,9 @@ class matrix:
 
 	def get_shape(self):
 		return self.shape
+
+	def get_size(self):
+		return self.size
 
 	def get_datanam(self):
 		return self.datanam

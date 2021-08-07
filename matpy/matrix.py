@@ -1,8 +1,7 @@
 """
-matpy is a self-defined class that allows users to 
-name rows, columns, and elements of matrices
-
-Authors: Caiya Zhang, Yuchen Zheng
+matpy is a self-defined class that allows users to 
+name rows, columns, and elements of matrices
+Authors: Caiya Zhang, Yuchen Zheng
 """
 
 
@@ -12,7 +11,7 @@ import pandas as pd
 
 class matrix:
 
-	def __init__(self, data: np.ndarray, shape: tuple, datanam: list = None, colnam: list = None, rownam: list = None):
+	def __init__(self, data: np.ndarray, shape: tuple = None, datanam: list = None, colnam: list = None, rownam: list = None):
 		# data field:
 		# data
 		# shape
@@ -20,8 +19,11 @@ class matrix:
 		# datanam
 		# colnam
 		# rownam
+		if shape is None:
+			self.shape = (1, data.size)
+		else:
+			self.shape = shape
 		self.data = data.reshape(shape)
-		self.shape = shape
 		self.size = self.get_data().size
 		self.datanam = datanam
 		self.colnam = colnam

@@ -1,8 +1,8 @@
 import numpy as np
-from matpy.matpy import matpy
+from matpy.matrix import matrix
 
 
-data = matpy(np.array([1, 2, 3, 4]),
+data = matrix(np.array([1, 2, 3, 4]),
 			 (2, 2),
 			 ["one", "two", "three", "four"],
 			 ["col_1", "col_2"],

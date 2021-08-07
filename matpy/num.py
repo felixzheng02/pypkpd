@@ -7,18 +7,23 @@ class num:
 		# data field:
 		# value
 		# type
-		if type(input) is list:
-			self.value = np.array(input)
-		else: # int or np.ndarray
-			self.value = input
+		self.value = input
 		self.type = type(self.value)
 	
 	def get_value(self):
 		return self.value
 
+	def get_type(self):
+		return self.type
+
 	def trans_array(self):
 		"""return self.value as an np.ndarray"""
-		return np.array(self.get_value)
+		if self.get_type() is int or self.get_type() is float:
+			return np.array([self.get_value()])
+		elif self.get_type() is list:
+			return np.array(self.get_value())
+		elif self.get_type() is np.ndarray:
+			return self.get_value()
 
 	def get_by_index(self, index: int): # only 1-d array is considered
 		"""return value by index, nan if out of index"""

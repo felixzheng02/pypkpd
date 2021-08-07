@@ -11,7 +11,7 @@ import pandas as pd
 
 class matrix:
 
-	def __init__(self, data: np.ndarray, shape: tuple = None, datanam: list = None, colnam: list = None, rownam: list = None):
+	def __init__(self, data, shape = None, datanam: list = None, colnam: list = None, rownam: list = None):
 		# data field:
 		# data
 		# shape
@@ -23,7 +23,7 @@ class matrix:
 			self.shape = (1, data.size)
 		else:
 			self.shape = shape
-		self.data = data.reshape(shape)
+		self.data = np.array(data).reshape(shape)
 		self.size = self.get_data().size
 		self.datanam = datanam
 		self.colnam = colnam
@@ -33,7 +33,7 @@ class matrix:
 		return self.data
 
 	def get_shape(self):
-		return self.shape
+		return list(self.shape)
 
 	def get_size(self):
 		return self.size
@@ -61,6 +61,10 @@ class matrix:
 		self.colnam = colnam
 
 	def set_rownam(self, rownam: list):
+		self.rownam = rownam
+
+	def set_axisnam(self, colnam: list, rownam: list):
+		self.colnam = colnam
 		self.rownam = rownam
 
 	def create_dataframe(self):

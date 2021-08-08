@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 from project.size import size
 from project.zeros import zeros
+from matpy.matrix import matrix
 from project.diag_matlab import diag_matlab
 from project.get_all_params import get_all_params
 from project.get_unfixed_params import get_unfixed_params

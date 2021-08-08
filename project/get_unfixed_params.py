@@ -25,33 +25,36 @@ Author: Caiya Zhang, Yuchen Zheng
 import numpy as np
 from project.size import size
 from project.zeros import zeros
+from matpy.matrix import matrix
 from project.diag_matlab import diag_matlab
 
 
 def get_unfixed_params(poped_db,params=None):
   
     if params is not None:
-        bpop = poped_db["parameters"]["bpop"][:,1]
-        d = poped_db["parameters"]["d"][:,1]
-        covd = poped_db["parameters"]["covd"]
-        docc = poped_db["parameters"]["docc"][:,1]
-        covdocc = poped_db["parameters"]["covdocc"]
-        sigma = diag_matlab(poped_db["parameters"]["sigma"])
-        covsigma = zeros(1, (sigma.size)*((sigma.size)-1)/2)
+
+        #type: ndarray
+        bpop = poped_db["parameters"]["bpop"].get_data()[:,1]
+        d = poped_db["parameters"]["d"].get_data()[:,1]
+        covd = poped_db["parameters"]["covd"].get_data()
+        docc = poped_db["parameters"]["docc"].get_data()[:,1]
+        covdocc = poped_db["parameters"]["covdocc"].get_data()
+        sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_data()
+        covsigma = zeros(1, (sigma.size)*((sigma.size)-1)/2).get_data()
         k = 1
         for i in range(0, size(poped_db["parameters"]["sigma"])[0]):
             for j in range(0, size(poped_db["parameters"]["sigma"])[1]):
                 if i < j:
-                    covsigma[k] = poped_db["parameters"]["sigma"][i,j]
+                    covsigma[k] = poped_db["parameters"]["sigma"].get_data()[i,j]
                     k = k + 1
     else:
-        nbpop = poped_db["parameters"]["notfixed_bpop"].size
-        nd = poped_db["parameters"]["notfixed_d"].size
-        ncovd = poped_db["parameters"]["notfixed_covd"].size
-        ndocc = poped_db["parameters"]["notfixed_docc"].size
-        ncovdocc = poped_db["parameters"]["notfixed_covdocc"].size
-        nsigma = poped_db["parameters"]["notfixed_sigma"].size
-        ncovsigma = poped_db["parameters"]["notfixed_covsigma"].size
+        nbpop = poped_db["parameters"]["notfixed_bpop"].get_size()
+        nd = poped_db["parameters"]["notfixed_d"].get_size()
+        ncovd = poped_db["parameters"]["notfixed_covd"].get_size()
+        ndocc = poped_db["parameters"]["notfixed_docc"].get_size()
+        ncovdocc = poped_db["parameters"]["notfixed_covdocc"].get_size()
+        nsigma = poped_db["parameters"]["notfixed_sigma"].get_size()
+        ncovsigma = poped_db["parameters"]["notfixed_covsigma"].get_size()
         
         bpop = params[1:nbpop]
         d = params[(1+nbpop):(nbpop+nd)]

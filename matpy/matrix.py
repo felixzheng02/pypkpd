@@ -7,7 +7,7 @@ Authors: Caiya Zhang, Yuchen Zheng
 
 import numpy as np
 import pandas as pd
-
+from project.poped_choose import poped_choose
 
 class matrix:
 
@@ -19,15 +19,24 @@ class matrix:
 		# datanam
 		# colnam
 		# rownam
-		if shape is None:
-			self.shape = (1, data.size)
+		if type(data) is matrix:
+			self.shape = poped_choose(shape, data.shape, 0)
+			self.data = np.array(data.data).reshape(shape)
+			self.size = data.size
+			self.datanam = poped_choose(datanam, data.datanam, 0)
+			self.colnam = poped_choose(colnam, data.colnam, 0)
+			self.rownam = poped_choose(rownam, data.rownam, 0)
+
 		else:
-			self.shape = shape
-		self.data = np.array(data).reshape(shape)
-		self.size = self.get_data().size
-		self.datanam = datanam
-		self.colnam = colnam
-		self.rownam = rownam
+			if shape is None:
+				self.shape = (1, data.size)
+			else:
+				self.shape = shape
+			self.data = np.array(data).reshape(shape)
+			self.size = self.get_data().size
+			self.datanam = datanam
+			self.colnam = colnam
+			self.rownam = rownam
 	
 	def get_data(self):
 		return self.data
@@ -51,7 +60,7 @@ class matrix:
 		if self.get_datanam() is not None:
 			for index in range(0, len(self.get_datanam())):
 				if name == self.get_datanam()[index]:
-					return self.get_data.flatten()[index]
+					return self.get_data().flatten()[index]
 		raise Exception("'%s' does not exists." % name)
 
 	def set_datanam(self, datanam: list):

@@ -11,3 +11,5 @@ data = matrix(np.array([1, 2, 3, 4]),
 print(data.get_data())
 print(data.get_one_data("one"))
 print(matrix(data).get_data())
+data.set_multiple_data(0, [0, 1], [0, 1])
+print(data.get_data())

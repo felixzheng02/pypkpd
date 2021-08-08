@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from project.poped_choose import poped_choose
 
+
 class matrix:
 
 	def __init__(self, data, shape = None, datanam: list = None, colnam: list = None, rownam: list = None):
@@ -28,8 +29,11 @@ class matrix:
 			self.rownam = poped_choose(rownam, data.rownam, 0)
 
 		else:
+			self.data = np.array(data)
 			if shape is None:
-				self.shape = (1, data.size)
+				self.shape = data.shape
+				if len(self.shape) == 1:
+					self.shape = [1, self.shape[0]]
 			else:
 				self.shape = shape
 			self.data = np.array(data).reshape(shape)
@@ -56,12 +60,32 @@ class matrix:
 	def get_rownam(self):
 		return self.rownam
 
-	def get_one_data(self, name: str):
-		if self.get_datanam() is not None:
-			for index in range(0, len(self.get_datanam())):
-				if name == self.get_datanam()[index]:
-					return self.get_data().flatten()[index]
-		raise Exception("'%s' does not exists." % name)
+	def get_one_data(self, name: str = None, index = None):
+		if name is not None:
+			if self.get_datanam() is not None:
+				for index in range(0, len(self.get_datanam())):
+					if name == self.get_datanam()[index]:
+						return self.get_data().flatten()[index]
+			raise Exception("'%s' does not exists." % name)
+		elif index is not None:
+			return self.get_data()[list(index)[0]][list(index)[1]]
+		else:
+			raise Exception("Please specify the name or the index of the data needed.")
+
+	def set_data(self, data):
+		self.data = np.array(data).reshape(self.get_shape())
+
+	def set_shape(self, shape, colnam: None, rownam: None):
+		self.shape = shape
+		self.data = self.get_data().reshape(shape)
+		if colnam is not None:
+			self.set_colnam(colnam)
+		if rownam is not None:
+			self.set_rownam(rownam)
+		if self.get_colnam() is not None and self.get_colnam() is not None:
+			if (len(self.get_rownam()) != len(self.get_shape()[0]) or 
+			len(self.get_colnam()) != len(self.get_shape()[1])):
+				raise Exception("Number of column names or row names does not match the given shape.")
 
 	def set_datanam(self, datanam: list):
 		self.datanam = datanam
@@ -75,6 +99,21 @@ class matrix:
 	def set_axisnam(self, colnam: list, rownam: list):
 		self.colnam = colnam
 		self.rownam = rownam
+	
+	def set_one_data(self, new_data, name: str = None, index = None):
+		data = self.get_data().tolist()
+		if name is not None:
+			if self.get_datanam() is not None:
+				for index in range(0, len(self.get_datanam())):
+					if name == self.get_datanam()[index]:
+						data[index] = new_data
+						self.data = np.array(data).reshape(self.get_shape())
+			raise Exception("'%s' does not exists." % name)
+		elif index is not None:
+			data[list(index)[0] * list(index)[1] - 1] = new_data
+			self.data = np.array(data).reshape(self.get_shape())
+		else:
+			raise Exception("Please specify the name or the index of the data that needs to be changed.")
 
 	def create_dataframe(self):
 		return pd.DataFrame(self.get_data(),

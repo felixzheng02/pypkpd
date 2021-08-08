@@ -1,10 +1,7 @@
 """
 #' Function written to match MATLAB's diag function
 #' 
-#' There are some differences between tha MATLAB and the R version of diag.
-#' Specifically, if a 1xN or a Nx1 matrix is supplied to the R
-#' \code{\link{diag}} function then just the first element of this vector is
-#' returned. This function tries to match the MATLAB version in handling vectors
+#' This function tries to match the MATLAB version in handling vectors
 #' (matricies with one dimension equal to one), and will return a diagonal
 #' matrix in these situations.
 #' 
@@ -13,20 +10,9 @@
 #' @return Either a diagonal matrix or the diagonal of a matrix.
 #' @family MATLAB
 #' @family matrix_manipulation
-#' @example tests/testthat/examples_fcn_doc/examples_diag_matlab.R
+#' @example test/Test_diag_matlab.py
 #' @export
 #' @keywords internal
-
-diag_matlab = function(mat){
-    dim.mat = dim(mat)
-    if(!is.null(dim.mat)){
-        if(any(dim.mat==1)){
-            if(!all(dim.mat==1)){                
-                mat = mat[,,drop=T]
-            }
-        }
-    }
-    return(diag(mat))
 
 Author: Caiya Zhang, Yuchen Zheng
 
@@ -34,11 +20,14 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import numpy as np
+from matpy.matrix import matrix
 
-def diag_matlab(mat:np.ndarray):
-    dim_mat = np.shape(mat)
+def diag_matlab(mat:matrix):
+    dim_mat = mat.get_shape()
     if dim_mat is not None:
-        if any(dim_mat == 1):
-            if any(dim_mat !=1 ):
-                mat = np.mat.tolist()
-    return np.diag(mat)
+        if  1 in dim_mat:
+            if all(dim_mat[i] == 1 for i in range(0, len(dim_mat))) is False:
+                return matrix(np.diag(mat.get_data()))
+    return matrix(np.diag(mat.get_data()))
+
+

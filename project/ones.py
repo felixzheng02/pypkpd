@@ -12,7 +12,7 @@ Author: Caiya Zhang, Yuchen Zheng
 
 
 import numpy as np
-
+from matpy.matrix import matrix
 
 def ones(dim1, dim2 = None):
 	if dim2 is None:
@@ -26,4 +26,4 @@ def ones(dim1, dim2 = None):
 			print("first argument can only have one or two values")
 			return
 	mat = np.ones([dim1, dim2])
-	return mat
+	return matrix(mat, shape=(dim1, dim2))

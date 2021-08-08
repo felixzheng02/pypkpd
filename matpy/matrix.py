@@ -101,8 +101,8 @@ class matrix:
 		self.rownam = rownam
 	
 	def set_one_data(self, new_data, name: str = None, index = None):
-		data = self.get_data().tolist()
 		if name is not None:
+			data = self.get_data().tolist()
 			if self.get_datanam() is not None:
 				for index in range(0, len(self.get_datanam())):
 					if name == self.get_datanam()[index]:
@@ -110,10 +110,17 @@ class matrix:
 						self.data = np.array(data).reshape(self.get_shape())
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None:
-			data[list(index)[0] * list(index)[1] - 1] = new_data
-			self.data = np.array(data).reshape(self.get_shape())
+			self.get_data()[list(index)[0] * list(index)[1] - 1] = new_data
 		else:
 			raise Exception("Please specify the name or the index of the data that needs to be changed.")
+
+	def set_multiple_data(self, new_data, row = None, col = None): # row, col: [init, end]
+		if row is None:
+			self.get_data()[:, list(col)[0]:list(col)[1]] = new_data
+		elif col is None:
+			self.get_data()[list(row)[0]:list(row)[1], :] = new_data
+		elif row is not None and col is not None:
+			self.get_data()[list(row)[0]:list(row)[1], list(col)[0]:list(col)[1]] = new_data
 
 	def create_dataframe(self):
 		return pd.DataFrame(self.get_data(),

@@ -3,12 +3,11 @@
 
 ## Author: Caiya Zhang, Yuchen Zheng
 """
-##!!!!f
+
 
 import numpy as np
 from project.zeros import zeros
 from project.size import size
-from project.feval import feval
 
 def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPopED=False, offdiag=False):
     
@@ -51,9 +50,9 @@ def grad_all (func, select_par, nRow, *args, subset=None, currentOcc=None, noPop
     if grad_all_switch == 1:
         for i in idx:
             arg_list[select_par] = def0 + (idx0 == i) * hlf
-            def_plus = feval(func, arg_list)
+            def_plus = eval(str(func) + str(arg_list))
             arg_list[select_par] = def0 - (idx0 == i) * hlf
-            def_minus = feval(func, arg_list)
+            def_minus = eval(str(func) + str(arg_list))
             if noPopED == False:
                 def_plus = def_plus[0]        
                 def_minus = def_minus[0]        

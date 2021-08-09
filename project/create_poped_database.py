@@ -1171,10 +1171,12 @@ def create_poped_database(popedInput={}, **kwargs):
         # reorder named values
         d = reorder_vec(d, fg_names)
         
-        #set_data!!!!!!!!
-        d_descr.set_data()[:,1] = d
-        d_descr.set_data()[:,0] = 0  # point values
-        d_descr.set_data()[:,2] = 0  # variance
+        #set_data
+        #d_descr.set_data()[:,1] = d
+        for i in range(0, d.get_size()):
+            d_descr.set_one_data(d[i], [i,1], [i,1])
+        d_descr.set_multiple_data(0, [0,d_descr.get_shape[0]], [0,1])  # point values
+        d_descr.set_multiple_data(0, [0,d_descr.get_shape[0]], [2,3])  # variance
         d_descr.set_colnam(d.get_datanam())
         # d_descr.columns.values = d.keys()
         d = d_descr
@@ -1186,9 +1188,13 @@ def create_poped_database(popedInput={}, **kwargs):
         # reorder named values
         bpop = reorder_vec(bpop, fg_names)
 
-        bpop_descr.set_data()[:,1] = bpop
-        bpop_descr.set_data()[:,0] = 0  # point values
-        bpop_descr.set_data()[:,2] = 0  # variance
+        
+        #set_data
+        #bpop_descr.set_data()[:,1] = bpop
+        for i in range(0, bpop.get_size()):
+            bpop_descr.set_one_data(bpop[i], [i,1], [i,1])
+        bpop_descr.set_multiple_data(0, [0,bpop_descr.get_shape[0]], [0,1])  # point values
+        bpop_descr.set_multiple_data(0, [0,bpop_descr.get_shape[0]], [2,3])  # variance
         bpop_descr.set_colnam(bpop.get_datanam())
         # bpop_descr.columns.values = bpop.keys()
         bpop = bpop_descr
@@ -1248,19 +1254,21 @@ def create_poped_database(popedInput={}, **kwargs):
             docc_dist = pargen(docc, poped_db["model"]["user_distribution_pointer"], poped_db["settings"]
                                ["iFOCENumInd"], poped_db["settings"]["bLHS"], zeros(1, 0), poped_db)
 
+            ## set one data with type of matrix
             if len(d_dist) != 0:
                 for i in range(0, max(poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)):
-                    poped_db["parameters"]["b_global"][:, i] = matrix(np.transpose(np.random.multivariate_normal(
-                        1, sigma=getfulld(d_dist[i, ], poped_db["parameters"]["covd"]))))
+                    poped_db["parameters"]["b_global"].get_data()[:,i] = matrix(np.transpose(np.random.multivariate_normal(
+                        1, sigma=getfulld(d_dist[i,:], poped_db["parameters"]["covd"]))))
 
             if len(docc_dist) != 0:
                 for i in range(0, poped_db["settings"]["iFOCENumInd"]):
-                    poped_db["parameters"]["bocc_global"][i] = matrix(np.transpose(np.random.multivariate_normal(
-                        poped_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i, ], poped_db["parameters"]["covdocc"]))))
+                    poped_db["parameters"]["bocc_global"].get_data()[i] = matrix(np.transpose(np.random.multivariate_normal(
+                        poped_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], poped_db["parameters"]["covdocc"]))))
     else:
         poped_db["parameters"]["bocc_global"] = zeros(poped_db["parameters"]["NumRanEff"], 1)
         poped_db["parameters"]["bocc_global"] = cell(1, 1)
         poped_db["parameters"]["bocc_global"][1] = zeros(size(docc)[0], poped_db["parameters"]["NumOcc"])
+        
         poped_db["settings"]["iFOCENumInd"] = 1
 
     poped_db["settings"]["modtit"] = modtit
@@ -1274,11 +1282,11 @@ def create_poped_database(popedInput={}, **kwargs):
 
     poped_db["settings"]["optsw"] = optsw
 
-    line_opta = poped_choose(line_opta, ones(1, size(poped_db["design"]["a"])[1]), 0)
+    line_opta = poped_choose(line_opta, np.ones([1, size(poped_db["design"]["a"])[1]]), 0)
     if test_mat_size(np.array([1, size(poped_db["design"]["a"])[0]]), np.array(line_opta), "line_opta"):
         poped_db["settings"]["line_opta"] = line_opta
 
-    line_optx = poped_choose(line_optx, ones(1, size(poped_db["design"]["x"])[1]), 0)
+    line_optx = poped_choose(line_optx, np.ones([1, size(poped_db["design"]["x"])[1]]), 0)
     if test_mat_size(np.array([1, size(poped_db["design"]["x"])[0]]), np.array(line_opta), "line_optx"):
         poped_db["settings"]["line_optx"] = line_optx
 
@@ -1326,7 +1334,7 @@ def create_poped_database(popedInput={}, **kwargs):
         poped_db["parameters"]["ds_index"] = matrix(np.transpose(
             np.repeat(0, unfixed_params["all"])))
         poped_db["parameters"]["ds_index"][(
-            unfixed_params["bpop"].get_size() + 1):poped_db["parameters"]["ds_index"].get_size()] = 1
+            unfixed_params["bpop"].get_size()+1):poped_db["parameters"]["ds_index"].get_size()] = 1
     else:
         if type(poped_db["parameters"]["ds_index"]) is not matrix:
             poped_db["parameters"]["ds_index"] = matrix(np.array(

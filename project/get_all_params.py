@@ -30,7 +30,7 @@ from project.diag_matlab import diag_matlab
 
 
 def get_all_params (poped_db):
-  #Return all params (in a vector all) with the specified order above
+    #Return all params (in a vector all) with the specified order above
 
     #type: matrix to ndarray
     bpop = poped_db["parameters"]["bpop"].get_data()[:,1]
@@ -40,7 +40,7 @@ def get_all_params (poped_db):
     covdocc = poped_db["parameters"]["covdocc"].get_data()
     sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_data()
     covsigma = zeros(1,(sigma.size)*(sigma.size-1)/2).get_data()
-  
+
     k = 1
 
     for i in range(0, size(poped_db["parameters"]["sigma"])[0]):
@@ -48,10 +48,12 @@ def get_all_params (poped_db):
             if i < j:
                 covsigma[k] = poped_db["parameters"]["sigma"][i,j]
                 k = k + 1
-
-  
     
+    all = matrix(np.array([[bpop], [d], [np.transpose(covd)], [docc], [np.transpose(covdocc)], [sigma], [np.transpose(covsigma)]]))
     
-    all = np.array([[bpop], [d], [np.transpose(covd)], [docc], [np.transpose(covdocc)], [sigma], [np.transpose(covsigma)]])
-    return {"bpop": bpop, "d": d, "covd": covd, "docc": docc, "covdocc": covdocc, "sigma": sigma, "covsigma": covsigma, "all": all}
+    all_mat = matrix(np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma], [all]]))
+    all_mat.set_datanam(["bpop", "d", "covd", "docc", "covdocc", "sigma", "covsigma", "all"])
+    
 
+
+    return all_mat

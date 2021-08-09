@@ -16,14 +16,15 @@ from matpy.matrix import matrix
 
 def ones(dim1, dim2 = None):
 	if dim2 is None:
-		if dim1.size == 2:
+		if type(dim1) is int:
+			dim2 = dim1
+		elif dim1.size == 2:
 			tmp = dim1
 			dim1 = tmp[0]
 			dim2 = tmp[1]
 		elif dim1.size == 1:
 			dim2 = dim1
-		else: # stop("first argument can only have one or two values")
-			print("first argument can only have one or two values")
-			return
+		else:
+			raise Exception("first argument can only have one or two values")
 	mat = np.ones([dim1, dim2])
 	return matrix(mat, shape=(dim1, dim2))

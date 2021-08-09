@@ -25,18 +25,21 @@
 import numpy as np
 from project.size import size
 from project.zeros import zeros
+from matpy.matrix import matrix
 from project.diag_matlab import diag_matlab
 
 
 def get_all_params (poped_db):
   #Return all params (in a vector all) with the specified order above
-  
-    bpop = poped_db["parameters"]["bpop"][:,1]
-    d = poped_db["parameters"]["d"][:.1]
-    docc = poped_db["parameters"]["docc"][:,1]
-    covd = poped_db["parameters"]["covd"]
-    sigma = diag_matlab(poped_db["parameters"]["sigma"])
-    covsigma = zeros(1,(sigma.size)*(sigma.size-1)/2)
+
+    #type: matrix to ndarray
+    bpop = poped_db["parameters"]["bpop"].get_data()[:,1]
+    d = poped_db["parameters"]["d"].get_data()[:,1]
+    docc = poped_db["parameters"]["docc"].get_data()[:,1]
+    covd = poped_db["parameters"]["covd"].get_data()
+    covdocc = poped_db["parameters"]["covdocc"].get_data()
+    sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_data()
+    covsigma = zeros(1,(sigma.size)*(sigma.size-1)/2).get_data()
   
     k = 1
 
@@ -47,7 +50,7 @@ def get_all_params (poped_db):
                 k = k + 1
 
   
-    covdocc = poped_db["parameters"]["covdocc"]
+    
     
     all = np.array([[bpop], [d], [np.transpose(covd)], [docc], [np.transpose(covdocc)], [sigma], [np.transpose(covsigma)]])
     return {"bpop": bpop, "d": d, "covd": covd, "docc": docc, "covdocc": covdocc, "sigma": sigma, "covsigma": covsigma, "all": all}

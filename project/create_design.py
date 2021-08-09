@@ -90,7 +90,7 @@ def create_design(
 
 	### for a ###
 	if a is not None:
-		if type(a) == list:
+		if type(a) is list or type(a) is not matrix:
 			a = matrix(a)
 		# elif len(size(a)) == 1:
 		# 	a = np.array([a])
@@ -103,7 +103,7 @@ def create_design(
 			else:
 				for i in range(0, size(a)[1]):
 					for j in range(0, size(a)[0]):
-						a_.append(np.array(a)[j][i])
+						a_.append(a.get_data()[j][i])
 				a = matrix(np.tile(a_, m), shape=(m, a.size),
 						   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
 

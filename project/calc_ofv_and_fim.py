@@ -34,11 +34,14 @@
 
 
 import re
+import inspect
 import numpy as np
+from matpy.matrix import matrix
 from project.feval import feval
 from project.ofv_fim import ofv_fim
 from project.mc_mean import mc_mean
 from project.getfulld import getfulld
+from project.evaluate_fim import evaluate_fim
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
 
 
@@ -49,7 +52,7 @@ def calc_ofv_and_fim(poped_db, *argv):
     d_switch = poped_db["settings"]["d_switch"],  
     bpopdescr = poped_db["parameters"]["bpop"], 
     ddescr = poped_db["parameters"]["d"],
-    bpop = bpopdescr[:,1], 
+    bpop = bpopdescr.get_data()[:,1], 
     d = getfulld(ddescr[:,1],poped_db["parameters"]["covd"]), 
     docc_full = getfulld(poped_db["parameters"]["docc"][:,1],poped_db["parameters"]["covdocc"]), 
     model_switch = poped_db["design"]["model_switch"], 
@@ -61,41 +64,41 @@ def calc_ofv_and_fim(poped_db, *argv):
     use_laplace = poped_db["settings"]["iEDCalculationType"], 
     laplace_fim = False, 
     ofv_fun = poped_db["settings"]["ofv_fun"],
-    evaluate_fim = True,
+    evaluate_FIM = True,
 
     ## compute the OFV
     if ofv == 0:
         if d_switch: 
             if ofv_fun is not None:
-                if type(fim) is np.ndarray: 
-                    fmf = evaluate_fim(poped_db,*argv)
+                if type(fim) is matrix: 
+                    fmf = evaluate_fim(poped_db, *argv)
                     bpop_val = bpop
                     d_full = d
                     docc_full = docc_full
                     sigma_full = poped_db["parameters"]["sigma"]
                     model_switch = model_switch
-                    ni=ni
-                    xt=xt
-                    x=x
-                    a=a
-                    groupsize=poped_db["design"]["groupsize"]
-                    fim_calc_type=fim_calc_type
+                    ni = ni
+                    xt = xt
+                    x = x
+                    a = a
+                    groupsize = poped_db["design"]["groupsize"]
+                    fim_calc_type = fim_calc_type
                 
                 #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
                 #     fmf = returnArgs[1]
                 #     poped_db = returnArgs[[2]]
                 
-                dmf = ofv_fim(fmf,poped_db,*argv)
+                dmf = ofv_fim(fmf, poped_db, *argv)
             else:
                 ## update poped_db with options supplied in function
                 called_args = match_call()
                 default_args = formals()
                 for i in called_args.keys()[-1]:
-                    if len(re.match("^poped\\.db\\$",capture.output(default_args[[i]])))==1:
+                    if len(re.match("^poped\\.db\\$", inspect.getsource(default_args[i]))) == 1:
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
-                        if eval(parse(text=paste(i))) is not None:
-                            eval(parse(text=paste(capture.output(default_args[[i]]),"=",i)))
-                out_tmp = feval(ofv_fun,poped_db,*argv)
+                        if eval(i) is not None:
+                            eval(inspect.getsource(default_args[i]) + "=" + i)
+                out_tmp = eval(str(ofv_fun) + str(poped_db) + str(*argv))
                 dmf = out_tmp[0]
                 fmf = None
                 if len(out_tmp) > 1:
@@ -125,18 +128,18 @@ def calc_ofv_and_fim(poped_db, *argv):
                 ## update poped_db with options supplied in function
                 called_args = match.call()
                 default_args = formals()
-                for i in names(called_args)[-1]:
-                    if(len(re.match("^poped\\.db\\$",capture_output(default_args[[i]])))==1):
+                for i in called_args.keys()[-1]:
+                    if len(re.match("^poped\\.db\\$", inspect.getsource(default_args[i]))) == 1:
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
-                        if eval(parse(text=paste(i))) is not None: 
-                            eval(parse(text=paste(capture_output(default_args[[i]]),"=",i)))
+                        if eval(i) is not None: 
+                            eval(inspect.getsource(default_args[i]) + "=" + i)
             
             
-                dmf = mc_mean(ofv_fun,poped_db,...)
+                dmf = mc_mean(ofv_fun, poped_db, *argv)
                 fmf = None
     
         ofv = dmf
-        if type(fim) is np.np.ndarray:
+        if type(fim) is matrix:
             fim = fmf
     
     
@@ -148,14 +151,14 @@ def calc_ofv_and_fim(poped_db, *argv):
     elif type(fim) is np.ndarray: 
         calc_fim = True
      
-    if se_laplace is True and laplace.fim is False:
+    if se_laplace is True and laplace_fim is False:
         calc_fim = False
     if evaluate_fim is False:
         calc_fim = False
     
     if calc_fim is True:
         if d_switch is True:
-            fmf = evaluate_fim(poped_db,*argv)
+            fmf = evaluate_fim(poped_db, *argv)
             bpop_val = bpop
             d_full = d
             docc_full = docc_full
@@ -171,7 +174,7 @@ def calc_ofv_and_fim(poped_db, *argv):
         #     fmf = returnArgs[1]
         #     poped_db = returnArgs[[2]]
         else:
-            output = evaluate_e_ofv_fim(poped_db,*argv)  
+            output = evaluate_e_ofv_fim(poped_db, *argv)  
             fim_calc_type = fim_calc_type
             bpop = bpopdescr
             d = ddescr
@@ -188,4 +191,6 @@ def calc_ofv_and_fim(poped_db, *argv):
             fmf = output["E_fim"]
         fim = fmf
     
-    return {"ofv": ofv, "fim": fim}
+    calc_mat = matrix(np.array([[ofv], [fim]]))
+    calc_mat.set_datanam(["ofv", "fim"])
+    return calc_mat

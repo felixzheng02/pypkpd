@@ -56,21 +56,21 @@ def get_unfixed_params(poped_db,params=None):
         nsigma = poped_db["parameters"]["notfixed_sigma"].get_size()
         ncovsigma = poped_db["parameters"]["notfixed_covsigma"].get_size()
         
-        bpop = params[1:nbpop]
-        d = params[(1+nbpop):(nbpop+nd)]
-        covd = params[(1+nbpop+nd):(nbpop+nd+ncovd)]
-        docc = params[(1+nbpop+nd+ncovd):(nbpop+nd+ncovd+ndocc)]
-        covdocc = params[(1+nbpop+nd+ncovd+ndocc):(nbpop+nd+ncovd+ndocc+ncovdocc)]
-        sigma = params[(1+nbpop+nd+ncovd+ndocc+ncovdocc):(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma)]
-        covsigma = params[(1+nbpop+nd+ncovd+ndocc+ncovdocc+nsigma):(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma+ncovsigma)]
+        bpop = params[0:nbpop]
+        d = params[nbpop:(nbpop+nd+1)]
+        covd = params[(nbpop+nd):(nbpop+nd+ncovd+1)]
+        docc = params[(nbpop+nd+ncovd):(nbpop+nd+ncovd+ndocc+1)]
+        covdocc = params[(nbpop+nd+ncovd+ndocc):(nbpop+nd+ncovd+ndocc+ncovdocc+1)]
+        sigma = params[(nbpop+nd+ncovd+ndocc+ncovdocc):(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma+1)]
+        covsigma = params[(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma):(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma+ncovsigma+1)]
     
-    bpop = bpop[poped_db["parameters"]["notfixed_bpop"] == 1]
-    d = d[poped_db["parameters"]["notfixed_d"] == 1]
-    covd = covd[poped_db["parameters"]["notfixed_covd"] == 1]
-    docc = docc[poped_db["parameters"]["notfixed_docc"] == 1]
-    covdocc = covdocc[poped_db["parameters"]["notfixed_covdocc"] == 1]
-    sigma = sigma[poped_db["parameters"]["notfixed_sigma"] == 1]
-    covsigma = covsigma[poped_db["parameters"]["notfixed_covsigma"] == 1]
+    bpop = bpop[poped_db["parameters"]["notfixed_bpop"].get_data() == 1]
+    d = d[poped_db["parameters"]["notfixed_d"].get_data() == 1]
+    covd = covd[poped_db["parameters"]["notfixed_covd"].get_data() == 1]
+    docc = docc[poped_db["parameters"]["notfixed_docc"].get_data() == 1]
+    covdocc = covdocc[poped_db["parameters"]["notfixed_covdocc"].get_data() == 1]
+    sigma = sigma[poped_db["parameters"]["notfixed_sigma"].get_data() == 1]
+    covsigma = covsigma[poped_db["parameters"]["notfixed_covsigma"].get_data() == 1]
     
     all = np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma]])
     
@@ -79,7 +79,8 @@ def get_unfixed_params(poped_db,params=None):
     else:
         var_derivative = np.array([[np.repeat(1, bpop.size)], [np.repeat(1, d.size)], [np.repeat(1, covd.size)], [np.repeat(1, docc.size)], [np.repeat(1, covdocc.size)], [np.repeat(0, sigma.size)], [np.repeat(1,covsigma.size)]])
     
+    unfixed_mat = matrix(np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma], [all], [var_derivative]]))
+    unfixed_mat.set_datanam(["bpop", "d", "covd", "docc", "covdocc", "sigma", "covsigma", "all", "var_derivative"])
     
-    return {"bpop": bpop, "d": d, "covd": covd, "docc": docc, "covdocc": covdocc, "sigma": sigma, "covsigma": covsigma, "all": all, "var_derivative": var_derivative}
-    
+    return unfixed_mat
 

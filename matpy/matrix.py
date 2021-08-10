@@ -5,6 +5,7 @@ Authors: Caiya Zhang, Yuchen Zheng
 """
 
 
+from typing import List
 import numpy as np
 import pandas as pd
 from project.poped_choose import poped_choose
@@ -27,7 +28,13 @@ class matrix:
 			self.datanam = poped_choose(datanam, data.datanam, 0)
 			self.colnam = poped_choose(colnam, data.colnam, 0)
 			self.rownam = poped_choose(rownam, data.rownam, 0)
-
+		elif all(isinstance(n, matrix) for n in data):
+			self.shape = poped_choose(shape, [1, len(data)], 0)
+			self.data = np.array(data).reshape(self.get_shape())
+			self.size = len(data)
+			self.datanam = datanam
+			self.colnam = colnam
+			self.rownam = rownam
 		else:
 			self.data = np.array(data)
 			if shape is None:
@@ -36,7 +43,7 @@ class matrix:
 					self.shape = [1, self.shape[0]]
 			else:
 				self.shape = shape
-			self.data = np.array(data).reshape(shape)
+			self.data = np.array(data).reshape(self.shape)
 			self.size = self.get_data().size
 			self.datanam = datanam
 			self.colnam = colnam

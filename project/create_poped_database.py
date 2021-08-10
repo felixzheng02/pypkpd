@@ -521,7 +521,7 @@ def create_poped_database(popedInput={}, **kwargs):
     if np.array_equal(docc.get_data(), np.array([np.nan, np.nan, np.nan]), equal_nan=True):
         tmp = 0
     else:
-        tmp = len(docc.get_data()[1])
+        tmp = len(docc.get_data()[:,1])
     covdocc = param_choose(popedInput, zeros(1, tmp*(tmp-1)/2), 0, param, kwargs, 'parameters', 'covdocc')
 
     # --------------------------
@@ -536,12 +536,12 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed) --
     notfixed_docc = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_docc')
     # -- Vector row major order for lower triangular matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_covdocc = param_choose(popedInput, zeros(1, len(covdocc)), 0, param, kwargs, 'parameters', 'notfixed_covdocc')
+    notfixed_covdocc = param_choose(popedInput, zeros(1, covdocc.get_size()), 0, param, kwargs, 'parameters', 'notfixed_covdocc')
     # -- Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) --
     notfixed_sigma = param_choose(popedInput, matrix(np.ones(size(sigma)[1])), 0, param, kwargs, 'parameters', 'notfixed_sigma')
     # -- Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed) --
     ## default is fixed
-    notfixed_covsigma = param_choose(popedInput, zeros(1, len(notfixed_sigma)*(len(notfixed_sigma)-1)/2), 0, param, kwargs, 'parameters', 'notfixed_covsigma')
+    notfixed_covsigma = param_choose(popedInput, zeros(1, (notfixed_sigma.get_size())*((notfixed_sigma.get_size())-1)/2), 0, param, kwargs, 'parameters', 'notfixed_covsigma')
 
     # --------------------------
     # ---- Optimization algorithm choices
@@ -1257,17 +1257,20 @@ def create_poped_database(popedInput={}, **kwargs):
             ## set one data with type of matrix
             if len(d_dist) != 0:
                 for i in range(0, max(poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)):
-                    poped_db["parameters"]["b_global"].get_data()[:,i] = matrix(np.transpose(np.random.multivariate_normal(
-                        1, sigma=getfulld(d_dist[i,:], poped_db["parameters"]["covd"]))))
+                    for j in range(0, poped_db["parameters"]["b_global"].get_shape[0]):
+                        poped_db["parameters"]["b_global"].set_one_data(matrix(np.transpose(
+                            np.random.multivariate_normal(
+                                1, sigma=getfulld(d_dist[i,:], poped_db["parameters"]["covd"])))), None, [j,i])                        
 
             if len(docc_dist) != 0:
                 for i in range(0, poped_db["settings"]["iFOCENumInd"]):
-                    poped_db["parameters"]["bocc_global"].get_data()[i] = matrix(np.transpose(np.random.multivariate_normal(
-                        poped_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], poped_db["parameters"]["covdocc"]))))
+                    poped_db["parameters"]["bocc_global"].set_one__data(matrix(np.transpose(
+                        np.random.multivariate_normal(
+                        poped_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], poped_db["parameters"]["covdocc"])))), None, [0,i])
     else:
         poped_db["parameters"]["bocc_global"] = zeros(poped_db["parameters"]["NumRanEff"], 1)
         poped_db["parameters"]["bocc_global"] = cell(1, 1)
-        poped_db["parameters"]["bocc_global"][1] = zeros(size(docc)[0], poped_db["parameters"]["NumOcc"])
+        poped_db["parameters"]["bocc_global"].set_one_data(zeros(size(docc)[0], poped_db["parameters"]["NumOcc"]), None, [0,1])
         
         poped_db["settings"]["iFOCENumInd"] = 1
 

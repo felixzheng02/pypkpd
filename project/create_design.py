@@ -111,12 +111,13 @@ def create_design(
 		if size(a)[0] != m:
 			raise Exception("The number of rows in a (" + str(size(a)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
 		a.set_rownam(["grp_"+str(i) for i in range(1, m+1)])
-		count = 0
-		for i in range(0, a.get_shape()[1]):
-			if re.match(r'^X\d*$', str(a.get_colnam()[i])) is not None:
-				count += 1
-		if count == size(a)[1]:
-			a.set_colnam([None] * a.shape[1])
+		if a.get_colnam() is not None:
+			count = 0
+			for i in range(0, a.get_shape()[1]):
+				if re.search("^X[0-9]+$", str(a.get_colnam()[i])) is not None:
+					count += 1
+			if count == size(a)[1]:
+				a.set_colnam([None] * a.shape[1])
 		design["a"] = a
 
 

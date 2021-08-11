@@ -35,6 +35,13 @@ class matrix:
 			self.datanam = datanam
 			self.colnam = colnam
 			self.rownam = rownam
+		elif type(data) is int or type(data) is float:
+			self.shape = [1, 1]
+			self.data = np.array([data])
+			self.size = 1
+			self.datanam = datanam
+			self.colnam = colnam
+			self.rownam = rownam
 		else:
 			self.data = np.array(data)
 			if shape is None:

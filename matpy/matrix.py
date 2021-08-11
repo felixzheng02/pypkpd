@@ -28,17 +28,17 @@ class matrix:
 			self.datanam = poped_choose(datanam, data.datanam, 0)
 			self.colnam = poped_choose(colnam, data.colnam, 0)
 			self.rownam = poped_choose(rownam, data.rownam, 0)
-		elif all(isinstance(n, matrix) for n in data):
-			self.shape = poped_choose(shape, [1, len(data)], 0)
-			self.data = np.array(data).reshape(self.get_shape())
-			self.size = len(data)
-			self.datanam = datanam
-			self.colnam = colnam
-			self.rownam = rownam
 		elif type(data) is int or type(data) is float:
 			self.shape = [1, 1]
 			self.data = np.array([data])
 			self.size = 1
+			self.datanam = datanam
+			self.colnam = colnam
+			self.rownam = rownam
+		elif all(isinstance(n, matrix) for n in data):
+			self.shape = poped_choose(shape, [1, len(data)], 0)
+			self.data = np.array(data).reshape(self.get_shape())
+			self.size = len(data)
 			self.datanam = datanam
 			self.colnam = colnam
 			self.rownam = rownam

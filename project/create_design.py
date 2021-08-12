@@ -114,7 +114,7 @@ def create_design(
 		if a.get_colnam() is not None:
 			count = 0
 			for i in range(0, a.get_shape()[1]):
-				if re.search("^X[0-9]+$", str(a.get_colnam()[i])) is not None:
+				if re.search("^X[0-9]+$", str(a.get_colnam()[i])) is not None:
 					count += 1
 			if count == size(a)[1]:
 				a.set_colnam([None] * a.shape[1])
@@ -148,9 +148,15 @@ def create_design(
 		groupsize = [groupsize] * m
 		groupsize = matrix(np.array(groupsize), shape=[m ,1],
 						   rownam=["grp_"+str(i) for i in range(1, m+1)])
-
-	if len(groupsize.shape) != 2:
-		groupsize = matrix(groupsize.get_data()[:, np.newaxis])
+	
+	if type(groupsize) is matrix:
+		if len(groupsize.get_shape()) != 2:
+			groupsize = groupsize.get_data()[:, np.newaxis]
+	if type(groupsize) is np.ndarray:
+		if len(groupsize.get_shape()) != 2:
+			groupsize = matrix(groupsize.get_data()[:, np.newaxis])
+	elif type(groupsize) is list or type(groupsize) is int:
+		groupsize = matrix(np.array([groupsize])[:, np.newaxis])
 		
 	if test_mat_size(np.array([m, 1]), groupsize.get_data(), "groupsize") == 1:
 		groupsize = matrix(groupsize,

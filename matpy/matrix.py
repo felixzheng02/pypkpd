@@ -85,6 +85,19 @@ class matrix:
 			return self.get_data()[list(index)[0]][list(index)[1]]
 		else:
 			raise Exception("Please specify the name or the index of the data needed.")
+	
+	def get_all_data(self):
+		tmp = self
+		if tmp.get_data().size == 0:
+			return np.array([])
+		elif type(tmp.get_data()[0][0]) is matrix:
+			length = len(tmp.get_data().tolist()[0])
+			result = [None] * length
+			for index in range(0, length):
+				result[index] = tmp.get_data().tolist()[0][index].get_all_data()
+			return np.array(result)
+		else:
+			return tmp.get_data()
 
 	def set_data(self, data):
 		self.data = np.array(data).reshape(self.get_shape())

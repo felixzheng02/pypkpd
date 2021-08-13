@@ -68,6 +68,7 @@ from project.size import size
 from project.test_mat_size import test_mat_size
 from project.ones import ones
 from project.cell import cell
+from matpy.matrix import matrix
 
 
 def create_design_space(design_,
@@ -136,11 +137,11 @@ def create_design_space(design_,
 
 	# maxni
 	if size(maxni)[0] == 1 and design["m"] != 1:
-		maxni = np.array([maxni] * design["m"]).reshape([design["m"], 1])
-	if type(maxni) is not np.ndarray:
-		maxni = np.array(maxni)
-	if test_mat_size(np.array([design["m"], 1]), maxni, "maxni") == 1:
-		maxni = pd.DataFrame(maxni,
+		maxni = matrix(np.array([maxni] * design["m"]).reshape([design["m"], 1]))
+	if type(maxni) is not matrix:
+		maxni = matrix(maxni)
+	if test_mat_size(np.array([design["m"], 1]), maxni.get_data(), "maxni") == 1:
+		maxni = pd.DataFrame(maxni.get_data(),
 							 index=["grp_"+str(i+1) for i in range(0, design["m"])],
 							 columns=["n_obs"] * maxni.shape[1])
 

@@ -33,13 +33,13 @@ def get_all_params (poped_db):
     #Return all params (in a vector all) with the specified order above
 
     #type: matrix to ndarray
-    bpop = poped_db["parameters"]["bpop"].get_data()[:,1]
-    d = poped_db["parameters"]["d"].get_data()[:,1]
-    docc = poped_db["parameters"]["docc"].get_data()[:,1]
-    covd = poped_db["parameters"]["covd"].get_data()
-    covdocc = poped_db["parameters"]["covdocc"].get_data()
-    sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_data()
-    covsigma = zeros(1,(sigma.size)*(sigma.size-1)/2).get_data()
+    bpop = poped_db["parameters"]["bpop"].get_all_data()[:,1]
+    d = poped_db["parameters"]["d"].get_all_data()[:,1]
+    docc = poped_db["parameters"]["docc"].get_all_data()[:,1]
+    covd = poped_db["parameters"]["covd"].get_all_data()
+    covdocc = poped_db["parameters"]["covdocc"].get_all_data()
+    sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_all_data()
+    covsigma = zeros(1,(sigma.size)*(sigma.size-1)/2).get_all_data()
 
     k = 1
 

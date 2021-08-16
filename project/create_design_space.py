@@ -140,8 +140,8 @@ def create_design_space(design_,
 		maxni = matrix(np.array([maxni] * design["m"]).reshape([design["m"], 1]))
 	if type(maxni) is not matrix:
 		maxni = matrix(maxni)
-	if test_mat_size(np.array([design["m"], 1]), maxni.get_data(), "maxni") == 1:
-		maxni = pd.DataFrame(maxni.get_data(),
+	if test_mat_size(np.array([design["m"], 1]), maxni.get_all_data(), "maxni") == 1:
+		maxni = pd.DataFrame(maxni.get_all_data(),
 							 index=["grp_"+str(i+1) for i in range(0, design["m"])],
 							 columns=["n_obs"] * maxni.shape[1])
 

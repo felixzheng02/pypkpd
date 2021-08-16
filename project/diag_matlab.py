@@ -27,7 +27,7 @@ def diag_matlab(mat:matrix):
     if dim_mat is not None:
         if  1 in dim_mat:
             if all(dim_mat[i] == 1 for i in range(0, len(dim_mat))) is False:
-                return matrix(np.diag(mat.get_data()))
-    return matrix(np.diag(mat.get_data()))
+                return matrix(np.diag(mat.get_all_data()))
+    return matrix(np.diag(mat.get_all_data()))
 
 

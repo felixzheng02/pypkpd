@@ -34,18 +34,18 @@ def get_unfixed_params(poped_db,params=None):
     if params is not None:
 
         #type: ndarray
-        bpop = poped_db["parameters"]["bpop"].get_data()[:,1]
-        d = poped_db["parameters"]["d"].get_data()[:,1]
-        covd = poped_db["parameters"]["covd"].get_data()
-        docc = poped_db["parameters"]["docc"].get_data()[:,1]
-        covdocc = poped_db["parameters"]["covdocc"].get_data()
-        sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_data()
-        covsigma = zeros(1, (sigma.size)*((sigma.size)-1)/2).get_data()
+        bpop = poped_db["parameters"]["bpop"].get_all_data()[:,1]
+        d = poped_db["parameters"]["d"].get_all_data()[:,1]
+        covd = poped_db["parameters"]["covd"].get_all_data()
+        docc = poped_db["parameters"]["docc"].get_all_data()[:,1]
+        covdocc = poped_db["parameters"]["covdocc"].get_all_data()
+        sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_all_data()
+        covsigma = zeros(1, (sigma.size)*((sigma.size)-1)/2).get_all_data()
         k = 1
         for i in range(0, size(poped_db["parameters"]["sigma"])[0]):
             for j in range(0, size(poped_db["parameters"]["sigma"])[1]):
                 if i < j:
-                    covsigma[k] = poped_db["parameters"]["sigma"].get_data()[i,j]
+                    covsigma[k] = poped_db["parameters"]["sigma"].get_all_data()[i,j]
                     k = k + 1
     else:
         nbpop = poped_db["parameters"]["notfixed_bpop"].get_size()
@@ -64,13 +64,13 @@ def get_unfixed_params(poped_db,params=None):
         sigma = params[(nbpop+nd+ncovd+ndocc+ncovdocc):(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma+1)]
         covsigma = params[(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma):(nbpop+nd+ncovd+ndocc+ncovdocc+nsigma+ncovsigma+1)]
     
-    bpop = bpop[poped_db["parameters"]["notfixed_bpop"].get_data() == 1]
-    d = d[poped_db["parameters"]["notfixed_d"].get_data() == 1]
-    covd = covd[poped_db["parameters"]["notfixed_covd"].get_data() == 1]
-    docc = docc[poped_db["parameters"]["notfixed_docc"].get_data() == 1]
-    covdocc = covdocc[poped_db["parameters"]["notfixed_covdocc"].get_data() == 1]
-    sigma = sigma[poped_db["parameters"]["notfixed_sigma"].get_data() == 1]
-    covsigma = covsigma[poped_db["parameters"]["notfixed_covsigma"].get_data() == 1]
+    bpop = bpop[poped_db["parameters"]["notfixed_bpop"].get_all_data() == 1]
+    d = d[poped_db["parameters"]["notfixed_d"].get_all_data() == 1]
+    covd = covd[poped_db["parameters"]["notfixed_covd"].get_all_data() == 1]
+    docc = docc[poped_db["parameters"]["notfixed_docc"].get_all_data() == 1]
+    covdocc = covdocc[poped_db["parameters"]["notfixed_covdocc"].get_all_data() == 1]
+    sigma = sigma[poped_db["parameters"]["notfixed_sigma"].get_all_data() == 1]
+    covsigma = covsigma[poped_db["parameters"]["notfixed_covsigma"].get_all_data() == 1]
     
     all = np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma]])
     

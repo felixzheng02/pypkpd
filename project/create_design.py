@@ -42,7 +42,7 @@ def create_design(
 		m = xt.get_shape()[0] # get xt row (same as "m = size(xt, 1)")
 
 	if size(xt)[0] == 1 and m != 1:
-		xt = matrix(np.tile(xt.get_data().flatten(), m), shape=(m, xt.size)) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
+		xt = matrix(np.tile(xt.get_all_data().flatten(), m), shape=(m, xt.size)) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
 	if type(xt) is not matrix:
 		xt = matrix(xt)
@@ -60,11 +60,11 @@ def create_design(
 
 	### for ni ###
 	if ni is None:
-		ni = np.count_nonzero(1-np.isnan(xt.get_data()), axis=1).reshape(xt.get_shape()[0], 1)
+		ni = np.count_nonzero(1-np.isnan(xt.get_all_data()), axis=1).reshape(xt.get_shape()[0], 1)
 	
 	if type(ni) is not matrix:
 		ni = matrix(np.array(ni), shape=[len(ni), 1])
-	if test_mat_size(np.array([m, 1]), ni.get_data(), "ni") == 1:
+	if test_mat_size(np.array([m, 1]), ni.get_all_data(), "ni") == 1:
 		ni.set_axisnam(list(itertools.repeat("n_obs", ni.shape[1])),
 					   ["grp_"+str(i) for i in range(1, m+1)]) 
 		design["ni"] = ni
@@ -75,14 +75,14 @@ def create_design(
 		length = max([len(i) for i in model_switch])
 		model_switch = matrix(np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch])) # convert a list of vectors to an array
 	if model_switch is None:
-		model_switch = matrix(xt.get_data() * 0 + 1)
+		model_switch = matrix(xt.get_all_data() * 0 + 1)
 	if size(model_switch)[0] == 1 and m != 1:
-		model_switch  = matrix(np.tile(model_switch.get_data().flatten(), m), shape=(m, model_switch.size)) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
+		model_switch  = matrix(np.tile(model_switch.get_all_data().flatten(), m), shape=(m, model_switch.size)) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
 	if type(model_switch) is not matrix:
 		model_switch = matrix(model_switch)
 
-	if test_mat_size(np.array(size(xt)), model_switch.get_data(), "model_switch") == 1:
+	if test_mat_size(np.array(size(xt)), model_switch.get_all_data(), "model_switch") == 1:
 		model_switch.set_axisnam(["obs_"+str(i) for i in range(1, model_switch.shape[1]+1)],
 								 ["grp_"+str(i) for i in range(1, m+1)]) 
 		design["model_switch"] = model_switch
@@ -103,7 +103,7 @@ def create_design(
 			else:
 				for i in range(0, size(a)[1]):
 					for j in range(0, size(a)[0]):
-						a_.append(a.get_data()[j][i])
+						a_.append(a.get_all_data()[j][i])
 				a = matrix(np.tile(a_, m), shape=(m, a.size),
 						   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
 
@@ -130,7 +130,7 @@ def create_design(
 			x_ = []
 			for i in range(0, x.get_shape()[1]):
 				for j in range(0, x.get_shape()[0]):
-					x_.append(x.get_data()[i][j])
+					x_.append(x.get_all_data()[i][j])
 			x = matrix(np.tile(x_, m), shape=(m, x.size),
 					   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
 
@@ -151,14 +151,14 @@ def create_design(
 	
 	if type(groupsize) is matrix:
 		if len(groupsize.get_shape()) != 2:
-			groupsize = groupsize.get_data()[:, np.newaxis]
+			groupsize = groupsize.get_all_data()[:, np.newaxis]
 	if type(groupsize) is np.ndarray:
 		if len(groupsize.get_shape()) != 2:
-			groupsize = matrix(groupsize.get_data()[:, np.newaxis])
+			groupsize = matrix(groupsize.get_all_data()[:, np.newaxis])
 	elif type(groupsize) is list or type(groupsize) is int:
 		groupsize = matrix(np.array([groupsize])[:, np.newaxis])
 		
-	if test_mat_size(np.array([m, 1]), groupsize.get_data(), "groupsize") == 1:
+	if test_mat_size(np.array([m, 1]), groupsize.get_all_data(), "groupsize") == 1:
 		groupsize = matrix(groupsize,
 						   rownam=["grp_"+str(i) for i in range(1, m+1)],
 						   colnam=["n_id"] * groupsize.shape[1])

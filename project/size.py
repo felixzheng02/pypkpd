@@ -17,7 +17,7 @@ def size(obj): # @param dimension_index is removed
 		dim_obj = None
 	elif type(obj) is np.ndarray or type(obj) is pd.DataFrame or type(obj) is matrix:
 		if type(obj) is matrix:
-			obj = obj.get_data()
+			obj = obj.get_all_data()
 		dim_obj = obj.shape
 		if len(dim_obj) == 1:
 			dim_obj = [1, dim_obj[0]]

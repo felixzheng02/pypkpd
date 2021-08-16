@@ -52,7 +52,7 @@ def calc_ofv_and_fim(poped_db, *argv):
     d_switch = poped_db["settings"]["d_switch"],  
     bpopdescr = poped_db["parameters"]["bpop"], 
     ddescr = poped_db["parameters"]["d"],
-    bpop = bpopdescr.get_data()[:,1], 
+    bpop = bpopdescr.get_all_data()[:,1], 
     d = getfulld(ddescr[:,1],poped_db["parameters"]["covd"]), 
     docc_full = getfulld(poped_db["parameters"]["docc"][:,1],poped_db["parameters"]["covdocc"]), 
     model_switch = poped_db["design"]["model_switch"], 

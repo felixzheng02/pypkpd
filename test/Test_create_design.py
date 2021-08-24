@@ -13,3 +13,10 @@ design_7 = project.create_design.create_design(xt=xt1, groupsize=20, a=matrix(np
 design_8 = project.create_design.create_design(xt=xt1, groupsize=20, a=matrix(np.array([[2,3,4], [4,5,6]])))
 design_9 = project.create_design.create_design(xt=xt1, groupsize=20, a=[matrix(np.array([2,3,4,6])), matrix(np.array([4,5,6]))])
 design_10 = project.create_design.create_design(xt=xt1, groupsize=20, a=[matrix(np.array([2,3,4])), matrix(np.array([4,5,6]))])
+
+for key,values in  design_9.items():
+    if type(values) is matrix:
+        print(key, values.get_all_data())
+    else:
+        print(key, values)
+

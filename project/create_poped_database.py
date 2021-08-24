@@ -518,10 +518,10 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Matrix defining the IOV, the IOV variances and the IOV distribution --
     docc = param_choose(popedInput, matrix(np.array([np.nan, np.nan, np.nan])), 0, param, kwargs, 'parameters', 'docc')
     # -- Matrix defining the covariance of the IOV --
-    if np.array_equal(docc.get_data(), np.array([np.nan, np.nan, np.nan]), equal_nan=True):
+    if np.array_equal(docc.get_all_data(), np.array([np.nan, np.nan, np.nan]), equal_nan=True):
         tmp = 0
     else:
-        tmp = len(docc.get_data()[:,1])
+        tmp = len(docc.get_all_data()[:,1])
     covdocc = param_choose(popedInput, zeros(1, tmp*(tmp-1)/2), 0, param, kwargs, 'parameters', 'covdocc')
 
     # --------------------------
@@ -1232,8 +1232,8 @@ def create_poped_database(popedInput={}, **kwargs):
         poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"], max(
             poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded))
 
-        fulld = getfulld(matrix(d.get_data()[:,1]), poped_db["parameters"]["covd"])
-        fulldocc = getfulld(matrix(docc.get_data()[:,1]), poped_db["parameters"]["covdocc"])
+        fulld = getfulld(matrix(d.get_all_data()[:,1]), poped_db["parameters"]["covd"])
+        fulldocc = getfulld(matrix(docc.get_all_data()[:,1]), poped_db["parameters"]["covdocc"])
 
         poped_db["parameters"]["bocc_global"] = cell(
             poped_db["settings"]["iFOCENumInd"], 1)

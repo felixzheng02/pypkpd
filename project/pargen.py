@@ -44,10 +44,10 @@ from project.getTruncatedNormal import getTruncatedNormal
 def pargen (par:matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     
     #par: type matrix to ndarray
-    par = par.get_data()
+    par = par.get_all_data()
     nvar = par.get_size()[0]
     #ret: type matrix to ndarray
-    ret = zeros(sample_size, nvar).get_data()
+    ret = zeros(sample_size, nvar).get_all_data()
     
     # for log-normal distributions
     # mu=log(par[,2]^2/sqrt(par[,3]+par[,2]^2))

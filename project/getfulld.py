@@ -26,10 +26,10 @@ def getfulld(variance_vector: matrix, covariance_vector: matrix = None):
         return variance_vector
 
     d = diag_matlab(variance_vector)
-    if covariance_vector.get_size() > 0 and sum(covariance_vector.get_data() != 0) > 0:
+    if covariance_vector.get_size() > 0 and sum(covariance_vector.get_all_data() != 0) > 0:
 
         #d[lower.tri(d)] = covariance_vector
-        d = matrix(np.transpose(d.get_data())) # upper.tri has wrong order, so fill lower, transpose this to upper, then fill lower again
+        d = matrix(np.transpose(d.get_all_data())) # upper.tri has wrong order, so fill lower, transpose this to upper, then fill lower again
         #d[lower.tri(d)] = covariance_vector
     
     return d 

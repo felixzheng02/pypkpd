@@ -340,11 +340,11 @@ def create_design_space(design_,
 		raise Exception("xt is greater than maxxt")
 	
 	# need to decide on appripriate values of xt and minxt and maxxt if applicable
-	if any(np.array(maxni) > np.array(design["ni"])) and any(np.isnan(design["xt"])):
+	if any(maxni.get_all_data() > design["ni"].get_all_data()) and any(np.isnan(design["xt"].get_all_data())):
 		for grp in range(0, design["m"]):
-			xt_grp = design["xt"].iloc[grp, :]
-			maxxt_grp = pd.DataFrame(maxxt).iloc[grp, :]
-			minxt_grp = pd.DataFrame(minxt).iloc[grp, :]
+			xt_grp = design["xt"].get_all_data()[grp, :]
+			maxxt_grp = maxxt.get_all_data()[grp, :]
+			minxt_grp = minxt.get_all_data()[grp, :]
 			if any(np.isnan(maxxt_grp)):
 				_, idx = np.unique(maxxt_grp[~np.isnan(maxxt_grp)], return_index=True) # remove duplicated and nan values but keep order
 				max_vals = [maxxt_grp[~np.isnan(maxxt_grp)][index] for index in sorted(idx)]
@@ -379,59 +379,59 @@ def create_design_space(design_,
 				if (not one_max) and (not one_min):
 					raise Exception("Unable to determine the initial xt values needed for group " + str(grp+1) +
                                     "\n if ni increases with optimization \nPlease supply them as input.")
-			design["xt"].iloc[grp, :] = xt_grp
-			pd.DataFrame(maxxt).iloc[grp, :] = maxxt_grp
-			pd.DataFrame(minxt).iloc[grp, :] = minxt_grp
+			design["xt"].set_multiple_data(xt_grp, row=grp)
+			maxxt.set_multiple_data(maxxt_grp, row=grp)
+			minxt.set_multiple_data(minxt_grp, row=grp)
 		design_new["xt"] = design["xt"]
 
 	# for a
 	if maxa is not None:
 		if type(maxa) is list:
-			maxa = pd.DataFrame(maxa)
+			maxa = matrix(maxa)
 		if size(maxa)[0] == 1 and design["m"] != 1:
-			maxa = np.tile(maxa.flatten(), design["m"]).reshape(design["m"], maxa.size)
-		if type(maxa) is not np.ndarray and type(maxa) is not pd.DataFrame:
-			maxa = pd.DataFrame(maxa)
+			maxa = matrix(np.tile(maxa.get_all_data().flatten(), design["m"]).reshape(design["m"], maxa.size))
+		if type(maxa) is not matrix:
+			maxa = matrix(maxa)
 		if size(maxa)[0] != design["m"]:
 			raise Exception("The number of rows in maxa (" +
 							str(size(maxa)[0]) +
 							") is not the same as the number of groups m (" +
 							str(design["m"]) + ")")
-		maxa = pd.DataFrame(np.array(maxa),
-							index=["grp_" + str(i+1) for i in range(0, design["m"])])
-		if maxa.columns.values.tolist() == []:
-			maxa.set_axis(design["a"].columns.values.tolist())
+		maxa = matrix(np.array(maxa),
+							rownam=["grp_" + str(i+1) for i in range(0, design["m"])])
+		if maxa.get_colnam == []:
+			maxa.set_colnam(design["a"].get_colnam())
 		design_space["maxa"] = maxa
 	
 	if mina is not None:
 		if type(mina) is list:
-			mina = pd.DataFrame(mina)
+			mina = matrix(mina)
 		if size(mina)[0] == 1 and design["m"] != 1:
-			mina = np.tile(mina.flatten(), design["m"]).reshape(design["m"], mina.size)
-		if type(mina) is not np.ndarray and type(mina) is not pd.DataFrame:
-			mina = pd.DataFrame(mina)
+			mina = matrix(np.tile(mina.get_all_data().flatten(), design["m"]).reshape(design["m"], mina.size))
+		if type(mina) is not matrix:
+			mina = matrix(mina)
 		if size(mina)[0] != design["m"]:
 			raise Exception("The number of rows in maxa (" +
 							str(size(mina)[0]) +
 							") is not the same as the number of groups m (" +
 							str(design["m"]) + ")")
-		mina = pd.DataFrame(np.array(mina),
-							index=["grp_" + str(i+1) for i in range(0, design["m"])])
-		if mina.columns.values.tolist() == []:
-			mina.set_axis(design["a"].columns.values.tolist())
+		mina = matrix(np.array(mina),
+							rownam=["grp_" + str(i+1) for i in range(0, design["m"])])
+		if mina.get_colnam() == []:
+			mina.set_colnam(design["a"].get_colnam())
 		design_space["mina"] = mina
 
 	# make sure max is min smaller than max
 	if mina is not None and maxa is not None:
 		ret = comp_max_min(maxa, mina, called_args)
-		maxa = ret["max_val"]
-		mina = ret["min_val"]
+		maxa = matrix(ret["max_val"])
+		mina = matrix(ret["min_val"])
 
 	# check ni given max and min
 	if mina is not None and maxa is not None and design["a"] is not None:
-		if (np.greater(np.array(mina), np.array(design["a"]))).any():
+		if (np.greater(mina.get_all_data(), design["a"].get_all_data())).any():
 			raise Exception("a is less than mina")
-		if (np.greater(np.array(design["a"]), np.array(maxa))).any():
+		if (np.greater(design["a"].get_all_data(), maxa.get_all_data())).any():
 			raise Exception("a is greater than maxa")
 
 	# for x
@@ -439,23 +439,23 @@ def create_design_space(design_,
 		x_space = cell(size(design["x"]))
 		for i in range(0, size(design["x"])[0]):
 			for j in range(0, size(design["x"])[1]):
-				x_space[i, j] = np.array(design["x"])[i, j]
+				x_space[i, j] = design["x"].get_all_data()[i, j]
 	if x_space is not None:
 		if size(x_space)[0] == 1 and design["m"] != 1:
 			x_space = np.array(x_space * design["m"], dtype=object).reshape(design["m"], len(x_space))
 		if test_mat_size(np.array(size(design["x"])), x_space, "x_space") == 1:
-			x_space = pd.DataFrame(x_space,
-								   index=["grp_"+str(i+1) for i in range(0, design["m"])],
-								   columns=design["x"].columns.values.tolist())
+			x_space = matrix(x_space,
+								   rownam=["grp_"+str(i+1) for i in range(0, design["m"])],
+								   colnam=design["x"].columns.values.tolist())
 		design_space["x_space"] = x_space
 
 		for i in range(0, size(design["x"])[0]):
 			for j in range(0, size(design["x"])[1]):
-				if type(np.array(x_space)[i, j]) is np.ndarray:
-					tmp = np.array(x_space)[i, j]
+				if type(x_space.get_one_data(index=[i, j])) is matrix:
+					tmp = x_space.get_one_data(index=[i, j])
 				else:
-					tmp = [np.array(x_space)[i, j]]
-				if np.array(design["x"])[i, j] not in tmp:
+					tmp = [x_space.get_one_data(index=[i, j])]
+				if design["x"].get_one_data(index=[i, j]) not in tmp:
 					raise Exception("x value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 	
 	# for xt_space
@@ -475,36 +475,36 @@ def create_design_space(design_,
 				for i in range(0, nrow_xt):
 					for j in range(0, len(xt_space_tmp)):
 						tmp_list.append(xt_space_tmp[j])
-				xt_space = np.array(tmp_list).reshape(nrow_xt, len(xt_space_tmp), len(xt_space_tmp[0]))
+				xt_space = matrix(np.array(tmp_list).reshape(nrow_xt, len(xt_space_tmp), len(xt_space_tmp[0])))
 			elif nspace == (ncol_xt * nrow_xt): # we assume that spaces are entered in row major form
 				xt_space_tmp = xt_space
-				xt_space = np.array(xt_space_tmp).reshape([int((xt_space_tmp.size)/nrow_xt), nrow_xt])
+				xt_space = matrix(np.array(xt_space_tmp).reshape([int((xt_space_tmp.size)/nrow_xt), nrow_xt]))
 		else: # then it is a vector, assume the vector is the same for all xt's
-			tmp_lst = xt_space.tolist()
+			tmp_lst = xt_space.get_all_data().tolist()
 			xt_space = cell(size(design["xt"]))
 			xt_space = tmp_lst
 		if size(xt_space)[0] == 1 and design["m"] != 1:
-			xt_space = np.tile(xt_space.flatten(), design["m"]).reshape(design["m"], xt_space.size)
+			xt_space = matrix(np.tile(xt_space.get_all_data().flatten(), design["m"]).reshape(design["m"], xt_space.size))
 		if size(xt_space)[1] == 1 and size(design["xt"])[2] != 1:
-			xt_space = np.transpose(np.tile(xt_space.flatten(), size(design["xt"])[1]).reshape(design["m"], size(design["xt"])[1]))
+			xt_space = matrix(np.transpose(np.tile(xt_space.get_all_data().flatten(), size(design["xt"])[1]).reshape(design["m"], size(design["xt"])[1])))
 		if test_mat_size(np.array(size(design["xt"])), np.array(xt_space), "xt_space") == 1:
-			xt_space = pd.DataFrame(xt_space,
-									index=["grp_"+str(i+1) for i in range(0, design["m"])],
-									columns=design["xt"].columns.values.tolist())
+			xt_space = matrix(xt_space,
+									rownam=["grp_"+str(i+1) for i in range(0, design["m"])],
+									colnam=design["xt"].get_colnam())
 		
 		for i in range(0, design["xt"].shape[0]):
 			for j in range(0, design["xt"].shape[1]):
-				if ~np.isnan(np.array(design["xt"])[i, j]):
-					if type(np.array(xt_space)[i, j]) is int or type(np.array(xt_space)[i, j]) is np.float64:
-						tmp = [np.array(xt_space)[i, j]]
+				if ~np.isnan(design["xt"].get_all_data())[i, j]):
+					if type(xt_space.get_data()[i, j]) is int or type(xt_space.get_data()[i, j]) is np.float64:
+						tmp = [xt_space.get_data()[i, j]]
 					else:
-						tmp = np.array(xt_space)[i, j]
-					if np.array(design["xt"])[i, j] not in tmp:
+						tmp = xt_space.get_all_data()[i, j]
+					if design["xt"].get_all_data()[i, j] not in tmp:
 						raise Exception("xt value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 
 	# for a_space
 	if a_space is not None:
-		if type(a_space) is not np.ndarray and type(a_space) is list:
+		if type(a_space) is not matrix and type(a_space) is list:
 			a_space = np.array(a_space * design["m"]).reshape([design["m"], len(a_space)])
 		else:
 			tmp_lst = pd.DataFrame(np.array(a_space).reshape([1, a_space.size]),

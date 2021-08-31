@@ -36,21 +36,25 @@ class matrix:
 			self.colnam = colnam
 			self.rownam = rownam
 		elif all(isinstance(n, matrix) for n in data):
-			self.shape = poped_choose(shape, [1, len(data)], 0)
-			self.data = np.array(data).reshape(self.get_shape())
+			self.data = np.array(data)
+			tmp_shape = [len(data)]
+			for i in self.get_data()[0].get_shape():
+				tmp_shape.append(i)
+			self.shape = poped_choose(shape, tmp_shape, 0)
+			# self.data = np.array(data).reshape(self.get_shape())
 			self.size = len(data)
 			self.datanam = datanam
 			self.colnam = colnam
 			self.rownam = rownam
-		else:
-			self.data = np.array(data)
-			if shape is None:
-				self.shape = data.shape
-				if len(self.shape) == 1:
-					self.shape = [1, self.shape[0]]
-			else:
-				self.shape = shape
-			self.data = np.array(data).reshape(self.shape)
+		elif type(data) is np.ndarray:
+			self.shape = poped_choose(shape, data.shape, 0)
+			self.data = np.array(data).reshape(shape)
+			# if shape is None:
+			# 	self.shape = data.shape
+			# 	if len(self.shape) == 1:
+			# 		self.shape = [1, self.shape[0]]
+			# else:
+			# 	self.shape = shape
 			self.size = self.get_data().size
 			self.datanam = datanam
 			self.colnam = colnam
@@ -90,11 +94,11 @@ class matrix:
 		tmp = self
 		if tmp.get_data().size == 0:
 			return np.array([])
-		elif type(tmp.get_data()[0][0]) is matrix:
-			length = len(tmp.get_data().tolist()[0])
+		elif type(tmp.get_data()[0]) is matrix:
+			length = len(tmp.get_data().tolist())
 			result = [None] * length
 			for index in range(0, length):
-				result[index] = tmp.get_data().tolist()[0][index].get_all_data()
+				result[index] = tmp.get_data().tolist()[index].get_all_data()
 			return np.array(result)
 		else:
 			return tmp.get_data()

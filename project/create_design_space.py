@@ -602,12 +602,12 @@ def create_design_space(design_,
 				for k in range(j, grouped_cells_xt.get_shape()[0]):
 					if ((np.array(size(grouped_cells_xt.get_all_data()[j])) != np.array(size(grouped_cells_xt.get_all_data()[k]))).any() or
 						(grouped_cells_xt.get_all_data()[j] != grouped_cells_xt.get_all_data()[k]).any()):
-						raise Exception("xt values grouped with value %g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
+						raise Exception("xt values grouped with value % g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
 
-	_, idx = np.unique(np.array(grouped_xt)[~np.isnan(np.array(design["xt"]))], return_index=True) # remove duplicated and nan values but keep order
-	for i in range(0, int(np.max([np.array(grouped_xt)[~np.isnan(np.array(design["xt"]))][index] for index in sorted(idx)]))):
-		_, idx = np.unique(np.array(design["xt"])[np.logical_and(np.array(grouped_xt) == i+1, ~np.isnan(np.array(design["xt"])))], return_index=True) # remove duplicated and nan values but keep order
-		if len([np.array(design["xt"])[np.logical_and(np.array(grouped_xt) == i+1, ~np.isnan(np.array(design["xt"])))][index] for index in sorted(idx)]) == 0:
+	_, idx = np.unique(grouped_xt.get_all_data())[~np.isnan(design["xt"].get_all_data())], return_index=True) # remove duplicated and nan values but keep order
+	for i in range(0, int(np.max([grouped_xt.get_all_data()[~np.isnan(design["xt"].get_all_data())][index] for index in sorted(idx)]))):
+		_, idx = np.unique(design["xt"].get_all_data()[np.logical_and(grouped_xt.get_all_data() == i+1, ~np.isnan(design["xt"].get_all_data()))], return_index=True) # remove duplicated and nan values but keep order
+		if len([design["xt"].get_all_data()[np.logical_and(grouped_xt.get_all_data() == i+1, ~np.isnan(design["xt"].get_all_data()))][index] for index in sorted(idx)]) == 0:
 			raise Exception("grouped_xt must be sequential and cannot have missing values.\nNo xt values were grouped with value %g in grouped_xt.\n" % i)
 
 	# for grouped_a

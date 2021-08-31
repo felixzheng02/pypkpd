@@ -2,8 +2,8 @@ import numpy as np
 from matpy.matrix import matrix
 
 
-data_1 = matrix(data=[matrix(np.array([1, 2, 3])), matrix(np.array([1, 2, 4]))])
-print(data_1.get_all_data().reshape(2, 3))
+data_1 = matrix(data=[matrix(data=np.array([1, 2, 3])), matrix(data=np.array([1, 2, 4]))])
+print(data_1.get_all_data().shape)
 
 # data_2 = matrix(np.array([1, 2, 3, 4]),
 # 			 (2, 2),

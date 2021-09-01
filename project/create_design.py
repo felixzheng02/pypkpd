@@ -101,9 +101,13 @@ def create_design(
 				a = matrix(np.tile([a], m), shape=(m, 1),
 						   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
 			else:
-				for i in range(0, size(a)[1]):
-					for j in range(0, size(a)[0]):
-						a_.append(a.get_all_data()[j][i])
+				for i in range(0, size(a)[1]): #col
+					for j in range(0, size(a)[0]): #row
+						if size(a.get_shape())[0] == 1:
+							a_.append(a.get_all_data()[i])
+						else:
+							a_.append(a.get_all_data()[j,i])
+						
 				a = matrix(np.tile(a_, m), shape=(m, a.size),
 						   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
 
@@ -119,6 +123,7 @@ def create_design(
 			if count == size(a)[1]:
 				a.set_colnam([None] * a.shape[1])
 		design["a"] = a
+
 
 
 	### for x ###

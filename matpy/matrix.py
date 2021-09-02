@@ -15,19 +15,20 @@ class matrix:
 
 	def __init__(self, data, shape = None, datanam: list = None, colnam: list = None, rownam: list = None):
 		# data field:
-		# data
-		# shape
-		# size
+		# data: only represents the top-level structure of the matrix
+		# shape: the complete shape of the matrix, including those of sub-matrices
+		# size: the complete size of the matrix that includes sub-matrices
 		# datanam
 		# colnam
 		# rownam
 		if type(data) is matrix:
-			self.shape = poped_choose(shape, data.shape, 0)
-			self.data = np.array(data.data).reshape(shape)
-			self.size = data.size
+			self.shape = poped_choose(shape, data.get_shape(), 0)
+			self.data = np.array(data.get_data()).reshape(shape)
+			self.size = data.get_size()
 			self.datanam = poped_choose(datanam, data.datanam, 0)
 			self.colnam = poped_choose(colnam, data.colnam, 0)
 			self.rownam = poped_choose(rownam, data.rownam, 0)
+
 		elif type(data) is int or type(data) is float:
 			self.shape = [1, 1]
 			self.data = np.array([data])
@@ -35,20 +36,24 @@ class matrix:
 			self.datanam = datanam
 			self.colnam = colnam
 			self.rownam = rownam
+
 		elif all(isinstance(n, matrix) for n in data):
 			self.data = np.array(data)
 			tmp_shape = [len(data)]
 			for i in self.get_data().get_shape():
 				tmp_shape.append(i)
 			self.shape = poped_choose(shape, tmp_shape, 0)
-			# self.data = np.array(data).reshape(self.get_shape())
+			self.data = self.get_data().reshape(self.get_shape())
 			self.size = len(data)
 			self.datanam = datanam
 			self.colnam = colnam
 			self.rownam = rownam
+
 		elif type(data) is np.ndarray:
 			self.shape = poped_choose(shape, data.shape, 0)
 			self.data = np.array(data).reshape(shape)
+			# if len(self.get_shape()) == 1:
+			# 	self.shape = [1, self.get_shape()[0]]
 			# if shape is None:
 			# 	self.shape = data.shape
 			# 	if len(self.shape) == 1:
@@ -64,6 +69,8 @@ class matrix:
 		return self.data
 
 	def get_shape(self):
+		if len(self.shape) == 1:
+			return [1, self.shape[0]]
 		return list(self.shape)
 
 	def get_size(self):

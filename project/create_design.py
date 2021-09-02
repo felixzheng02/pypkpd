@@ -51,7 +51,7 @@ def create_design(
 		raise Exception("The number of rows in xt (" + str(size(xt)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
 	
 	xt.set_rownam(["grp_"+str(i) for i in range(1, m+1)]) 
-	xt.set_colnam(["obs_"+str(i) for i in range(1, xt.shape[1]+1)]) # same as "size(xt)[1]+1"
+	xt.set_colnam(["obs_"+str(i) for i in range(1, xt.get_shape()[1]+1)]) # same as "size(xt)[1]+1"
 	
 	design["xt"] = xt
 # 没写！！！names(m) = "n_grp"

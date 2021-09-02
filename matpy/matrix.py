@@ -38,7 +38,7 @@ class matrix:
 		elif all(isinstance(n, matrix) for n in data):
 			self.data = np.array(data)
 			tmp_shape = [len(data)]
-			for i in self.get_data()[0].get_shape():
+			for i in self.get_data().get_shape():
 				tmp_shape.append(i)
 			self.shape = poped_choose(shape, tmp_shape, 0)
 			# self.data = np.array(data).reshape(self.get_shape())
@@ -55,7 +55,7 @@ class matrix:
 			# 		self.shape = [1, self.shape[0]]
 			# else:
 			# 	self.shape = shape
-			self.size = self.get_data().size
+			self.size = self.get_all_data().size
 			self.datanam = datanam
 			self.colnam = colnam
 			self.rownam = rownam
@@ -83,10 +83,10 @@ class matrix:
 			if self.get_datanam() is not None:
 				for index in range(0, len(self.get_datanam())):
 					if name == self.get_datanam()[index]:
-						return self.get_data().flatten()[index]
+						return self.get_all_data().flatten()[index]
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None:
-			return self.get_data()[list(index)[0]][list(index)[1]]
+			return self.get_all_data()[list(index)[0]][list(index)[1]]
 		else:
 			raise Exception("Please specify the name or the index of the data needed.")
 	

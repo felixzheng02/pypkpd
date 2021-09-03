@@ -35,6 +35,7 @@ ff.PK.1.comp.oral.sd.CL
 
 
 import numpy as np
+from matpy.matrix import matrix
 from project.evaluate_fim import evaluate_fim
 from project.create_poped_database import sfg
 from project.create_poped_database import create_poped_database
@@ -49,17 +50,17 @@ from project.models import ff_PK_1_comp_oral_sd_CL
 poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
                                   fg_fun=sfg,
                                   fError_fun=feps_add_prop,
-                                  bpop=np.array([0.15,8,1.0,1]), 
-                                  notfixed_bpop=np.array([1,1,1,0]),
-                                  d=np.array([0.07,0.02,0.6]), 
-                                  sigma=np.array([0.01,0.25]),
+                                  bpop=matrix(np.array([0.15,8,1.0,1])), 
+                                  notfixed_bpop=matrix(np.array([1,1,1,0])),
+                                  d=matrix(np.array([0.07,0.02,0.6])), 
+                                  sigma=matrix(np.array([0.01,0.25])),
                                   groupsize=32,
-                                  xt=np.array([0.5,1,2,6,24,36,72,120]),
+                                  xt=matrix(np.array([0.5,1,2,6,24,36,72,120])),
                                   minxt=0.01,
                                   maxxt=120,
-                                  a=np.array([70]),
-                                  mina=np.array([0.01]),
-                                  maxa=np.array([100]))
+                                  a=matrix(np.array([70])),
+                                  mina=matrix(np.array([0.01])),
+                                  maxa=matrix(np.array([100])))
 
 ############# END ###################
 ## Create PopED database
@@ -67,6 +68,7 @@ poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
 #####################################
 print(poped_db)
 
+"""
 ## evaluate initial design 
 FIM = evaluate_fim(poped_db) 
 print(FIM)
@@ -97,6 +99,7 @@ print(np.linalg.det(FIM))
 #> [1] 55.39645ofv_fim(FIM,poped_db,ofv_calc_type=6) # Ds with fixed effects as "important"
 #> [1] 16.49204ofv_fim(FIM,poped_db,ofv_calc_type=6,
 ds_index = np.array([1,1,1,0,0,0,1,1]) # Ds with random effects as "important"
-#> [1] 21.23143ofv_fim(FIM,poped_db,ofv_calc_type=7) # 1/sum(get_rse(FIM,poped_db,use_percent=FALSE))
+#> [1] 21.23143ofv_fim(FIM,poped_db,ofv_calc_type=7) # 1/sum(get_rse(FIM,poped_db,use_percent=False))
 #> [1] 0.5772714
 print(ds_index)
+"""

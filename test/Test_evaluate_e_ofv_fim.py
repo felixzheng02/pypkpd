@@ -26,6 +26,7 @@ from numpy.core.records import array
 from project.ones import ones
 from project.tictoc import tic
 from project.tictoc import toc
+from matpy.matrix import matrix
 from project.models import feps_add_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
@@ -49,12 +50,12 @@ poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
                                 fg_fun=sfg,
                                 fError_fun=feps_add_prop,
                                 bpop=bpop_vals_ed_ln, 
-                                notfixed_bpop=np.array([1,1,1,0]),
+                                notfixed_bpop=matrix(np.array([1,1,1,0])),
                                 #CL=0.07, V=0.02, KA=0.6
-                                d=np.array([0.07, 0.02, 0.6]), 
-                                sigma=np.array([0.01,0.25]),
+                                d=matrix(np.array([0.07, 0.02, 0.6])), 
+                                sigma=matrix(np.array([0.01,0.25])),
                                 groupsize=32,
-                                xt=np.array([0.5,1,2,6,24,36,72,120]),
+                                xt=matrix(np.array([0.5,1,2,6,24,36,72,120])),
                                 minxt=0,
                                 maxxt=120,
                                 a=70,

@@ -13,6 +13,7 @@ from project.poped_choose import poped_choose
 
 class matrix:
 
+	# shape parameter does not function well
 	def __init__(self, data, shape = None, datanam: list = None, colnam: list = None, rownam: list = None):
 		# data field:
 		# data: only represents the top-level structure of the matrix
@@ -37,13 +38,13 @@ class matrix:
 			self.colnam = colnam
 			self.rownam = rownam
 
-		elif all(isinstance(n, matrix) for n in data):
+		elif all(isinstance(n, matrix) for n in data) and type(data) is list:
 			self.data = np.array(data)
 			tmp_shape = [len(data)]
-			for i in self.get_data().get_shape():
-				tmp_shape.append(i)
+			for i in self.get_data()[0].get_shape():
+				if i != 1:
+					tmp_shape.append(i)
 			self.shape = poped_choose(shape, tmp_shape, 0)
-			self.data = self.get_data().reshape(self.get_shape())
 			self.size = len(data)
 			self.datanam = datanam
 			self.colnam = colnam

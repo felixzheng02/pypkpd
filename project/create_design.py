@@ -60,7 +60,10 @@ def create_design(
 
 	### for ni ###
 	if ni is None:
-		ni = np.count_nonzero(1-np.isnan(xt.get_all_data()), axis=1).reshape(xt.get_shape()[0], 1)
+		tmp = 1-np.isnan(xt.get_all_data())
+		if len(tmp.shape) == 1:
+			tmp = tmp[np.newaxis, :]
+		ni = np.count_nonzero(tmp, axis=1).reshape(xt.get_shape()[0], 1)
 	
 	if type(ni) is not matrix:
 		ni = matrix(np.array(ni), shape=[len(ni), 1])
@@ -83,7 +86,7 @@ def create_design(
 		model_switch = matrix(model_switch)
 
 	if test_mat_size(np.array(size(xt)), model_switch.get_all_data(), "model_switch") == 1:
-		model_switch.set_axisnam(["obs_"+str(i) for i in range(1, model_switch.shape[1]+1)],
+		model_switch.set_axisnam(["obs_"+str(i) for i in range(1, model_switch.get_shape()[1]+1)],
 								 ["grp_"+str(i) for i in range(1, m+1)]) 
 		design["model_switch"] = model_switch
 

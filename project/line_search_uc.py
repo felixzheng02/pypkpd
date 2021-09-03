@@ -23,7 +23,7 @@ def line_search_uc(x0, f0, g0, d, f_handle,f_options,exp_index,
     lambda_num = 1 #newton step
     slope = np.matmul(np.transpose(g0), d) #slope at beginning of line search
     
-    #trans  <- function(x) matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T)
+    #trans  = function(x) matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T)
     
     
     while True:
@@ -48,7 +48,7 @@ def line_search_uc(x0, f0, g0, d, f_handle,f_options,exp_index,
             browser()
         
         fval1 = feval(f_handle,f_options)
-        fval1 <- fval1["k"]
+        fval1 = fval1["k"]
         if lambda_num < lambda_min:
             x_min = x0
             f_min = f0

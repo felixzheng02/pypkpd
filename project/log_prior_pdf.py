@@ -93,7 +93,7 @@ def log_prior_pdf(alpha,bpopdescr,ddescr,return_gradient=False,return_hessian=Fa
   
 
 
-# own_normpdf <- function(x,mu,sigma){
+# own_normpdf = function(x,mu,sigma){
 #   y = exp(-0.5 * ((x - mu)/sigma)^2) / (sqrt(2*pi) * sigma)
 #   return( y ) 
 # }

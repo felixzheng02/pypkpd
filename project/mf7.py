@@ -65,7 +65,7 @@ def mf7(model_switch,xt_ind,x,a,bpop,d,sigma,docc,poped_db):
             f1[1:n,1:numnotfixed_bpop] = returnArgs[1]
             poped_db = returnArgs[[2]]
             returnArgs = m2(model_switch_new,xt_new,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db) 
-            f1[(n+1):(n+n*n),1:numnotfixed_bpop] <- returnArgs[1]
+            f1[(n+1):(n+n*n),1:numnotfixed_bpop] = returnArgs[1]
             poped_db = returnArgs[[2]]
             returnArgs = m3(model_switch_new,xt_new,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,True,poped_db) 
             f1[(n+1):(n+n*n),(numnotfixed_bpop+1):(numnotfixed_bpop+numnotfixed_d+numnotfixed_covd+numnotfixed_docc+numnotfixed_covdocc+numnotfixed_sigma+numnotfixed_covsigma)] = returnArgs[0]

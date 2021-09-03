@@ -64,9 +64,9 @@ def mf3(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db):
             poped_db = returnArgs[1]
             start_bind = np.transpose(b_ind)
             b_ind = ind_estimates(mean_data,bpop,d,sigma,start_bind,(poped_db["settings"]["iApproximationMethod"]==2),False,model_switch,xt,x,a,b_ind,bocc_ind,poped_db)
-            #        b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(b_ind),(poped_db["settings"]iApproximationMethod==2),FALSE,model_switch,xt_ind,x,a,b_ind,bocc_ind,poped_db)
+            #        b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(b_ind),(poped_db["settings"]iApproximationMethod==2),False,model_switch,xt_ind,x,a,b_ind,bocc_ind,poped_db)
             
-            #b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(zeros(size(b_ind)[1],size(b_ind)[2])),!(poped_db["settings"]iApproximationMethod==2),FALSE,model_switch,xt_ind,x,a,b_ind,bocc_ind,poped_db)
+            #b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(zeros(size(b_ind)[1],size(b_ind)[2])),!(poped_db["settings"]iApproximationMethod==2),False,model_switch,xt_ind,x,a,b_ind,bocc_ind,poped_db)
             poped_db["mean_data"] = mean_data
         
         

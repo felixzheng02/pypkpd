@@ -89,12 +89,12 @@ def evaluate_fim(poped_db,
     if sigma_full is None: 
         sigma_full = poped_db["parameters"]["param_pt_val"]["sigma"]
     
-    #   if(is.null(model_switch)) model_switch <- poped_db$downsized.design$model_switch
-    #   if(is.null(ni)) ni <- poped_db$downsized.design$ni
-    #   if(is.null(xt)) xt <- poped_db$downsized.design$xt
-    #   if(is.null(x)) x <- poped_db$downsized.design$x
-    #   if(is.null(a)) a <- poped_db$downsized.design$a
-    #   if(is.null(groupsize)) groupsize <- poped_db$downsized.design$groupsize
+    #   if(is.null(model_switch)) model_switch = poped_db$downsized.design$model_switch
+    #   if(is.null(ni)) ni = poped_db$downsized.design$ni
+    #   if(is.null(xt)) xt = poped_db$downsized.design$xt
+    #   if(is.null(x)) x = poped_db$downsized.design$x
+    #   if(is.null(a)) a = poped_db$downsized.design$a
+    #   if(is.null(groupsize)) groupsize = poped_db$downsized.design$groupsize
     #   
     if model_switch is None:
         model_switch = poped_db["design"]["model_switch"]

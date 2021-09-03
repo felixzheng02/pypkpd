@@ -1,9 +1,7 @@
 """
 Plot model predictions 
-
 Function plots model predictions for the typical value in the population,
 individual predictions and data predictions_
-
 @inheritParams RS_opt
 @inheritParams model_prediction
 @param separate_groups Should there be separate plots for each group_
@@ -20,16 +18,16 @@ individual predictions and data predictions_
 @param DV_points Should DV points be drawn?
 @param alpha_DV_lines What should the transparency for the DV_lines be?
 @param alpha_DV_points What should the transparency for the DV_points be?
-@param sample_times_DV_points TRUE or FALSE_
-@param sample_times_DV_lines TRUE or FALSE_
+@param sample_times_DV_points True or False_
+@param sample_times_DV_lines True or False_
 @param alpha_sample_times_DV_points What should the transparency for the sample_times_DV_points be?
 @param alpha_sample_times_DV_lines What should the transparency for the sample_times_DV_lines be?
 @param y_lab The label of the y-axis_
 @param facet_scales Can be "free", "fixed", "free_x" or "free_y"
-@param facet_label_names TRUE or FALSE
+@param facet_label_names True or False
 @param IPRED_lines_pctls Should lines be drawn at the chosen percentiles of the IPRED values?  
 @param groupsize_sim How many individuals per group  should be 
-  simulated when DV=TRUE or IPRED=TRUE to create prediction intervals?
+  simulated when DV=True or IPRED=True to create prediction intervals?
 @param model_names A vector of names of the response model/s (the length of the 
 vector should be equal to the number of response models)_ It is Null by default_
 @param PI Plot prediction intervals for the expected data given the model_  
@@ -40,18 +38,13 @@ more approximate than using \code{DV=T} and \code{groupsize_sim = some large num
 @param PI_alpha The transparency of the PI_
 @param DV_mean_sd Plot the mean and standard deviation of simulated observations_ 
 @param ___ Additional arguments passed to the \code{\link{model_prediction}} function_
-
 @return A \link[ggplot2]{ggplot} object_  If you would like to further edit this plot don't 
 forget to load the ggplot2 library using \code{library(ggplot2)}_
-
 @family evaluate_design
 @family Simulation
 @family Graphics
-
 @seealso \code{\link{model_prediction}}
-
 @example tests/testthat/examples_fcn_doc/examples_plot_model_prediction_R
-
 @export
 @import ggplot2
 # @import Hmisc
@@ -102,7 +95,7 @@ def plot_model_prediction(poped_db,
 						  )
 	if model_names is not None:
 		...
-		# levels(df.2$Model) <- model.names
+		# levels(df.2$Model) = model.names
 	
 	if IPRED or IPRED_lines or DV or IPRED_lines_pctls or sample_times_DV or sample_times_DV_points or sample_times_DV_lines or DV_mean_sd:
 		dv_val = False
@@ -117,9 +110,9 @@ def plot_model_prediction(poped_db,
 									DV=dv_val)
 		if model_names is not None:
 			...
-			# levels(df.ipred$Model) <- model.names
+			# levels(df.ipred$Model) = model.names
 		if sample_times_IPRED or sample_times_DV or sample_times_DV_points or sample_times_DV_lines:
-			# df.ipred.samples <- df.ipred[df.ipred$Time %in% poped.db$design$xt,]
+			# df.ipred.samples = df.ipred[df.ipred$Time %in% poped_db["design"]xt,]
 			if model_names is not None:
 				...
-				# levels(df.ipred.samples$Model) <- model.names
+				# levels(df.ipred.samples$Model) = model.names

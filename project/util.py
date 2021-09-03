@@ -18,7 +18,7 @@ def is_not_none(d: dict, k: str):
 def trans(x, exp_index):
         x[exp_index] = np.exp(x[exp_index])
         return x
-#trans  <- function(x) matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T
+#trans  = function(x) matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T
 
 
 def dots(*args):
@@ -69,7 +69,7 @@ def bound_par(x,lower=-np.Infinity, upper=np.Infinity,logit=True):
 	
 
 
-# transform_back <- function(par,lower=-Inf,upper=Inf){
+# transform_back = function(par,lower=-Inf,upper=Inf){
 #   # FastImputation::BoundNormalizedVariable(
 #   #   par,
 #   #   constraints = 
@@ -86,12 +86,12 @@ def transform_back_par(ps_tbl,*args):
 	ps_upper_orig=ps_tbl["upper_orig"]
 
 	if any(ps_transformed) is True:
-		par[ps_transformed] <- mapply(bound_par, par[ps_transformed], ps_lower_orig[ps_transformed], ps_upper_orig[ps_transformed])
+		par[ps_transformed] = mapply(bound_par, par[ps_transformed], ps_lower_orig[ps_transformed], ps_upper_orig[ps_transformed])
 	
 	return par 
 
 
-
+"""
 ##' Catch *and* save both errors and warnings, and in the case of
 ##' a warning, also keep the computed result.
 ##'
@@ -101,17 +101,15 @@ def transform_back_par(ps_tbl,*args):
 ##'   'value' may be an error caught.
 ##' @author Martin Maechler, The R Core Team
 ##' @keywords internal
-"""
 def tryCatch_W_E(expr):
 	W = None
-	w_handler <- function(w){ # warning handler
+	w_handler = function(w){ # warning handler
 		W = w
 		invokeRestart("muffleWarning")
 	}
 	return {"value": withCallingHandlers(tryCatch(expr, error = function(e) e),warning = w.handler),
 			"warning": W}
 """
-
 
 
 def get_fim_size(poped_db):

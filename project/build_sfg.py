@@ -18,7 +18,7 @@
 #' @examples
 #' build_sfg(model="ff.PK.1.comp.oral.md.CL")
 #' 
-#' etas <- c(Favail="exp",KA="exp",V="add",CL="exp")
+#' etas = c(Favail="exp",KA="exp",V="add",CL="exp")
 #' build_sfg(model="ff.PK.1.comp.oral.md.CL",etas = etas)
 #' Author: Caiya Zhang, Yuchen Zheng
 """
@@ -34,10 +34,10 @@ def sfg_tmp(x1,a,bpop,b,bocc):
     return None
 
 def build_sfg(model=ff_PK_1_comp_oral_sd_CL,
-            covariates=np.array(["dose","tau"]),
+            covariates=["dose","tau"],
             par_names=None,
             etas="exp", # can be exp, prop, add, none. can be one for all or per parameter
-            no_etas=np.array(["F","Favail"])):
+            no_etas=["F","Favail"]):
             #env = parent_frame()):
 
 #> <bytecode: 0x7fe20a979808>

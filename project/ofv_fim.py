@@ -14,7 +14,7 @@
 #' \item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
 #' \item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
 #' rows and columns of the FIM: det(FIM)/det(FIM_u)
-#' \item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped_db,use_percent=FALSE))
+#' \item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped_db,use_percent=False))
 #' }
 #' @param use_log Should the criterion be in the log domain?
 #' @inheritParams RS_opt

@@ -98,7 +98,7 @@ def calc_k(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,
     
     if return_gradient is True:
         
-        # foo <- tryCatch.W.E( comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) )
+        # foo = tryCatch.W.E( comp_grad_1(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, grad_p) )
         # is.numeric(foo$value)
         # 
         # tryCatch.W.E( numDeriv::grad(function(x) calc_k(x,model_switch,groupsize,ni,xtoptn,xoptn,
@@ -210,19 +210,19 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
     #                              alpha_k) )
     # 
     #   ## test f_k value
-    #fim <- det(evaluate.fim(poped_db))
+    #fim = det(evaluate.fim(poped_db))
     #   # assuming all normal distributions and only first 3 fixed effects
-    #p <- prod(dnorm(bpopdescr[1:3,2],mean=bpopdescr[1:3,2],sd=sqrt(bpopdescr[1:3,3]))) 
-    #k_test <- -log(fim*0.36)
+    #p = prod(dnorm(bpopdescr[1:3,2],mean=bpopdescr[1:3,2],sd=sqrt(bpopdescr[1:3,3]))) 
+    #k_test = -log(fim*0.36)
     #   k_test==f_k
     
     #   ## test gf_k
-    #   alpha_k_plus <- alpha_k+rbind(0.00001,0,0)
-    #   returnArgs.1 <- calc_k(alpha_k_plus,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
+    #   alpha_k_plus = alpha_k+rbind(0.00001,0,0)
+    #   returnArgs.1 = calc_k(alpha_k_plus,model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
     #                        return_gradient=F) 
-    #   f_k_plus <- returnArgs.1[[1]]
+    #   f_k_plus = returnArgs.1[[1]]
     # 
-    #   gf_k_test.1  <- (f_k_plus - f_k)/0.00001
+    #   gf_k_test.1  = (f_k_plus - f_k)/0.00001
     
     #transform gradient for ds (log(alpha))
     #   if(!isempty(d_index)){
@@ -254,7 +254,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
             #determine search direction for line search
             p_k = -np.matmul(H_k, gf_k)
             f_name  = "calc_k"
-            #f_options <- list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
+            #f_options = list(trans(alpha),model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine)
             f_options = ["replace",model_switch,groupsize,ni,xtopto,xopto,aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine]
             returnArgs = line_search_uc(alpha_k_log,f_k,gf_k,p_k,f_name,f_options,exp_index)
             alpha_k1_log = returnArgs[0]
@@ -304,17 +304,17 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
             detHessPi = np.linalg.det(hess)*(2*np.pi)^(-hess.size)
     else:  # end sebastian method
         
-        #     priordescr <- rbind(bpopdescr,ddescr)
-        #     priordescr <- priordescr[priordescr[,1]==2,]
-        #     lb <- priordescr[,2]-priordescr[,3]/2
-        #     ub <- priordescr[,2]+priordescr[,3]/2
+        #     priordescr = rbind(bpopdescr,ddescr)
+        #     priordescr = priordescr[priordescr[,1]==2,]
+        #     lb = priordescr[,2]-priordescr[,3]/2
+        #     ub = priordescr[,2]+priordescr[,3]/2
         
         
         ## minimize K(alpha_k)
         opt_meth = "Nelder-Mead"
         if alpha_k.size == 1: 
             opt_meth = "BFGS"
-        # initial_k <- calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,
+        # initial_k = calc_k(alpha_k,model_switch,groupsize,ni,xtopto,xopto,
         #                     aopto,bpopdescr,ddescr,covd,sigma,docc,poped_db,Engine,
         #                     return_gradient=F)
         # cat("alpha_k = ",alpha_k," initial k = ", initial_k, "\n")
@@ -326,7 +326,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
         # d[ddescr[,1]==4]=alpha_k[(sum(bpopdescr[,1,drop=F]!=0)+1):length(alpha_k),drop=F]
         # d=getfulld(d,covd)
         # retargs=mftot(model_switch,groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db)
-        # fim <- retargs$ret
+        # fim = retargs$ret
         # det(fim)
         # inv(fim)
         # 
@@ -437,7 +437,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                     
                 if opta is True:
                     notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]
-                    grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=TRUE)
+                    grada = -graddetmf(model_switch,np.ones(size(aopto)).reshape(size(aopto),1),groupsize,ni,xtopto,xopto,aopto,bpop,d,sigma,docc,poped_db,lndet=True)
                     grada = grada(notfixed)
                     if poped_db["design_space"]["bUseGrouped_a"]:
                         index_tmp, idx = np.unique(poped_db["design_space"]["G_a"], return_index=True) 

@@ -61,6 +61,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
+from types import MappingProxyType
 import numpy as np
 import pandas as pd
 import copy
@@ -494,7 +495,7 @@ def create_design_space(design_,
 		
 		for i in range(0, design["xt"].shape[0]):
 			for j in range(0, design["xt"].shape[1]):
-				if ~np.isnan(design["xt"].get_all_data())[i, j]):
+				if ~np.isnan(design["xt"].get_all_data())[i, j]:
 					if type(xt_space.get_data()[i, j]) is int or type(xt_space.get_data()[i, j]) is np.float64:
 						tmp = [xt_space.get_data()[i, j]]
 					else:
@@ -604,7 +605,7 @@ def create_design_space(design_,
 						(grouped_cells_xt.get_all_data()[j] != grouped_cells_xt.get_all_data()[k]).any()):
 						raise Exception("xt values grouped with value % g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
 
-	_, idx = np.unique(grouped_xt.get_all_data())[~np.isnan(design["xt"].get_all_data())], return_index=True) # remove duplicated and nan values but keep order
+	_, idx = np.unique(grouped_xt.get_all_data())[~np.isnan(design["xt"].get_all_data())], return_index=True # remove duplicated and nan values but keep order
 	for i in range(0, int(np.max([grouped_xt.get_all_data()[~np.isnan(design["xt"].get_all_data())][index] for index in sorted(idx)]))):
 		_, idx = np.unique(design["xt"].get_all_data()[np.logical_and(grouped_xt.get_all_data() == i+1, ~np.isnan(design["xt"].get_all_data()))], return_index=True) # remove duplicated and nan values but keep order
 		if len([design["xt"].get_all_data()[np.logical_and(grouped_xt.get_all_data() == i+1, ~np.isnan(design["xt"].get_all_data()))][index] for index in sorted(idx)]) == 0:
@@ -780,13 +781,24 @@ def create_design_space(design_,
 
 def comp_max_min(max_val, min_val, called_args):
 	args = list(locals().values())
-	if any(np.greater(min_val, max_val)):
-		min_val_sup = str(args[1]) in list(called_args.keys())
-		max_val_sup = str(args[0]) in list(called_args.keys())
-		if min_val_sup and max_val_sup:
-			raise Exception("Some value of " + str(args[0]) + " is smaller than " + args[1])
-		if min_val_sup and ~max_val_sup:
-			max_val = np.maximum(max_val, min_val)
-		if ~min_val_sup and max_val_sup:
-			min_val = np.minimum(max_val, min_val)
+	if type(min_val) is matrix and type(max_val) is matrix:
+		if any(np.greater(min_val.get_all_data(), max_val.get_all_data())):
+			min_val_sup = str(args[1]) in list(called_args.keys())
+			max_val_sup = str(args[0]) in list(called_args.keys())
+			if min_val_sup and max_val_sup:
+				raise Exception("Some value of " + str(args[0]) + " is smaller than " + args[1])
+			if min_val_sup and ~max_val_sup:
+				max_val = np.maximum(max_val.get_all_data(), min_val.get_all_data())
+			if ~min_val_sup and max_val_sup:
+				min_val = np.minimum(max_val.get_all_data(), min_val.get_all_data())
+	elif type(min_val) is np.ndarray and type(max_val) is np.ndarray:
+		if any(np.greater(min_val, max_val)):
+			min_val_sup = str(args[1]) in list(called_args.keys())
+			max_val_sup = str(args[0]) in list(called_args.keys())
+			if min_val_sup and max_val_sup:
+				raise Exception("Some value of " + str(args[0]) + " is smaller than " + args[1])
+			if min_val_sup and ~max_val_sup:
+				max_val = np.maximum(max_val, min_val)
+			if ~min_val_sup and max_val_sup:
+				min_val = np.minimum(max_val, min_val)
 	return {"max_val": max_val, "min_val": min_val}

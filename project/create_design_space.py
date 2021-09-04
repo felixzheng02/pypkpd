@@ -262,7 +262,7 @@ def create_design_space(design_,
 	
 	# maxxt and minxt
 	if type(maxxt) is int or type(maxxt) is float:
-		maxxt = matrix(np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt)
+		maxxt = matrix(ones(size(design["xt"])[0], size(design["xt"])[1]).get_all_data() * maxxt)
 	elif maxxt.size == 1:
 		maxxt = matrix(np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt)
 	if type(maxxt) is list:
@@ -293,9 +293,9 @@ def create_design_space(design_,
 							 colnam=["obs_"+str(i+1) for i in range(0, maxxt.shape[1])])
 
 	if type(minxt) is int or type(minxt) is float:
-		minxt = matrix(np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * minxt)
+		minxt = matrix(ones(size(design["xt"])[0], size(design["xt"])[1]).get_all_data() * minxt)
 	elif minxt.size == 1:
-		minxt = matrix(np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * minxt)
+		minxt = matrix(ones(size(design["xt"])[0], size(design["xt"])[1]).get_all_data() * minxt)
 	if type(minxt) is list:
 		length = max([len(i) for i in minxt])
 		minxt_ = []
@@ -782,7 +782,7 @@ def create_design_space(design_,
 def comp_max_min(max_val, min_val, called_args):
 	args = list(locals().values())
 	if type(min_val) is matrix and type(max_val) is matrix:
-		if any(np.greater(min_val.get_all_data(), max_val.get_all_data())):
+		if np.greater(min_val.get_all_data(), max_val.get_all_data()).any():
 			min_val_sup = str(args[1]) in list(called_args.keys())
 			max_val_sup = str(args[0]) in list(called_args.keys())
 			if min_val_sup and max_val_sup:

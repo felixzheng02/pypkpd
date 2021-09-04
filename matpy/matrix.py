@@ -30,7 +30,7 @@ class matrix:
 			self.colnam = poped_choose(colnam, data.colnam, 0)
 			self.rownam = poped_choose(rownam, data.rownam, 0)
 
-		elif type(data) is int or type(data) is float or type(data) is np.int64 or type(data) is np.float64:
+		elif type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
 			self.shape = [1, 1]
 			self.data = np.array([data])
 			self.size = 1

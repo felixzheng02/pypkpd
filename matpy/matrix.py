@@ -94,7 +94,9 @@ class matrix:
 						return self.get_all_data().flatten()[index]
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None:
-			return self.get_all_data()[list(index)[0]][list(index)[1]]
+			if self.get_shape()[0] == 1:
+				tmp = self.get_all_data().reshape(self.get_shape())
+			return tmp[list(index)[0]][list(index)[1]]
 		else:
 			raise Exception("Please specify the name or the index of the data needed.")
 	
@@ -154,6 +156,8 @@ class matrix:
 				data[(list(index)[0]+1) * (list(index)[1]+1) - 1] = new_data
 				self.data = np.array(data).reshape(self.get_shape())
 			else:
+				if self.get_shape()[0] == 1:
+					self.set_data(self.get_data().reshape(self.get_shape()))
 				self.get_data()[list(index)[0]][list(index)[1]] = new_data
 		else:
 			raise Exception("Please specify the name or the index of the data that needs to be changed.")

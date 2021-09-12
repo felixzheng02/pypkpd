@@ -949,7 +949,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # Temp thing for memory solvers
     poped_db["settings"]["bUseMemorySolver"] = bUseMemorySolver
     poped_db["settings"]["solved_solutions"] = cell(0, 0)
-    poped_db["settings"]["maxtime"] = max(max(poped_db["design_space"]["maxxt"])) + str(poped_db["settings"]["hgd"])
+    poped_db["settings"]["maxtime"] = str(max(max(poped_db["design_space"]["maxxt"].get_all_data()))) + str(poped_db["settings"]["hgd"])
 
     poped_db["settings"]["iFIMCalculationType"] = iFIMCalculationType
     poped_db["settings"]["rsit"] = rsit
@@ -1144,7 +1144,7 @@ def create_poped_database(popedInput={}, **kwargs):
     poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
     poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
     
-    poped_db["parameters"]["ng"] = eval(poped_db["model"]["fg_pointer"] + "(num(0), num(0), num(0), num(0)," + str(zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])) + ")").get_size()
+    poped_db["parameters"]["ng"] = eval(str(poped_db["model"]["fg_pointer"]) + "(num(0), num(0), num(0), num(0)," + str(zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])) + ")").get_size()
     
     docc_arr = np.array([1])
     d_arr = np.array([1])

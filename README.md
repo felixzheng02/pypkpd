@@ -5,6 +5,9 @@ The original version called PopED is basically developed by R language and has c
 
 Learn more in this https://andrewhooker.github.io/PopED/articles/intro-poped.html
 
+## Innovation  
+We created a new class "matrix" based on numpy array. This makes elements of matrices can be named, searched and calculated without importing a pandas dataframe.
+  
 ## Note  
 This program is still under development!
 

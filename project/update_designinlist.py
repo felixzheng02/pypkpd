@@ -1,4 +1,18 @@
 """
+update_designinlist(design: dict,
+                    designsin,
+               |----groupsize,
+               |    ni,
+all            |    xt,
+design         |    x,
+keys           |    a,
+               |    it,
+               |----iGroup
+                    ) -> np.ndarray
+@param design
+@param designsin
+@params groupsize, ni, xt, x, a, it, iGroup: these are all key values in design dict
+@return: "designsin" as an np.ndarray
 
 ## Author: Caiya Zhang, Yuchen Zheng
 """

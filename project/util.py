@@ -1,4 +1,24 @@
 """
+is_not_none(d: dict, k: str) -> boolean
+Judges if a str is in a dict's key and has corresponding value.
+Returns True if it is in the dict.
+Returns False if it is not.
+@param d: dictionary {key, value}
+@param k: the string needs to be searched in the key.
+@return: boolean
+
+dots
+
+unbound_par
+
+bound_par
+
+transform_back_par
+
+get_fim_size(dict) -> int
+Makes some calculations and returns an int based on a poped database input.
+@param poped_db: poped database as a dictionary
+@return: "fim_size" as an integer based on some calculations
 
 Author: Caiya Zhang, Yuchen Zheng
 """

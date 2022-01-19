@@ -1,18 +1,16 @@
 """
-#' Create a full D (between subject variability) matrix given a vector of variances and covariances.
-#' Note, this does not test matching vector lengths.
-#' 
-#' @param variance_vector The vector of the variances.
-#' @param covariance_vector A vector of the covariances. Written in column major 
-#'   order for the lower triangular matrix.
-#' @return The full matrix of variances for the between subject variances
-#' @example tests/testthat/examples_fcn_doc/examples_getfulld.R
-#' @export
-#' @keywords internal
-## Function translated automatically using 'matlab.to.r()'
+## Create a full D (between subject variability) matrix given a vector of variances and covariances.
+## Note, this does not test matching vector lengths.
+## 
+## @param variance_vector The vector of the variances.
+## @param covariance_vector A vector of the covariances. Written in column major 
+##   order for the lower triangular matrix.
+## @return The full matrix of variances for the between subject variances
+## @export
+## @keywords internal
+## Function written to match MATLAB function get_fulld()
 
-
-## Author: Andrew Hooker
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

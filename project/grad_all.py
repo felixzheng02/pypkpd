@@ -1,5 +1,5 @@
 """
-## Function similar to that in matlab
+## Function written to match MATLAB function grad_all()
 
 ## Author: Caiya Zhang, Yuchen Zheng
 """

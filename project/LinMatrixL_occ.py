@@ -1,21 +1,19 @@
 """
-#' Model linearization with respect to occasion variability parameters.
-#' 
-#' The function performs a linearization of the model with respect to the occasion  variability parameter..
-#' Derivative of model w.r.t. eta_occ, evaluated bocc_ind.
-#' 
-#' @inheritParams mftot
-#' @inheritParams LinMatrixH
-#' @param iCurrentOcc The current occasion.
-#' 
-#' @return A matrix of size (samples per individual x number of iovs)
-#'  
-#' @family FIM
-#' @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
-#' @example tests/testthat/examples_fcn_doc/examples_LinMatrixL_occ.R
-#' @export
-#' @keywords internal
-## Function translated automatically using 'matlab.to.r()'
+## Model linearization with respect to occasion variability parameters.
+## 
+## The function performs a linearization of the model with respect to the occasion  variability parameter..
+## Derivative of model w.r.t. eta_occ, evaluated bocc_ind.
+## 
+## @inheritParams mftot
+## @inheritParams LinMatrixH
+## @param iCurrentOcc The current occasion.
+## 
+## @return A matrix of size (samples per individual x number of iovs)
+##  
+## @family FIM
+## @export
+## @keywords internal
+## Function written to match MATLAB function LinMatrixL_occ()
 
 ## Author: Caiya Zhang
 # """

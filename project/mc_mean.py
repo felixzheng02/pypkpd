@@ -1,27 +1,27 @@
 """
-#' Compute the monte-carlo mean of a function
-#'
-#'Function computes the monte-carlo mean of a function by varying the parameter inputs to the function
-#'
-#' @param ofv_fcn A function with poped_db as the first input
-#' @inheritParams evaluate.fim
-#' @inheritParams Doptim
-#' @inheritParams create.poped.database
-#' @param doccdescr Matrix defining the IOV.
-#' per row (row number = parameter_number) we should have:
-#' \itemize{
-#' \item column 1 the type of the distribution for E-family designs (0 = Fixed, 1 = Normal, 2 = Uniform,
-#'  3 = User Defined Distribution, 4 = lognormal and 5 = truncated normal)
-#' \item column 2  defines the mean of the variance.
-#' \item column 3 defines the variance of the distribution (or length of uniform distribution).
-#' }
-#' @param user_distribution_pointer Function name for user defined distributions for E-family designs 
-#' @return The mean of the function evaluated at different parameter values.
-#' @export
-#'
+## Compute the monte-carlo mean of a function
+##
+##Function computes the monte-carlo mean of a function by varying the parameter inputs to the function
+##
+## @param ofv_fcn A function with poped_db as the first input
+## @inheritParams evaluate.fim
+## @inheritParams Doptim
+## @inheritParams create.poped.database
+## @param doccdescr Matrix defining the IOV.
+## per row (row number = parameter_number) we should have:
+## \itemize{
+## \item column 1 the type of the distribution for E-family designs (0 = Fixed, 1 = Normal, 2 = Uniform,
+##  3 = User Defined Distribution, 4 = lognormal and 5 = truncated normal)
+## \item column 2  defines the mean of the variance.
+## \item column 3 defines the variance of the distribution (or length of uniform distribution).
+## }
+## @param user_distribution_pointer Function name for user defined distributions for E-family designs 
+## @return The mean of the function evaluated at different parameter values.
+## @export
+##
 # @examples
 
-#' Author: Caiya Zhang, Yuchen Zheng
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

@@ -1,25 +1,25 @@
 """
-#' The Fisher Information Matrix (FIM) for one individual
-#' 
-#' Compute the FIM for one individual given specific model(s), parameters, design and methods. 
-#' 
-#' @param xt A vector of sample times.  
-#' @param model_switch A vector that is the same size as xt, specifying which model each sample belongs to.
-#' @param x A vector for the discrete design variables.
-#' @param a A vector of covariates.  
-#' @inheritParams mftot
-#' 
-#' @return As a list:
-#' \item{ret}{The FIM for one individual}
-#' \item{poped_db}{A PopED database}
-#' 
-#' @family FIM
-#' 
+## The Fisher Information Matrix (FIM) for one individual
+## 
+## Compute the FIM for one individual given specific model(s), parameters, design and methods. 
+## 
+## @param xt A vector of sample times.  
+## @param model_switch A vector that is the same size as xt, specifying which model each sample belongs to.
+## @param x A vector for the discrete design variables.
+## @param a A vector of covariates.  
+## @inheritParams mftot
+## 
+## @return As a list:
+## \item{ret}{The FIM for one individual}
+## \item{poped_db}{A PopED database}
+## 
+## @family FIM
+## 
 # @example tests/testthat/examples_fcn_doc/warfarin_basic.R
 # @example tests/testthat/examples_fcn_doc/examples_mf3.R
 # @export
-#' @keywords internal
-## Function translated automatically using 'matlab.to.r()'
+## @keywords internal
+## Function written to match MATLAB function mf3()
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

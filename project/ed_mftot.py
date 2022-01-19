@@ -1,29 +1,26 @@
 """
-#' Evaluate the expectation of the Fisher Information Matrix (FIM) and the expectation of the OFV(FIM).
-#' 
-#' Compute the expectation of the FIM given the model, parameters, distributions of parameter uncertainty, design and methods defined in the 
-#' PopED database. 
-#' 
-#' @inheritParams evaluate.fim
-#' @inheritParams Doptim
-#' @inheritParams create.poped.database
-#' @param xtoptn The xtoptn value
-#' @param xoptn The xoptn
-#' @param aoptn The aoptn value
-#' @param calc_fim Should the FIM be calculated or should we just use the user defined ed_penalty_pointer.
-#' 
-#' @return A list containing the E(FIM) and E(OFV(FIM)) and the a poped_db.
-#' 
-#' @family FIM
-#' @family E-family
-#'  
-#' 
-#' @example tests/testthat/examples_fcn_doc/warfarin_ed.R
-#' @example tests/testthat/examples_fcn_doc/examples_ed_mftot.R
-#' @export
-#' @keywords internal
-#' 
-## Function translated automatically using 'matlab.to.r()'
+## Evaluate the expectation of the Fisher Information Matrix (FIM) and the expectation of the OFV(FIM).
+## 
+## Compute the expectation of the FIM given the model, parameters, distributions of parameter uncertainty, design and methods defined in the 
+## PopED database. 
+## 
+## @inheritParams evaluate.fim
+## @inheritParams Doptim
+## @inheritParams create.poped.database
+## @param xtoptn The xtoptn value
+## @param xoptn The xoptn
+## @param aoptn The aoptn value
+## @param calc_fim Should the FIM be calculated or should we just use the user defined ed_penalty_pointer.
+## 
+## @return A list containing the E(FIM) and E(OFV(FIM)) and the a poped_db.
+## 
+## @family FIM
+## @family E-family
+##
+## @export
+## @keywords internal
+## 
+## Function written to match MATLAB function ed_mftot()
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

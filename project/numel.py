@@ -1,10 +1,11 @@
 """
 
+## can be deleted!!
+## Function written to match MATLAB function numel()
 
-## Function written to match MATLAB function
+
 ## Author: Caiya Zhang, Yuchen Zheng
 """
-
 
 import numpy as np
 from project.size import size

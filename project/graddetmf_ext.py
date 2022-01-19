@@ -1,5 +1,7 @@
 """
-## Function similar to that in matlab
+## Function written to match MATLAB function graddetmf_ext()
+
+
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 

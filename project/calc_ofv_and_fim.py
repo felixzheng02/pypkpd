@@ -1,34 +1,31 @@
 """
-#' Calculate the Fisher Information Matrix (FIM) and the OFV(FIM) for either point values or parameters or distributions.
-#' 
-#' This function computes the expectation of the FIM and OFV(FIM) for either point values of parameter estimates
-#' or parameter distributions given the model, parameters, 
-#' distributions of parameter uncertainty, design and methods defined in the 
-#' PopED database.
-#' 
-#' @inheritParams evaluate.fim
-#' @inheritParams Doptim
-#' @inheritParams create.poped.database
-#' @param ofv The current ofv.  If other than zero then this values is simply returned unchanged.
-#' @param fim The current FIM. If other than zero then this values is simply returned unchanged.
-#' @param use_laplace Should the Laplace method be used in calculating the expectation of the OFV?  
-#' @param laplace.fim Should an E(FIM) be calculated when computing the Laplace approximated E(OFV).  Typically
-#' the FIM does not need to be computed and, if desired,  this calculation
-#' is done using the standard MC integration technique, so can be slow. 
-#' @param evaluate_fim Should the FIM be calculated?
-#' 
-#' @return A list containing the FIM and OFV(FIM) or the E(FIM) and E(OFV(FIM)) according  to the function arguments.
-#' 
-#' @family FIM
-#' @family E-family
-#' @family evaluate_FIM
-#'  
-#' 
-#' @example tests/testthat/examples_fcn_doc/warfarin_ed.R
-#' @example tests/testthat/examples_fcn_doc/examples_calc_ofv_and_fim.R
-#' @export
+## Calculate the Fisher Information Matrix (FIM) and the OFV(FIM) for either point values or parameters or distributions.
+## 
+## This function computes the expectation of the FIM and OFV(FIM) for either point values of parameter estimates
+## or parameter distributions given the model, parameters, 
+## distributions of parameter uncertainty, design and methods defined in the 
+## PopED database.
+## 
+## @inheritParams evaluate.fim
+## @inheritParams Doptim
+## @inheritParams create.poped.database
+## @param ofv The current ofv.  If other than zero then this values is simply returned unchanged.
+## @param fim The current FIM. If other than zero then this values is simply returned unchanged.
+## @param use_laplace Should the Laplace method be used in calculating the expectation of the OFV?  
+## @param laplace.fim Should an E(FIM) be calculated when computing the Laplace approximated E(OFV).  Typically
+## the FIM does not need to be computed and, if desired,  this calculation
+## is done using the standard MC integration technique, so can be slow. 
+## @param evaluate_fim Should the FIM be calculated?
+## 
+## @return A list containing the FIM and OFV(FIM) or the E(FIM) and E(OFV(FIM)) according  to the function arguments.
+## 
+## @family FIM
+## @family E-family
+## @family evaluate_FIM
+## @export
 
-#' Author: Caiya Zhang, Yuchen Zheng
+
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

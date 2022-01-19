@@ -1,32 +1,32 @@
 """
-shrinkage(poped_db: Dict, use_mc: boolean, num_sim_ids: int, use_purrr: boolean) -> matrix
+## shrinkage(poped_db: Dict, use_mc: boolean, num_sim_ids: int, use_purrr: boolean) -> matrix
  
-# Predict shrinkage of empirical Bayes estimates (EBEs) in a population model
-#'
-#' @param poped_db database
-#' @param num_sim_ids If \code{use_mc=TRUE}, how many individuals should be
-#'   simulated to make the computations.
-#' @param use_mc Should the calculation be based on monte-carlo simulations. If
-#'   not then then a first order approximation is used
-#' @param use_purrr If \code{use_mc=TRUE} then should the method use the package
-#'   purrr in calculations?  This may speed up computations (potentially).
-#'
-#' @return The shrinkage computed in variance units, standard deviation units
-#'   and the relative standard errors of the EBEs.
-#' @export
-#'
-#' @references \enumerate{ 
-#'   \item Combes, F. P., Retout, S.,
-#'   Frey, N., & Mentre, F. (2013). Prediction of shrinkage of individual
-#'   parameters using the Bayesian information matrix in non-linear mixed effect
-#'   models with evaluation in pharmacokinetics. Pharmaceutical Research, 30(9),
-#'   2355-67. \doi{10.1007/s11095-013-1079-3}. 
-#'   \item Hennig, S., Nyberg, J., Fanta, S., Backman, J.
-#'   T., Hoppu, K., Hooker, A. C., & Karlsson, M. O. (2012). Application of the
-#'   optimal design approach to improve a pretransplant drug dose finding design
-#'   for ciclosporin. Journal of Clinical Pharmacology, 52(3), 347-360.
-#'   \doi{10.1177/0091270010397731}. 
-#'   }
+## Predict shrinkage of empirical Bayes estimates (EBEs) in a population model
+##
+## @param poped_db database
+## @param num_sim_ids If \code{use_mc=TRUE}, how many individuals should be
+##   simulated to make the computations.
+## @param use_mc Should the calculation be based on monte-carlo simulations. If
+##   not then then a first order approximation is used
+## @param use_purrr If \code{use_mc=TRUE} then should the method use the package
+##   purrr in calculations?  This may speed up computations (potentially).
+##
+## @return The shrinkage computed in variance units, standard deviation units
+##   and the relative standard errors of the EBEs.
+## @export
+##
+## @references \enumerate{ 
+##   \item Combes, F. P., Retout, S.,
+##   Frey, N., & Mentre, F. (2013). Prediction of shrinkage of individual
+##   parameters using the Bayesian information matrix in non-linear mixed effect
+##   models with evaluation in pharmacokinetics. Pharmaceutical Research, 30(9),
+##   2355-67. \doi{10.1007/s11095-013-1079-3}. 
+##   \item Hennig, S., Nyberg, J., Fanta, S., Backman, J.
+##   T., Hoppu, K., Hooker, A. C., & Karlsson, M. O. (2012). Application of the
+##   optimal design approach to improve a pretransplant drug dose finding design
+##   for ciclosporin. Journal of Clinical Pharmacology, 52(3), 347-360.
+##   \doi{10.1177/0091270010397731}. 
+##   }
 
 ## Author: Caiya Zhang, Yuchen Zheng
 """
@@ -214,5 +214,3 @@ def shrinkage(poped_db,
         out_df = dplyr::arrange(out_df,dplyr::desc(type),group)
     
     return out_df
-  
-

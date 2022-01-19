@@ -1,31 +1,28 @@
 """
-#' Compute efficiency.
-#' 
-#' Efficiency calculation between two designs.
-#' 
-#' 
-#' @param ofv_init An initial objective function
-#' @param ofv_final A final objective function.
-#' @param npar The number of parameters to use for normalization.
-#' @param poped_db a poped database
-#' @param use_log Are the `ofv` arguments in the log space?
-#' @inheritParams ofv_fim
-#' @inheritParams poped_optim
-#' @inheritParams create.poped.database
-#' 
-#' @return The specified efficiency value depending on the ofv_calc_type.  
-#' The attribute "description" tells you how the calculation was made 
-#' \code{attr(return_vale,"description")}
-#' 
-#' @family FIM
-#' 
-#' 
-## @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
-## @example tests/testthat/examples_fcn_doc/examples_ofv_criterion.R
-#' 
-#' @export
-# Author: Caiya Zhang, Yuchen Zheng
-# """
+## Compute efficiency.
+## 
+## Efficiency calculation between two designs.
+## 
+## 
+## @param ofv_init An initial objective function
+## @param ofv_final A final objective function.
+## @param npar The number of parameters to use for normalization.
+## @param poped_db a poped database
+## @param use_log Are the `ofv` arguments in the log space?
+## @inheritParams ofv_fim
+## @inheritParams poped_optim
+## @inheritParams create.poped.database
+## 
+## @return The specified efficiency value depending on the ofv_calc_type.  
+## The attribute "description" tells you how the calculation was made 
+## \code{attr(return_vale,"description")}
+## 
+## @family FIM
+## @export
+
+
+## Author: Caiya Zhang, Yuchen Zheng
+"""
 
 
 import math

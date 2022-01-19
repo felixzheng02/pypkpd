@@ -1,29 +1,26 @@
 """
-#' Evaluate the expectation of the Fisher Information Matrix (FIM) and the expectation of the OFV(FIM).
-#' 
-#' Compute the expectation of the FIM and OFV(FIM) given the model, parameters, distributions of parameter uncertainty, design and methods defined in the 
-#' PopED database. Some of the arguments coming from the PopED database can be overwritten;  
-#' by default these arguments are \code{None} in the 
-#' function, if they are supplied then they are used instead of the arguments from the PopED database.
-#' 
-#' @inheritParams evaluate.fim
-#' @inheritParams Doptim
-#' @inheritParams create.poped.database
-#' @param use_laplace Should the Laplace method be used in calculating the expectation of the OFV?  
-#' @param laplace.fim Should an E(FIM) be calculated when computing the Laplace approximated E(OFV).  Typically
-#' the FIM does not need to be computed and, if desired,  this calculation
-#' is done using the standard MC integration technique, so can be slow. 
-#' 
-#' @return A list containing the E(FIM) and E(OFV(FIM)) and the a poped_db updated according  to the function arguments.
-#' 
-#' @family FIM
-#' @family E-family
-#' @family evaluate_FIM
-#'  
-#' 
-#' @example tests/testthat/examples_fcn_doc/warfarin_ed.R
-#' @example tests/testthat/examples_fcn_doc/examples_evaluate.e.ofv.fim.R
-#' @export
+## Evaluate the expectation of the Fisher Information Matrix (FIM) and the expectation of the OFV(FIM).
+## 
+## Compute the expectation of the FIM and OFV(FIM) given the model, parameters, distributions of parameter uncertainty, design and methods defined in the 
+## PopED database. Some of the arguments coming from the PopED database can be overwritten;  
+## by default these arguments are \code{None} in the 
+## function, if they are supplied then they are used instead of the arguments from the PopED database.
+## 
+## @inheritParams evaluate.fim
+## @inheritParams Doptim
+## @inheritParams create.poped.database
+## @param use_laplace Should the Laplace method be used in calculating the expectation of the OFV?  
+## @param laplace.fim Should an E(FIM) be calculated when computing the Laplace approximated E(OFV).  Typically
+## the FIM does not need to be computed and, if desired,  this calculation
+## is done using the standard MC integration technique, so can be slow. 
+## 
+## @return A list containing the E(FIM) and E(OFV(FIM)) and the a poped_db updated according  to the function arguments.
+## 
+## @family FIM
+## @family E-family
+## @family evaluate_FIM
+## 
+## @export
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

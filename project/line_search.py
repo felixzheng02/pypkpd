@@ -1,6 +1,7 @@
 """
+## Function written to match MATLAB function compute_step()
 
-## Function similar to that in matlab
+
 ## Author: Caiya Zhang
 """
 

@@ -1,10 +1,20 @@
 """
-Create a cell array (a matrix of lists) 
+## Create a cell array (a matrix of lists) 
  
-@param ... Dimensions for the cell array. 
-@return A list of empty lists.
+## @param ... Dimensions for the cell array. 
+## @return A list of empty lists.
 
-Author: Caiya Zhang, Yuchen Zheng
+
+## cell(mat: np.ndarray) -> int
+## Returns the sum along the diagonal of the array.
+## If 1-d, returns mat[0].
+## If 2-d, returns np.trace(mat).
+## Raises exception for other dimensions.
+## @param mat: a matrix input
+## @return: sum along the diagonal of the matrix, as an integer
+
+
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

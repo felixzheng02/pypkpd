@@ -1,7 +1,6 @@
 """
 ## Get size of the fisher information matrix
 
-
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 

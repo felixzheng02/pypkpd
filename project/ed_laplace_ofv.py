@@ -1,40 +1,39 @@
 """
-#' Evaluate the expectation of determinant the Fisher Information Matrix (FIM)
-#' using the Laplace approximation.
-#' 
-#' Compute the expectation of the \code{det(FIM)} using the Laplace
-#' approximation to the expectation. Computations are made based on the model,
-#' parameters, distributions of parameter uncertainty, design and methods
-#' defined in the PopED database or as arguments to the function.
-#' 
-#' This computation follows the method outlined in Dodds et al, 
-#' "Robust Population Pharmacokinetic Experiment Design" JPP, 2005, equation 16.
-#' 
-#' Typically this function will not be run by the user.  Instead use \code{\link{evaluate.e.ofv.fim}}.
-#' 
-#' @param x The design parameters to compute the gradient on.
-#' @inheritParams evaluate.fim
-#' @inheritParams create.poped.database
-#' @inheritParams Doptim
-#' @param xtopto the sampling times
-#' @param xopto the discrete design variables
-#' @param optxt If sampling times are optimized
-#' @param opta If continuous design variables are optimized
-#' @param aopto the continuous design variables
-#' @param method If 0 then use an optimization routine translated from PopED code written in MATLAB to
-#'        optimize the parameters in the Laplace approximation.  If 1 then use \code{\link{optim}} to compute both
-#'        k and the hessian of k (see Dodds et al, JPP, 2005 for more information). If 2 then use \code{\link{fdHess}}
-#'        to compute the hessian.
-#' @param return_gradient Should the gradient be returned.
-#' @param ... Arguments passed through from other functions, does not pass anything to another function.
-#'   
-#' @return The FIM and the hessian of the FIM.
-#'   
-#' @family FIM
-#' @family E-family
-#' @example tests/testthat/examples_fcn_doc/examples_ed_laplace_ofv.R
-#' @export
-#' @keywords internal
+## Evaluate the expectation of determinant the Fisher Information Matrix (FIM)
+## using the Laplace approximation.
+## 
+## Compute the expectation of the \code{det(FIM)} using the Laplace
+## approximation to the expectation. Computations are made based on the model,
+## parameters, distributions of parameter uncertainty, design and methods
+## defined in the PopED database or as arguments to the function.
+## 
+## This computation follows the method outlined in Dodds et al, 
+## "Robust Population Pharmacokinetic Experiment Design" JPP, 2005, equation 16.
+## 
+## Typically this function will not be run by the user.  Instead use \code{\link{evaluate.e.ofv.fim}}.
+## 
+## @param x The design parameters to compute the gradient on.
+## @inheritParams evaluate.fim
+## @inheritParams create.poped.database
+## @inheritParams Doptim
+## @param xtopto the sampling times
+## @param xopto the discrete design variables
+## @param optxt If sampling times are optimized
+## @param opta If continuous design variables are optimized
+## @param aopto the continuous design variables
+## @param method If 0 then use an optimization routine translated from PopED code written in MATLAB to
+##        optimize the parameters in the Laplace approximation.  If 1 then use \code{\link{optim}} to compute both
+##        k and the hessian of k (see Dodds et al, JPP, 2005 for more information). If 2 then use \code{\link{fdHess}}
+##        to compute the hessian.
+## @param return_gradient Should the gradient be returned.
+## @param ... Arguments passed through from other functions, does not pass anything to another function.
+##   
+## @return The FIM and the hessian of the FIM.
+##   
+## @family FIM
+## @family E-family
+## @export
+## @keywords internal
 # @importFrom nlme fdHess
 
 
@@ -49,7 +48,6 @@ from numpy.core.fromnumeric import transpose
 from project.size import size
 from project.util import trans
 from project.zeros import zeros
-from project.numel import numel
 from project.mftot import mftot
 from project.getfulld import getfulld
 from project.graddetmf import graddetmf
@@ -145,10 +143,10 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
                 xtopto[notfixed] = x[poped_db["design_space"]["G_xt"][notfixed]]
                 u_tmp, idx = np.unique(poped_db["design_space"]["G_xt"][notfixed], return_index=True)
                 u = u_tmp[idx.argsort()]
-                x[1:numel(u)] = np.zeros(1)
+                x[1:np.prod(size(u))] = np.zeros(1)
             else:
-                xtopto[notfixed]=x[0:numel(xtopto[notfixed])]
-                x = x[-np.arrange(1, numel(xtopto[notfixed]))]
+                xtopto[notfixed]=x[0:np.prod(size(xtopto[notfixed]))]
+                x = x[-np.arrange(1, np.prod(size(xtopto[notfixed])))]
         
         if opta is True:
             notfixed = poped_db["design_space"]["mina"] != poped_db["design_space"]["maxa"]

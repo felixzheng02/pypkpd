@@ -1,6 +1,5 @@
 """
-## Function translated automatically using 'matlab.to.r()'
-
+## Function written to match MATLAB function v()
 
 ## Author: Caiya Zhang, Yuchen Zheng
 """

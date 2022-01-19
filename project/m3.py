@@ -1,5 +1,5 @@
 """
-## Function translated automatically using 'matlab.to.r()'
+## Function written to match MATLAB function m3()
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

@@ -1,8 +1,8 @@
 
 """
-Function translated automatically using 'matlab.to.r()'
+## Function written to match MATLAB function grad_bpop()
 
-Author: Caiya Zhang, Yuchen Zheng
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

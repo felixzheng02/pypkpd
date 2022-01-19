@@ -1,5 +1,4 @@
 """
-grouped_rand.R
 
 Author: Caiya Zhang, Yuchen Zheng
 """
@@ -34,5 +33,5 @@ def grouped_rand(G, xtopt, dxt, ff1, axt):
 	# Calculate a new random search xt in a grouped xt manner way.
 	for k in range(max(max(G))):
 		random_num = randn(1) 
-    	xt = xt + (dxt / ff1 * random_num * (axt > 0)) * (G == k) 
+		xt = xt + (dxt / ff1 * random_num * (axt > 0)) * (G == k) 
 	return xt

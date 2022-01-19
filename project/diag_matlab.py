@@ -1,20 +1,20 @@
 """
-#' Function written to match MATLAB's diag function
-#' 
-#' This function tries to match the MATLAB version in handling vectors
-#' (matricies with one dimension equal to one), and will return a diagonal
-#' matrix in these situations.
-#' 
-#' @param mat Either a vector to make into a diagonal matrix or a matrix you 
-#'   want to extract the diagonal from
-#' @return Either a diagonal matrix or the diagonal of a matrix.
-#' @family MATLAB
-#' @family matrix_manipulation
-#' @example test/Test_diag_matlab.py
-#' @export
-#' @keywords internal
+## Function written to match MATLAB's diag function
+## 
+## This function tries to match the MATLAB version in handling vectors
+## (matricies with one dimension equal to one), and will return a diagonal
+## matrix in these situations.
+## 
+## @param mat Either a vector to make into a diagonal matrix or a matrix you 
+##   want to extract the diagonal from
+## @return Either a diagonal matrix or the diagonal of a matrix.
+## @family MATLAB
+## @family matrix_manipulation
+## @example test/Test_diag_matlab.py
+## @export
+## @keywords internal
 
-Author: Caiya Zhang, Yuchen Zheng
+## Author: Caiya Zhang, Yuchen Zheng
 
 """
 

@@ -1,12 +1,35 @@
 """
-## This python script defines main structural models needed.
+Defines main structural models needed as well as a general function to call individual model functions.
 
-
-#' Author: Caiya Zhang, Yuchen Zheng
+Author: Caiya Zhang, Yuchen Zheng
 """
 
 import numpy as np
 from project.feval import feval
+
+# model(model_name: str) -> void
+# have not dealt with epsilon cases (last three)
+def model(model_name: str, model_switch, xt, parameters: dict, poped_db):
+    result = {}
+    if model_name == "ff_PK_1_comp_oral_md_KE":
+        result = ff_PK_1_comp_oral_md_KE(model_switch, xt, parameters, poped_db)
+    
+    elif model_name == "ff_PK_1_comp_oral_md_CL":
+        result = ff_PK_1_comp_oral_md_CL(model_switch, xt, parameters, poped_db)
+
+    elif model_name == "ff_PK_1_comp_oral_sd_KE":
+        result = ff_PK_1_comp_oral_sd_KE(model_switch, xt, parameters, poped_db)
+
+    elif model_name == "ff_PK_1_comp_oral_sd_CL":
+        result = ff_PK_1_comp_oral_sd_CL(model_switch, xt, parameters, poped_db)
+
+    elif model_name == "ff_PKPD_1_comp_sd_CL_emax":
+        result = ff_PKPD_1_comp_sd_CL_emax(model_switch, xt, parameters, poped_db)
+
+    elif model_name == "ff_PKPD_1_comp_oral_md_CL_imax":
+        result = ff_PKPD_1_comp_oral_md_CL_imax(model_switch, xt, parameters, poped_db)
+
+    return result
 
 #' Structural model: one-compartment, oral absorption, multiple bolus dose, parameterized using KE.
 #' 

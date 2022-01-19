@@ -1,5 +1,7 @@
 """
-#' Predict shrinkage of empirical Bayes estimates (EBEs) in a population model
+shrinkage(poped_db: Dict, use_mc: boolean, num_sim_ids: int, use_purrr: boolean) -> matrix
+ 
+# Predict shrinkage of empirical Bayes estimates (EBEs) in a population model
 #'
 #' @param poped_db database
 #' @param num_sim_ids If \code{use_mc=TRUE}, how many individuals should be

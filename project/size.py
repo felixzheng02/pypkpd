@@ -1,7 +1,9 @@
 """
-@param obj An object you want to know the various dimensions of. Typically a matrix.
-@param dimension_index Which dimension you are interested in.
-@return The dimensions of the object or specific dimension you are interested in. 
+size(obj: int/np.ndarray/pd.Dataframe/matrix) -> list
+
+@param obj: an object (that you want to know the dimensions). Typically a matrix.
+@return: the dimensions of the object or specific dimension you are interested in. 
+
 Author: Caiya Zhang, Yuchen Zheng
 """
 

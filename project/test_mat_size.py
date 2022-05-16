@@ -1,15 +1,15 @@
 """
-test_mat_size(correct_size: np.ndarray, mat: np.ndarray, name: str) -> int/exception
-Test if the size of a matrix (m*n) is correct.
-Return 1 if correct.
-Raise exception if incorrect.
+## test_mat_size(correct_size: np.ndarray, mat: np.ndarray, name: str) -> int/exception
+## Test if the size of a matrix (m*n) is correct.
+## Return 1 if correct.
+## Raise exception if incorrect.
+## @param correct_size -> array The correct size of a matrix
+## @param mat The matrix being tested
+## @param name The name of the matrix
+## @return A boolean
 
-@param correct_size -> array The correct size of a matrix
-@param mat The matrix being tested
-@param name The name of the matrix
-@return A boolean
 
-Author: Caiya Zhang, Yuchen Zheng
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

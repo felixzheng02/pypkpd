@@ -1,6 +1,5 @@
 """
-Function translated automatically using 'matlab.to.r()'
-
+Function written to match MATLAB function m1()
 Author: Caiya Zhang, Yuchen Zheng
 """
 

@@ -1,23 +1,21 @@
 """
-fileparts.R
-MATLAB fileparts function
+## Get the various parts of a file with path string.
  
-Get the various parts of a file with path string.
+## @param filename.with.path A string of a filename with a path
  
-@param filename.with.path A string of a filename with a path
+## @return A list with the following components:
+## \item{pathname}{The path name}
+## \item{filename}{The file name}
+## \item{fileext}{The file extension}
+## @note This is a modified version of the same function in the matlab R-package.
  
-@return A list with the following components:
-\item{pathname}{The path name}
-\item{filename}{The file name}
-\item{fileext}{The file extension}
-@note This is a modified version of the same function in the matlab R-package.
- 
-@family MATLAB
-@example tests/testthat/examples_fcn_doc/examples_fileparts.R
-@export
-@keywords internal
-Function written to match MATLAB function
-Author: Caiya Zhang, Yuchen Zheng
+## @family MATLAB
+## @export
+## @keywords internal
+
+
+## Function written to match MATLAB function fileparts()
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 import os

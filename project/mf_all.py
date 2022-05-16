@@ -1,5 +1,5 @@
 """"
-## Function translated using 'matlab.to.r()'
+## Function written to match MATLAB function mf_all()
 ## Then manually adjusted to make work
 
 

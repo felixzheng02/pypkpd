@@ -1,19 +1,18 @@
 """
-#' Create global variables in the PopED database
-#' 
-#' Function takes design variables from input files
-#' and converts them to the global variables needed
-#' in PopED.  Typically not used by the user.  Instead 
-#' use the function \code{\link{create.poped.database}}.
-#' 
-#' @param poped_db A PopED database 
-#' @return A PopED database
-#' @family poped_input
-#' @export
-#' @keywords internal
+## Create global variables in the poped database
+## 
+## Function takes design variables from input files
+## and converts them to the global variables needed
+## in poped.  Typically not used by the user.  Instead 
+## use the function \code{\link{create.poped.database}}.
+## 
+## @param poped_db A PopED database 
+## @return A PopED database
+## @family poped_input
+## @export
+## @keywords internal
 
-## Function translated using 'matlab.to.r()'
-## Then manually adjusted to make work
+## Function written to match MATLAB function convert_variables()
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

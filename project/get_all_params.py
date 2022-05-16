@@ -1,23 +1,23 @@
 """
-#' Extract all model parameters from the PopED database.
-#' 
-#' @param poped_db A PopED database.
-#' @return A list containing:
-#' \item{bpop}{A vector of fixed effect parameter values.}
-#' \item{d}{A vector of between subject variability parameters}
-#' \item{covd}{A vector of the covariances of the between subject variability parameters.  Row major format of the lower triangular portion of the D (OMEGA) matrix}
-#' \item{docc}{A vector of the between occasion variability (BOV) terms in the model}
-#' \item{covdocc}{A vector of the covariances between the BOV terms.  Row major of the lower triangular portion of the BOV matrix. }
-#' \item{sigma}{A vector of the residual unexplained variances (RUV)}
-#' \item{covsigma}{A vector of the covariances between the RUV terms}
-#' \item{all}{A vector with all of the above, in the order of this list.}
-#' @example tests/testthat/examples_fcn_doc/warfarin_basic.R
-#' @example tests/testthat/examples_fcn_doc/examples_get_all_params.R
-#' @export
-#' @keywords internal
+## Extract all model parameters from the poped database.
+## 
+## @param a pop_ed database
+## @return A list containing:
+## \item{bpop}{A vector of fixed effect parameter values.}
+## \item{d}{A vector of between subject variability parameters}
+## \item{covd}{A vector of the covariances of the between subject variability parameters.  Row major format of the lower triangular portion of the D (OMEGA) matrix}
+## \item{docc}{A vector of the between occasion variability (BOV) terms in the model}
+## \item{covdocc}{A vector of the covariances between the BOV terms.  Row major of the lower triangular portion of the BOV matrix. }
+## \item{sigma}{A vector of the residual unexplained variances (RUV)}
+## \item{covsigma}{A vector of the covariances between the RUV terms}
+## \item{all}{A vector with all of the above, in the order of this list.}
 
-## Function translated using 'matlab.to.r()'
-## Then manually adjusted to make work
+## @export
+## @keywords internal
+
+## Function written to match MATLAB function get_all_params()
+
+
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 

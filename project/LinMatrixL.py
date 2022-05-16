@@ -1,25 +1,23 @@
 """
-#' The linearized matrix L
-#' 
-#' Function computes the derivative of the model with respect to the between subject variability 
-#' terms in the model (b's and bocc's) evaluated at
-#' a defined point 
-#' (b_ind and bocc_ind).
-#' 
-#' @inheritParams mf3
-#' @param bpop The fixed effects parameter values.  Supplied as a vector.
-#' @param b_ind The point at which to evaluate the derivative
-#' @param bocc_ind The point at which to evaluate the derivative
-#' @param poped_db A PopED database.
-#' 
-#' @return As a list:
-#' \item{y}{A matrix of size (samples per individual x number of random effects)}
-#' \item{poped_db}{A PopED database}
-#' @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
-#' @example tests/testthat/examples_fcn_doc/examples_LinMatrixL.R
-#' @export
-#' @keywords internal
-## Function translated automatically using 'matlab.to.r()'
+## The linearized matrix L
+## 
+## Function computes the derivative of the model with respect to the between subject variability 
+## terms in the model (b's and bocc's) evaluated at
+## a defined point 
+## (b_ind and bocc_ind).
+## 
+## @inheritParams mf3
+## @param bpop The fixed effects parameter values.  Supplied as a vector.
+## @param b_ind The point at which to evaluate the derivative
+## @param bocc_ind The point at which to evaluate the derivative
+## @param poped_db A PopED database.
+## 
+## @return As a list:
+## \item{y}{A matrix of size (samples per individual x number of random effects)}
+## \item{poped_db}{A PopED database}
+## @export
+## @keywords internal
+## Function written to match MATLAB function LinMatrixL()
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

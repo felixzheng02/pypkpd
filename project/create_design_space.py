@@ -1,61 +1,59 @@
 """
-#' Create design variables and a design space for a full description of an optimization problem.
-#' 
-#' \code{create_design_space} takes an initial design and arguments for a design space and 
-#' creates a design and design space for design optimization.
-#' Checks the sizes of supplied design space variables and 
-#' changes them to sizes that  make sense if there are inconsistencies.  
-#' Function arguments can use shorthand notation (single values, vectors, lists of vectors and 
-#' list of list) or matricies.
-#' Returns a list of matricies compatible with PopED.
-#' 
-#' If a value (or a vector or a list of values) is supplied that corresponds to only one group and the design has
-#' multiple groups then all groups will have the same value(s). If a matrix is expected then a list of lists can be supplied 
-#' instead, each list corresponding to a group.   
-#' 
-#' @param design  The output from a call to \code{\link{create_design}}.
-#' @param maxni Vector defining the maximum number of samples per group. 
-#' @param minni Vector defining the minimum number of samples per group. 
-#' @param maxtotni Number defining the maximum number of samples allowed in the experiment. 
-#' @param mintotni Number defining the minimum number of samples allowed in the experiment.  
-#' @param maxgroupsize Vector defining the maximum size of the different groups (maximum number of individuals in each group)
-#' @param mingroupsize Vector defining the minimum size of the different groups (minimum num individuals in each group) 
-#' @param maxtotgroupsize The total maximal groupsize over all groups
-#' @param mintotgroupsize The total minimal groupsize over all groups
-#' @param maxxt Matrix or single value defining the maximum value for each xt sample.  If a single value is 
-#' supplied then all xt values are given the same maximum value.
-#' @param minxt Matrix or single value defining the minimum value for each xt sample.  If a single value is 
-#' supplied then all xt values are given the same minimum value
-#' @param x_space Cell array \code{\link{cell}} defining the discrete variables for each x value.
-#' @param xt_space Cell array \code{\link{cell}} defining the discrete variables allowed for each xt value.
-#'   Can also be a vector of values \code{c(1:10)} (same values allowed for all xt), or a list of lists 
-#'  \code{list(1:10, 2:23, 4:6)} (one for each value in xt in row major order or just for one row in xt, 
-#'  and all other rows will be duplicated).
-#' @param a_space Cell array \code{\link{cell}} defining the discrete variables allowed for each a value.
-#'   Can also be a list of values \code{list(1:10)} (same values allowed for all a), or a list of lists 
-#'  \code{list(1:10, 2:23, 4:6)} (one for each value in a).
-#' @param maxa Vector defining the maximum value for each covariate. IF a single value is supplied then
-#'  all a values are given the same maximum value
-#' @param mina Vector defining the minimum value for each covariate. IF a single value is supplied then
-#'  all a values are given the same minimum value
-#' @param use_grouped_xt Group sampling times between groups so that each group has the same values (\code{True} or \code{False}).
-#' @param grouped_xt Matrix defining the grouping of sample points. Matching integers mean that the points are matched.  
-#' Allows for finer control than \code{use_grouped_xt}
-#' @param use_grouped_a Group continuous design variables between groups so that each group has the same values (\code{True} or \code{False}).
-#' @param grouped_a Matrix defining the grouping of continuous design variables. Matching integers mean that the values are matched.  
-#' Allows for finer control than \code{use_grouped_a}.
-#' @param use_grouped_x Group discrete design variables between groups so that each group has the same values (\code{True} or \code{False}).
-#' @param grouped_x Matrix defining the grouping of discrete design variables. Matching integers mean that the values are matched.  
-#' Allows for finer control than \code{use_grouped_x}.
-#' @param our_zero Value to interpret as zero in design.
-#' 
-#' 
-#' @family poped_input
-#' 
-#' @example tests/testthat/examples_fcn_doc/examples_create_design_space.R
-#' 
-#' @export
-#' 
+## Create design variables and a design space for a full description of an optimization problem.
+## 
+## \code{create_design_space} takes an initial design and arguments for a design space and 
+## creates a design and design space for design optimization.
+## Checks the sizes of supplied design space variables and 
+## changes them to sizes that  make sense if there are inconsistencies.  
+## Function arguments can use shorthand notation (single values, vectors, lists of vectors and 
+## list of list) or matricies.
+## Returns a list of matricies compatible with PopED.
+## 
+## If a value (or a vector or a list of values) is supplied that corresponds to only one group and the design has
+## multiple groups then all groups will have the same value(s). If a matrix is expected then a list of lists can be supplied 
+## instead, each list corresponding to a group.   
+## 
+## @param design  The output from a call to \code{\link{create_design}}.
+## @param maxni Vector defining the maximum number of samples per group. 
+## @param minni Vector defining the minimum number of samples per group. 
+## @param maxtotni Number defining the maximum number of samples allowed in the experiment. 
+## @param mintotni Number defining the minimum number of samples allowed in the experiment.  
+## @param maxgroupsize Vector defining the maximum size of the different groups (maximum number of individuals in each group)
+## @param mingroupsize Vector defining the minimum size of the different groups (minimum num individuals in each group) 
+## @param maxtotgroupsize The total maximal groupsize over all groups
+## @param mintotgroupsize The total minimal groupsize over all groups
+## @param maxxt Matrix or single value defining the maximum value for each xt sample.  If a single value is 
+## supplied then all xt values are given the same maximum value.
+## @param minxt Matrix or single value defining the minimum value for each xt sample.  If a single value is 
+## supplied then all xt values are given the same minimum value
+## @param x_space Cell array \code{\link{cell}} defining the discrete variables for each x value.
+## @param xt_space Cell array \code{\link{cell}} defining the discrete variables allowed for each xt value.
+##   Can also be a vector of values \code{c(1:10)} (same values allowed for all xt), or a list of lists 
+##  \code{list(1:10, 2:23, 4:6)} (one for each value in xt in row major order or just for one row in xt, 
+##  and all other rows will be duplicated).
+## @param a_space Cell array \code{\link{cell}} defining the discrete variables allowed for each a value.
+##   Can also be a list of values \code{list(1:10)} (same values allowed for all a), or a list of lists 
+##  \code{list(1:10, 2:23, 4:6)} (one for each value in a).
+## @param maxa Vector defining the maximum value for each covariate. IF a single value is supplied then
+##  all a values are given the same maximum value
+## @param mina Vector defining the minimum value for each covariate. IF a single value is supplied then
+##  all a values are given the same minimum value
+## @param use_grouped_xt Group sampling times between groups so that each group has the same values (\code{True} or \code{False}).
+## @param grouped_xt Matrix defining the grouping of sample points. Matching integers mean that the points are matched.  
+## Allows for finer control than \code{use_grouped_xt}
+## @param use_grouped_a Group continuous design variables between groups so that each group has the same values (\code{True} or \code{False}).
+## @param grouped_a Matrix defining the grouping of continuous design variables. Matching integers mean that the values are matched.  
+## Allows for finer control than \code{use_grouped_a}.
+## @param use_grouped_x Group discrete design variables between groups so that each group has the same values (\code{True} or \code{False}).
+## @param grouped_x Matrix defining the grouping of discrete design variables. Matching integers mean that the values are matched.  
+## Allows for finer control than \code{use_grouped_x}.
+## @param our_zero Value to interpret as zero in design.
+## 
+## 
+## @family poped_input
+##  
+## @export
+## 
 # @importFrom dplyr rbind_all
 Author: Caiya Zhang, Yuchen Zheng
 """

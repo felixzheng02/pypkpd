@@ -1,29 +1,29 @@
 """
-#' Parameter simulation
-#' 
-#' Function generates random samples for a list of parameters
-#' Function similar to that in matlab
-#' 
-#' @param par A matrix describing the parameters. Each row is a parameter and 
-#'   the matrix has three columns: 
-#'   \enumerate{ 
-#'   \item First column - Type of
-#'   distribution (0-fixed, 1-normal, 2-uniform, 3-user specified, 4-lognormal,
-#'   5-Truncated normal). 
-#'   \item Second column - Mean of distribution. 
-#'   \item Third
-#'   column - Variance or range of distribution. 
-#'   }
-#' @param user_dist_pointer A text string of the name of a function that
-#'   generates random samples from a user defined distribution.
-#' @param sample_size The number of random samples per parameter to generate
-#' @param bLHS Logical, indicating if Latin Hypercube Sampling should be used.
-#' @param sample_number The sample number to extract from a user distribution.
-#' @param poped_db A PopED database.
-#'   
-#' @return A matrix of random samples of size (sample_size x number_of_parameters)
-#' @example test/Test_pargen.py
-#' @export
+## Parameter simulation
+## 
+## Function generates random samples for a list of parameters
+## Function similar to that in matlab
+## 
+## @param par A matrix describing the parameters. Each row is a parameter and 
+##   the matrix has three columns: 
+##   \enumerate{ 
+##   \item First column - Type of
+##   distribution (0-fixed, 1-normal, 2-uniform, 3-user specified, 4-lognormal,
+##   5-Truncated normal). 
+##   \item Second column - Mean of distribution. 
+##   \item Third
+##   column - Variance or range of distribution. 
+##   }
+## @param user_dist_pointer A text string of the name of a function that
+##   generates random samples from a user defined distribution.
+## @param sample_size The number of random samples per parameter to generate
+## @param bLHS Logical, indicating if Latin Hypercube Sampling should be used.
+## @param sample_number The sample number to extract from a user distribution.
+## @param poped_db A PopED database.
+##   
+## @return A matrix of random samples of size (sample_size x number_of_parameters)
+## @example test/Test_pargen.py
+## @export
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

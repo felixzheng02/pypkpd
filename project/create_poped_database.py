@@ -27,7 +27,7 @@ residual error model.
 The filename and the function name must be the same if giving a filename. 
 e.g. \code{"feps.prop"}.
 @param fError_fun Function describing the residual error model. e.g. \code{feps.prop}.
-#'
+##
 @param optsw  \itemize{
 \item \bold{******WHAT TO OPTIMIZE**********}}
  Row vector of optimization tasks (1=True,0=False) in the following order: 
@@ -266,11 +266,12 @@ User defined data structure that, for example could be used to send in data to t
 @param bParallelMFEA If the modified exchange algorithm is going to be executed in parallel 
 @param bParallelLS If the line search is going to be executed in parallel 
 @return A PopED database
+
+
 Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-# from am.poped_choose import am.poped_choose
 import random
 import datetime
 import numpy as np

@@ -1,10 +1,10 @@
 """
-size(obj: int/np.ndarray/pd.Dataframe/matrix) -> list
+## size(obj: int/np.ndarray/pd.Dataframe/matrix) -> list
+## @param obj: an object (that you want to know the dimensions). Typically a matrix.
+## @return: the dimensions of the object or specific dimension you are interested in. 
 
-@param obj: an object (that you want to know the dimensions). Typically a matrix.
-@return: the dimensions of the object or specific dimension you are interested in. 
 
-Author: Caiya Zhang, Yuchen Zheng
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

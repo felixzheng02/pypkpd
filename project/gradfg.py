@@ -1,8 +1,8 @@
 """
-## Function translated automatically using 'matlab.to.r()'
+## Function written to match MATLAB function gradfg()
 
 
-## Author: Andrew Hooker
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

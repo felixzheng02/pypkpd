@@ -1,7 +1,6 @@
 """
-subspace_min(x, l, u, x_cp, d, G) -> np.ndarray (?)
-
-Author: Caiya Zhang, Yuchen Zheng
+## subspace_min(x, l, u, x_cp, d, G) -> np.ndarray (?)
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

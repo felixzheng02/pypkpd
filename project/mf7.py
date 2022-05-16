@@ -1,22 +1,22 @@
 """
-#' The full Fisher Information Matrix (FIM) for one individual Calculating one model switch at a time, good for large matrices.
-#' 
-#' Compute the full FIM for one individual given specific model(s), parameters, design and methods. 
-#' This computation calculates the FIM for each model switch separately.  Correlations between the models parameters are assumed to be zero.
-#' 
-#' @inheritParams mf3
-#' 
-#' @return As a list:
-#' \item{ret}{The FIM for one individual}
-#' \item{poped_db}{A PopED database}
-#' 
-#' @family FIM
-#' 
+## The full Fisher Information Matrix (FIM) for one individual Calculating one model switch at a time, good for large matrices.
+## 
+## Compute the full FIM for one individual given specific model(s), parameters, design and methods. 
+## This computation calculates the FIM for each model switch separately.  Correlations between the models parameters are assumed to be zero.
+## 
+## @inheritParams mf3
+## 
+## @return As a list:
+## \item{ret}{The FIM for one individual}
+## \item{poped_db}{A PopED database}
+## 
+## @family FIM
+## 
 # @example tests/testthat/examples_fcn_doc/warfarin_basic.R
 # @example tests/testthat/examples_fcn_doc/examples_mf7.R
 # @export
-#' @keywords internal
-## Function translated automatically using 'matlab.to.r()'
+## @keywords internal
+## Function written to match MATLAB function mf7()
 
 
 ## Author: Caiya Zhang, Yuchen Zheng

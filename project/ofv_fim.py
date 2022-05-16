@@ -1,34 +1,34 @@
 """
-#' Evaluate a criterion of the Fisher Information Matrix (FIM)
-#' 
-#' Compute a criterion of the FIM given the model, parameters, design and methods defined in the 
-#' PopED database. 
-#' 
-#' @param fmf The FIM
-#' @param poped_db A poped database
-#' @param ofv_calc_type  OFV calculation type for FIM
-#' \itemize{ 
-#' \item 1 = "D-optimality". Determinant of the FIM: det(FIM)
-#' \item 2 = "A-optimality".  Inverse of the sum of the expected parameter variances: 
-#' 1/trace_matrix(inv(FIM)) 
-#' \item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
-#' \item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
-#' rows and columns of the FIM: det(FIM)/det(FIM_u)
-#' \item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped_db,use_percent=False))
-#' }
-#' @param use_log Should the criterion be in the log domain?
-#' @inheritParams RS_opt
-#' @inheritParams Doptim
-#' @inheritParams create.poped.database
-#' 
-#' @return The specified criterion value.
-#' 
-#' @family FIM
-#' @family evaluate_FIM
-#' 
-#' @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
-#' @example tests/testthat/examples_fcn_doc/examples_ofv_fim.R
-#' @export
+## Evaluate a criterion of the Fisher Information Matrix (FIM)
+## 
+## Compute a criterion of the FIM given the model, parameters, design and methods defined in the 
+## PopED database. 
+## 
+## @param fmf The FIM
+## @param poped_db A poped database
+## @param ofv_calc_type  OFV calculation type for FIM
+## \itemize{ 
+## \item 1 = "D-optimality". Determinant of the FIM: det(FIM)
+## \item 2 = "A-optimality".  Inverse of the sum of the expected parameter variances: 
+## 1/trace_matrix(inv(FIM)) 
+## \item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
+## \item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
+## rows and columns of the FIM: det(FIM)/det(FIM_u)
+## \item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped_db,use_percent=False))
+## }
+## @param use_log Should the criterion be in the log domain?
+## @inheritParams RS_opt
+## @inheritParams Doptim
+## @inheritParams create.poped.database
+## 
+## @return The specified criterion value.
+## 
+## @family FIM
+## @family evaluate_FIM
+## 
+## @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
+## @example tests/testthat/examples_fcn_doc/examples_ofv_fim.R
+## @export
 ## Function translated using 'matlab.to.r()'
 ## Then manually adjusted to make work
 

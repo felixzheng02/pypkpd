@@ -1,7 +1,7 @@
 """
+## Function written to match MATLAB function gradetmf()
 
 
-## Function translated automatically using 'matlab.to.r()'
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 

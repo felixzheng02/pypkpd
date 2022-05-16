@@ -1,6 +1,8 @@
 """
 ## Timer function
 ## Function written to match MATLAB function tic() and toc()
+
+
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 

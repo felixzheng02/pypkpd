@@ -112,15 +112,18 @@ def transform_back_par(ps_tbl,*args):
 
 
 """
-##' Catch *and* save both errors and warnings, and in the case of
-##' a warning, also keep the computed result.
-##'
-##' @title tryCatch both warnings (with value) and errors
-##' @param expr an \R expression to evaluate
-##' @return a list with 'value' and 'warning', where
-##'   'value' may be an error caught.
-##' @author Martin Maechler, The R Core Team
-##' @keywords internal
+## Catch *and* save both errors and warnings, and in the case of
+## a warning, also keep the computed result.
+##
+## @title tryCatch both warnings (with value) and errors
+## @param expr an \R expression to evaluate
+## @return a list with 'value' and 'warning', where
+##   'value' may be an error caught.
+## @author Martin Maechler, The R Core Team
+## @keywords internal
+"""
+
+"""
 def tryCatch_W_E(expr):
 	W = None
 	w_handler = function(w){ # warning handler

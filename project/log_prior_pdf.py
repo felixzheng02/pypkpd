@@ -1,19 +1,19 @@
 """
-#' Compute the natural log of the PDF for the parameters in an E-family design
-#' 
-#' @inheritParams ed_laplace_ofv
-#' @inheritParams evaluate.fim
-#' @inheritParams create.poped.database
-#' @inheritParams Doptim
-#' @param alpha  A parameter vector.
-#' @param return_hessian Should the hessian be returned?
-#' 
+## Compute the natural log of the PDF for the parameters in an E-family design
+## 
+## @inheritParams ed_laplace_ofv
+## @inheritParams evaluate.fim
+## @inheritParams create.poped.database
+## @inheritParams Doptim
+## @param alpha  A parameter vector.
+## @param return_hessian Should the hessian be returned?
+## 
 # @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
 # @example tests/testthat/examples_fcn_doc/examples_log_prior_pdf.R
 # @export
-#' @keywords internal
+## @keywords internal
 
-#' Author: Caiya Zhang, Yuchen Zheng
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

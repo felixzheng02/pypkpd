@@ -48,6 +48,9 @@ forget to load the ggplot2 library using \code{library(ggplot2)}_
 @export
 @import ggplot2
 # @import Hmisc
+
+
+## Author: Caiya Zhang, Yuchen Zheng
 """
 
 

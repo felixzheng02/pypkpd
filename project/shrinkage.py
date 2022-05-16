@@ -28,7 +28,7 @@ shrinkage(poped_db: Dict, use_mc: boolean, num_sim_ids: int, use_purrr: boolean)
 #'   \doi{10.1177/0091270010397731}. 
 #'   }
 
-## Author: Caiya Zhang, Yuchen Zheng
+# Author: Caiya Zhang, Yuchen Zheng
 """
 
 import re

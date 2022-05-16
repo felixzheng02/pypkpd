@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class num:
+class Num:
 
 	def __init__(self, input):
 		# data field:

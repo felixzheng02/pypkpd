@@ -5,69 +5,51 @@ Authors: Caiya Zhang, Yuchen Zheng
 """
 
 
+from logging import raiseExceptions
 from typing import List
+from hamcrest import none
 import numpy as np
 import pandas as pd
 from project.poped_choose import poped_choose
 
 
-class matrix:
+class Matrix:
 
-	# shape parameter does not function well
-	def __init__(self, data, shape = None, datanam: list = None, colnam: list = None, rownam: list = None):
+	def __init__(self, data, shape: list = None, datanam: list = None, axisnam: list = None):
+		"""
+		@parameters:
+			data: int, float, [int], [float], np.ndarray, Matrix
+			shape: list
+			datanam: [str]
+			colnam: [str]
+			rownam: [str]
+		"""
+
 		# data field:
-		# data: only represents the top-level structure of the matrix
-		# shape: the complete shape of the matrix, including those of sub-matrices
-		# size: the complete size of the matrix that includes sub-matrices
-		# datanam
-		# colnam
-		# rownam
-		if type(data) is matrix:
-			self.shape = poped_choose(shape, data.get_shape(), 0)
+		# data: np.ndarray of Matrix
+		# shape: the complete shape of the Matrix, including those of sub-matrices, 1-d is automatically transferred to 2-d
+		# size: the complete size of the Matrix that includes sub-matrices
+		# datanam: list of data name
+		# axisnam: list of axis name, stored as [[str]]
+
+		if type(data) is Matrix: # axisnam is not kept
+			self.shape = select(shape, data.get_shape())
 			self.data = np.array(data.get_data()).reshape(shape)
 			self.size = data.get_size()
-			self.datanam = poped_choose(datanam, data.datanam, 0)
-			self.colnam = poped_choose(colnam, data.colnam, 0)
-			self.rownam = poped_choose(rownam, data.rownam, 0)
+			self.datanam = select(datanam, data.get_datanam())
+			self.axisnam = axisnam
 
-		elif type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
-			self.shape = [1, 1]
-			self.data = np.array([data])
-			self.size = 1
+		else:
+			if type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
+				data = np.array([data]).reshape([1, 1])
+			elif type(data) is list:
+				data = np.array(data)
+			self.shape = None
+			self.shape = select(shape, data.shape)
+			self.data = np.array(data).reshape(self.shape)
+			self.size = self.get_data().size
 			self.datanam = datanam
-			self.colnam = colnam
-			self.rownam = rownam
-
-		elif all(isinstance(n, matrix) for n in data) and type(data) is list:
-			self.data = np.array(data)
-			tmp_shape = [len(data)]
-			for i in self.get_data()[0].get_shape():
-				if i != 1:
-					tmp_shape.append(i)
-			self.shape = poped_choose(shape, tmp_shape, 0)
-			self.size = len(data)
-			self.datanam = datanam
-			self.colnam = colnam
-			self.rownam = rownam
-
-		elif type(data) is np.ndarray:
-			self.shape = poped_choose(shape, data.shape, 0)
-			self.data = np.array(data).reshape(shape)
-			# if len(self.get_shape()) == 1:
-			# 	self.shape = [1, self.get_shape()[0]]
-			# if shape is None:
-			# 	self.shape = data.shape
-			# 	if len(self.shape) == 1:
-			# 		self.shape = [1, self.shape[0]]
-			# else:
-			# 	self.shape = shape
-			self.size = self.get_all_data().size
-			self.datanam = datanam
-			self.colnam = colnam
-			self.rownam = rownam
-	
-	def get_data(self):
-		return self.data
+			self.axisnam = axisnam
 
 	def get_shape(self):
 		if len(self.shape) == 1:
@@ -80,97 +62,109 @@ class matrix:
 	def get_datanam(self):
 		return self.datanam
 
-	def get_colnam(self):
-		return self.colnam
+	def get_axisnam(self):
+		return self.axisnam
 
-	def get_rownam(self):
-		return self.rownam
+	def get_one_data(self, name: str = None, index: list = None):
+		if name is None and index is None:
+			raise Exception("Please specify the name or the index of the data.")
 
-	def get_one_data(self, name: str = None, index = None):
-		if name is not None:
+		if name is not None: # search by name
 			if self.get_datanam() is not None:
 				for index in range(0, len(self.get_datanam())):
 					if name == self.get_datanam()[index]:
-						return self.get_all_data().flatten()[index]
+						return self.get_data().flatten()[index]
 			raise Exception("'%s' does not exists." % name)
-		elif index is not None:
-			if self.get_shape()[0] == 1:
-				tmp = self.get_all_data().reshape(self.get_shape())
-			return tmp[list(index)[0]][list(index)[1]]
-		else:
-			raise Exception("Please specify the name or the index of the data needed.")
+		elif index is not None: # search by index
+			return self.get_data()[tuple(index)]
 	
-	def get_all_data(self):
-		tmp = self
-		if tmp.get_data().size == 0:
-			return np.array([])
-		elif type(tmp.get_data()[0]) is matrix:
-			length = len(tmp.get_data().tolist())
-			result = [None] * length
-			for index in range(0, length):
-				result[index] = tmp.get_data().tolist()[index].get_all_data()
-			return np.array(result)
+	def get_data(self):
+		return self.data
+
+	def set_data(self, data, shape: list = None, datanam: list = None):
+		"""
+		set data of the matrix, datanam, colnam, rownam are lost
+		@parameters:
+			data: int, float, [int], [float], np.ndarray, Matrix
+			shape: list
+		"""
+		if type(data) is Matrix:
+			data = data.get_data()
+		elif type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
+			data = np.array([data]).reshape([1, 1])
+		elif type(data) is list:
+			data = np.array(data)
+		elif type(data) is np.ndarray:
+			data = data
 		else:
-			return tmp.get_data()
+			raise Exception("must provide int, float, list, np.ndarray, or Matrix as data input")
+		self.shape = select(shape, data.shape)
+		self.data = data.reshape(self.get_shape())
+		self.set_datanam(datanam)
+		self.set_axisnam(None)
 
-	def set_data(self, data):
-		self.data = np.array(data).reshape(self.get_shape())
-
-	def set_shape(self, shape, colnam: None, rownam: None):
+	def set_shape(self, shape: list, axisnam: list = None):
+		"""
+		set shape of the matrix, keep axisnam if applicable
+		"""
 		self.shape = shape
 		self.data = self.get_data().reshape(shape)
-		if colnam is not None:
-			self.set_colnam(colnam)
-		if rownam is not None:
-			self.set_rownam(rownam)
-		if self.get_colnam() is not None and self.get_colnam() is not None:
-			if (len(self.get_rownam()) != len(self.get_shape()[0]) or 
-			len(self.get_colnam()) != len(self.get_shape()[1])):
-				raise Exception("Number of column names or row names does not match the given shape.")
+		if axisnam is not None:
+			self.set_axisnam(axisnam)
+		elif len(self.get_axisnam()) != len(self.get_shape()):
+			self.set_axisnam(None)
 
 	def set_datanam(self, datanam: list):
 		self.datanam = datanam
 
-	def set_colnam(self, colnam: list):
-		self.colnam = colnam
+	def set_axisnam(self, axisnam: list):
+		self.axisnam = axisnam
 
-	def set_rownam(self, rownam: list):
-		self.rownam = rownam
+	def set_one_data(self, new_data, new_datanam, name: str = None, index: list = None): # could only set by int or float
+		if name is None and index is None:
+			raise Exception("Please specify the name or the index of the data that needs to be changed.")
 
-	def set_axisnam(self, colnam: list, rownam: list):
-		self.colnam = colnam
-		self.rownam = rownam
-	
-	def set_one_data(self, new_data, name: str = None, index = None):
-		if name is not None:
-			data = self.get_data().reshape([self.get_data().size, ]).tolist()
+		if name is not None: # search by name
+			data = self.get_data().flatten()
 			if self.get_datanam() is not None:
 				for index in range(0, len(self.get_datanam())):
 					if name == self.get_datanam()[index]:
 						data[index] = new_data
-						self.data = np.array(data).reshape(self.get_shape())
+						self.data = data.reshape(self.get_shape())
+						if new_datanam is not None:
+							self.datanam[index] = new_datanam
+						return
 			raise Exception("'%s' does not exists." % name)
-		elif index is not None:
-			if type(new_data) is matrix:
-				data = self.get_data().reshape([self.get_data().size, ]).tolist()
-				data[(list(index)[0]+1) * (list(index)[1]+1) - 1] = new_data
-				self.data = np.array(data).reshape(self.get_shape())
-			else:
-				if self.get_shape()[0] == 1:
-					self.set_data(self.get_data().reshape(self.get_shape()))
-				self.get_data()[list(index)[0]][list(index)[1]] = new_data
-		else:
-			raise Exception("Please specify the name or the index of the data that needs to be changed.")
+		elif index is not None: # search by index
+			self.data[tuple(index)] = new_data
+			if new_datanam is not None:
+				self.set_one_datanam(new_datanam, index=index)
+	
+	def set_one_datanam(self, new_datanam, name: str = None, index: list = None):
+		if name is None and index is None:
+			raise Exception("Please specify the name or the index of the data name that needs to be changed.")
 
-	def set_multiple_data(self, new_data, row = None, col = None): # row, col: [init, end]
-		if row is None:
-			self.get_data()[:, list(col)[0]:list(col)[1]] = new_data
-		elif col is None:
-			self.get_data()[list(row)[0]:list(row)[1], :] = new_data
-		elif row is not None and col is not None:
-			self.get_data()[list(row)[0]:list(row)[1], list(col)[0]:list(col)[1]] = new_data
+		if name is not None: # search by name
+			if self.get_datanam() is not None:
+				for index in range(0, len(self.get_datanam())):
+					if name == self.get_datanam()[index]:
+						self.datanam[index] = new_datanam
+						return
+			raise Exception("'%s' does not exists." % name)
+		elif index is not None: # search by index
+			datanam_index = 0
+			for i in range(0, len(index)):
+				datanam_index += index[i] * int(np.prod(self.get_shape()[i+1:]))
+			self.datanam[datanam_index] = new_datanam
 
-	def create_dataframe(self):
+	def get_dataframe(self):
 		return pd.DataFrame(self.get_data(),
 							columns=self.get_colnam(),
 							index=self.get_rownam())
+
+def select(input, default):
+	# if given input, set target variable as input, else, set target variable as default
+	if input is None:
+		return default
+	else:
+		return input

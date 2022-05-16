@@ -1,5 +1,5 @@
 """
-## sfg function
+# sfg function
 
 """
 
@@ -17,4 +17,3 @@ def sfg(x,a,bpop,b,bocc):
                         ["CL", "V", "KA", "Favail", "DOSE"],
                         None, None)
     return parameters
-

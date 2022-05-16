@@ -52,20 +52,36 @@ class Matrix:
 			self.axisnam = axisnam
 
 	def get_shape(self):
+		"""
+		get the shape of the Matrix, return as [int]
+		"""
 		if len(self.shape) == 1:
 			return [1, self.shape[0]]
 		return list(self.shape)
 
 	def get_size(self):
+		"""
+		get the size of the Matrix, return as int
+		"""
 		return self.size
 
 	def get_datanam(self):
+		"""
+		get the data names of the Matrix, return as [str]
+		"""
 		return self.datanam
 
 	def get_axisnam(self):
+		"""
+		get the axis names of the Matrix, return as [[str]], 
+		each [str] represents names in one axis
+		"""
 		return self.axisnam
 
 	def get_one_data(self, name: str = None, index: list = None):
+		"""
+		provided with either name (as str) or index (as list) of the data, return one data
+		"""
 		if name is None and index is None:
 			raise Exception("Please specify the name or the index of the data.")
 
@@ -79,6 +95,9 @@ class Matrix:
 			return self.get_data()[tuple(index)]
 	
 	def get_data(self):
+		"""
+		return all the data as np.ndarray
+		"""
 		return self.data
 
 	def set_data(self, data, shape: list = None, datanam: list = None):
@@ -121,6 +140,10 @@ class Matrix:
 		self.axisnam = axisnam
 
 	def set_one_data(self, new_data, new_datanam, name: str = None, index: list = None): # could only set by int or float
+		"""
+		provided with either name (as str) or index (as list) of the data that needs to be changed, 
+		change the data and its data name
+		"""
 		if name is None and index is None:
 			raise Exception("Please specify the name or the index of the data that needs to be changed.")
 
@@ -141,6 +164,10 @@ class Matrix:
 				self.set_one_datanam(new_datanam, index=index)
 	
 	def set_one_datanam(self, new_datanam, name: str = None, index: list = None):
+		"""
+		provided with either name (as str) or index (as list) of the data whose its name needs to be changed,
+		change the data name
+		"""
 		if name is None and index is None:
 			raise Exception("Please specify the name or the index of the data name that needs to be changed.")
 
@@ -163,7 +190,10 @@ class Matrix:
 							index=self.get_rownam())
 
 def select(input, default):
-	# if given input, set target variable as input, else, set target variable as default
+	"""
+	designed as private method
+	if given input, set target variable as input, else, set target variable as default
+	"""
 	if input is None:
 		return default
 	else:

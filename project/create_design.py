@@ -9,14 +9,14 @@ import re
 import numpy as np
 import pandas as pd
 import itertools
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.poped_choose import poped_choose
 from project.test_mat_size import test_mat_size
 from project.size import size
 
 
 def create_design(
-				  xt, # Matrix defining the initial sampling schedule row major, can also be a list of vectors
+				  xt: Matrix, # Matrix defining the initial sampling schedule row major
 				  groupsize, # Vector defining the size of the different groups (num individuals in each group)
 				  m=None, # Number of groups, computed from xt if not defined
 				  x=None, # Matrix defining the initial discrete values
@@ -28,24 +28,12 @@ def create_design(
 	design = {}
 
 	### for xt, m ###
-	if type(xt) is list: 
-		length = max([len(i) for i in xt])
-		xt_ = []
-		for i in range(0, len(xt)):
-			xt[i] = xt[i].astype(np.float32)
-			xt[i] = np.pad(xt[i], (0, length-len(xt[i])), "constant", constant_values=np.nan)
-			# xt = np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in xt]) # convert a list of vectors to an array
-			xt_.append(xt[i].tolist())
-		xt = matrix(np.array(xt_))
 
 	if m is None: 
 		m = xt.get_shape()[0] # get xt row (same as "m = size(xt, 1)")
 
-	if size(xt)[0] == 1 and m != 1:
-		xt = matrix(np.tile(xt.get_all_data().flatten(), m), shape=(m, xt.size)) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
-
-	if type(xt) is not matrix:
-		xt = matrix(xt)
+	if xt.get_shape()[0] == 1 and m != 1:
+		xt = xt.repeat([1, m], [xt.get_size(), m], True, True) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 	
 	if (size(xt)[0] != m):
 		raise Exception("The number of rows in xt (" + str(size(xt)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")

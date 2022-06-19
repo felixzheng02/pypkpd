@@ -1,3 +1,5 @@
+import sys
+sys.path.append("/Users/felix/Documents/college/pypkpd")
 import unittest
 import numpy as np
 from matpy.matrix import Matrix

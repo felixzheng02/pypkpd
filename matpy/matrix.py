@@ -7,7 +7,7 @@ Authors: Caiya Zhang, Yuchen Zheng
 
 from logging import raiseExceptions
 from typing import List
-from hamcrest import none
+from xmlrpc.client import boolean
 import numpy as np
 import pandas as pd
 from project.poped_choose import poped_choose
@@ -21,8 +21,7 @@ class Matrix:
 			data: int, float, [int], [float], np.ndarray, Matrix
 			shape: list
 			datanam: [str]
-			colnam: [str]
-			rownam: [str]
+			axisnam: [str]
 		"""
 
 		# data field:
@@ -188,6 +187,34 @@ class Matrix:
 		return pd.DataFrame(self.get_data(),
 							columns=self.get_colnam(),
 							index=self.get_rownam())
+
+
+	def repeat(self, n: list[int], shape: list[int] = None, datanam: bool = False, axisnam: bool = False):
+		"""
+		repeat the Matrix along row or column, specified by the n list
+		repeat n[0] along row and n[1] along column
+		reshape as specified
+		datanam: if datanam are repeated, all set to None if 0
+		axisnam: if axisnam are repeated, all set to None if 0
+		"""
+		data = np.tile(self.get_data(), n)
+		if shape is not None:
+			if len(shape) == 1:
+				shape = [1, shape[0]]
+			data.reshape(shape)
+		self.set_data(data)
+		self.set_shape(data.shape)
+		self.size = data.size
+		if datanam:
+			self.datanam = np.tile(self.get_datanam(), n).tolist()
+		else:
+			self.datanam = None
+		if axisnam:
+			for i in range(0, len(self.get_axisnam())):
+				self.get_axisnam()[i] = self.get_axisnam[i] * n[i]
+		else:
+			self.axisnam = None
+
 
 def select(input, default):
 	"""

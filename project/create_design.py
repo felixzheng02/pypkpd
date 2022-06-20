@@ -10,9 +10,8 @@ import numpy as np
 import pandas as pd
 import itertools
 from matpy.matrix import Matrix
-from project.poped_choose import poped_choose
+from matpy.num import Num
 from project.test_mat_size import test_mat_size
-from project.size import size
 
 
 def create_design(
@@ -29,20 +28,20 @@ def create_design(
 
 	### for xt, m ###
 
+
 	if m is None: 
 		m = xt.get_shape()[0] # get xt row (same as "m = size(xt, 1)")
 
 	if xt.get_shape()[0] == 1 and m != 1:
-		xt = xt.repeat([1, m], [xt.get_size(), m], True, True) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
+		xt.repeat([1, m], [m, xt.get_size()], True, False) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 	
-	if (size(xt)[0] != m):
-		raise Exception("The number of rows in xt (" + str(size(xt)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
+	if (xt.get_shape()[0] != m):
+		raise Exception("The number of rows in xt (" + str(xt.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
 	
-	xt.set_rownam(["grp_"+str(i) for i in range(1, m+1)]) 
-	xt.set_colnam(["obs_"+str(i) for i in range(1, xt.get_shape()[1]+1)]) # same as "size(xt)[1]+1"
+	xt.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], ["obs_"+str(i) for i in range(1, xt.get_shape()[1]+1)]]) 
 	
 	design["xt"] = xt
-# 没写！！！names(m) = "n_grp"
+	m = Num(m, "n_grp")
 	design["m"] = m
 
 
@@ -51,114 +50,78 @@ def create_design(
 		tmp = 1-np.isnan(xt.get_all_data())
 		if len(tmp.shape) == 1:
 			tmp = tmp[np.newaxis, :]
-		ni = np.count_nonzero(tmp, axis=1).reshape(xt.get_shape()[0], 1)
+		ni = Matrix(np.count_nonzero(tmp, axis=1).reshape(xt.get_shape()[0], 1))
 	
-	if type(ni) is not matrix:
-		ni = matrix(np.array(ni), shape=[len(ni), 1])
+	
 	if test_mat_size(np.array([m, 1]), ni.get_all_data(), "ni") == 1:
-		ni.set_axisnam(list(itertools.repeat("n_obs", ni.shape[1])),
-					   ["grp_"+str(i) for i in range(1, m+1)]) 
+		ni.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
+						list(itertools.repeat("n_obs", ni.get_shape()[1]))]) 
 		design["ni"] = ni
 
 
 	### for model_switch ###
-	if type(model_switch) is list:
-		length = max([len(i) for i in model_switch])
-		model_switch = matrix(np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch])) # convert a list of vectors to an array
+	# if type(model_switch) is list:
+	# 	length = max([len(i) for i in model_switch])
+	# 	model_switch = matrix(np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch])) # convert a list of vectors to an array
 	if model_switch is None:
-		model_switch = matrix(xt.get_all_data() * 0 + 1)
-	if size(model_switch)[0] == 1 and m != 1:
-		model_switch  = matrix(np.tile(model_switch.get_all_data().flatten(), m), shape=(m, model_switch.size)) # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
+		model_switch = Matrix(xt.get_all_data() * 0 + 1)
+	if model_switch.get_shape()[0] == 1 and m != 1:
+		model_switch.repeat([1, m], [m, model_switch.get_size()], True, False)  # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
-	if type(model_switch) is not matrix:
-		model_switch = matrix(model_switch)
-
-	if test_mat_size(np.array(size(xt)), model_switch.get_all_data(), "model_switch") == 1:
-		model_switch.set_axisnam(["obs_"+str(i) for i in range(1, model_switch.get_shape()[1]+1)],
-								 ["grp_"+str(i) for i in range(1, m+1)]) 
+	if test_mat_size(np.array(xt.get_shape()), model_switch.get_all_data(), "model_switch") == 1:
+		model_switch.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
+								["obs_"+str(i) for i in range(1, model_switch.get_shape()[1]+1)]]) 
 		design["model_switch"] = model_switch
 
 
 	### for a ###
-	if a is not None:
-		if type(a) is list or type(a) is not matrix:
-			a = matrix(a)
-		# elif len(size(a)) == 1:
-		# 	a = np.array([a])
-		colnam = None
-		if size(a)[0] == 1 and m != 1:
-			a_ = []
-			if type(a) is int or size(a) == [1, 1]:
-				a = matrix(np.tile([a], m), shape=(m, 1),
-						   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
-			else:
-				for i in range(0, size(a)[1]): #col
-					for j in range(0, size(a)[0]): #row
-						if size(a.get_shape())[0] == 1:
-							a_.append(a.get_all_data()[i])
-						else:
-							a_.append(a.get_all_data()[j,i])
-						
-				a = matrix(np.tile(a_, m), shape=(m, a.size),
-						   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
+	if type(a) is Matrix: # a is a Matrix
+		colnam = a.get_datanam()
+		if colnam is None:
+			colnam = a.get_axisnam()[1]
+		if a.get_shape()[0] == 1 and m != 1:
+			a.repeat([1, m], [m, a.get_size()], datanam=True)
+			a.set_axisnam(([["grp_"+str(i) for i in range(1, m+1)],
+							colnam]))
 
-		a = matrix(a)
-		if size(a)[0] != m:
-			raise Exception("The number of rows in a (" + str(size(a)[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
-		a.set_rownam(["grp_"+str(i) for i in range(1, m+1)])
-		if a.get_colnam() is not None:
+		if a.get_shape()[0] != m:
+			raise Exception("The number of rows in a (" + str(a.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
+		a.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], a.get_axisnam()[1]])
+		if a.get_axisnam()[1] is not None:
 			count = 0
 			for i in range(0, a.get_shape()[1]):
-				if re.search("^X[0-9]+$", str(a.get_colnam()[i])) is not None:
+				if re.search("^X[0-9]+$", str(a.get_axisnam()[1][i])) is not None:
 					count += 1
-			if count == size(a)[1]:
-				a.set_colnam([None] * a.shape[1])
+			if count == a.get_shape()[1]:
+				a.set_axisnam([a.get_axisnam()[0], [None] * a.shape[1]])
 		design["a"] = a
 
 
-
 	### for x ###
-	if x is not None:
-		if type(x) == list:
-			x = matrix(x)
-		colnam = x.get_colnam()
+	if type(x) is Matrix:
+		colnam = x.get_datanam()
+		if colnam is None:
+			colnam = x.get_axisnam()[1]
 		if size(x)[0] == 1 and m != 1:
-			x_ = []
-			for i in range(0, x.get_shape()[1]):
-				for j in range(0, x.get_shape()[0]):
-					x_.append(x.get_all_data()[i][j])
-			x = matrix(np.tile(x_, m), shape=(m, x.size),
-					   colnam=colnam, rownam=["grp_"+str(i) for i in range(1, m+1)])
+			x.repeat([1, m], [m, x.get_size()], datanam=True)
+			x.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], colnam])
 
-		if type(x) is not matrix:
-			x = matrix(x)
-
-		if size(x)[0] != m:
-			raise Exception("The number of rows in x (" + str(size(x)[0]) + "is not the same as the number of groups m (" + str(m) + ")")
-		x.set_rownam(["grp_"+str(i) for i in range(1, m+1)])
+		if x.get_shape()[0] != m:
+			raise Exception("The number of rows in x (" + str(x.get_shape()[0]) + "is not the same as the number of groups m (" + str(m) + ")")
+		x.set_axisnam(["grp_"+str(i) for i in range(1, m+1)], x.get_axisnam()[1])
 		design["x"] = x
 
 
 	### for groupsize ###
-	if max(size(groupsize)) == 1 and m != 1:
-		groupsize = [groupsize] * m
-		groupsize = matrix(np.array(groupsize), shape=[m ,1],
-						   rownam=["grp_"+str(i) for i in range(1, m+1)])
-	
-	if type(groupsize) is matrix:
-		if len(groupsize.get_shape()) != 2:
-			groupsize = groupsize.get_all_data()[:, np.newaxis]
-	if type(groupsize) is np.ndarray:
-		if len(groupsize.get_shape()) != 2:
-			groupsize = matrix(groupsize.get_all_data()[:, np.newaxis])
-	elif type(groupsize) is list or type(groupsize) is int:
-		groupsize = matrix(np.array([groupsize])[:, np.newaxis])
+	if type(groupsize) is Matrix:
+		if max(groupsize.get_shape()) == 1 and m != 1:
+			groupsize.repeat([m, 1], [m, 1], datanam=True)
+			groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
+									None])
 		
 	if test_mat_size(np.array([m, 1]), groupsize.get_all_data(), "groupsize") == 1:
-		groupsize = matrix(groupsize,
-						   rownam=["grp_"+str(i) for i in range(1, m+1)],
-						   colnam=["n_id"] * groupsize.shape[1])
+		groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)],
+								["n_id"] * groupsize.shape[1]])
 		design["groupsize"] = groupsize
 	
-
 	return design

@@ -19,7 +19,7 @@ class Matrix:
 		"""
 		@parameters:
 			data: int, float, [int], [float], np.ndarray, Matrix
-			shape: list
+			shape: [int], if 2-d, [row, column]
 			datanam: [str]
 			axisnam: [str]
 		"""

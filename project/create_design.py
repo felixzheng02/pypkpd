@@ -102,7 +102,7 @@ def create_design(
 		colnam = x.get_datanam()
 		if colnam is None:
 			colnam = x.get_axisnam()[1]
-		if size(x)[0] == 1 and m != 1:
+		if x.get_shape()[0] == 1 and m != 1:
 			x.repeat([1, m], [m, x.get_size()], datanam=True)
 			x.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], colnam])
 

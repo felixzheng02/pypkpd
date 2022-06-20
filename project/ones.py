@@ -9,8 +9,9 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
+import path
 import numpy as np
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 
 def ones(dim1, dim2 = None):
 	if dim2 is None:

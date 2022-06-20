@@ -3,7 +3,7 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-#import project.all_modules as am
+import path
 from enum import IntFlag
 import re
 import numpy as np
@@ -47,13 +47,13 @@ def create_design(
 
 	### for ni ###
 	if ni is None:
-		tmp = 1-np.isnan(xt.get_all_data())
+		tmp = 1-np.isnan(xt.get_data())
 		if len(tmp.shape) == 1:
 			tmp = tmp[np.newaxis, :]
 		ni = Matrix(np.count_nonzero(tmp, axis=1).reshape(xt.get_shape()[0], 1))
 	
 	
-	if test_mat_size(np.array([m, 1]), ni.get_all_data(), "ni") == 1:
+	if test_mat_size(np.array([m, 1]), ni.get_data(), "ni") == 1:
 		ni.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
 						list(itertools.repeat("n_obs", ni.get_shape()[1]))]) 
 		design["ni"] = ni
@@ -64,11 +64,11 @@ def create_design(
 	# 	length = max([len(i) for i in model_switch])
 	# 	model_switch = matrix(np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch])) # convert a list of vectors to an array
 	if model_switch is None:
-		model_switch = Matrix(xt.get_all_data() * 0 + 1)
+		model_switch = Matrix(xt.get_data() * 0 + 1)
 	if model_switch.get_shape()[0] == 1 and m != 1:
 		model_switch.repeat([1, m], [m, model_switch.get_size()], True, False)  # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
-	if test_mat_size(np.array(xt.get_shape()), model_switch.get_all_data(), "model_switch") == 1:
+	if test_mat_size(np.array(xt.get_shape()), model_switch.get_data(), "model_switch") == 1:
 		model_switch.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
 								["obs_"+str(i) for i in range(1, model_switch.get_shape()[1]+1)]]) 
 		design["model_switch"] = model_switch
@@ -119,7 +119,7 @@ def create_design(
 			groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
 									None])
 		
-	if test_mat_size(np.array([m, 1]), groupsize.get_all_data(), "groupsize") == 1:
+	if test_mat_size(np.array([m, 1]), groupsize.get_data(), "groupsize") == 1:
 		groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)],
 								["n_id"] * groupsize.shape[1]])
 		design["groupsize"] = groupsize

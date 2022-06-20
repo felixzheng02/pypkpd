@@ -41,11 +41,12 @@ class Matrix:
 		else:
 			if type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
 				data = np.array([data]).reshape([1, 1])
-			elif type(data) is list:
-				data = np.array(data)
+
+				
+				# needs to fill empty places by np.nan
 			self.shape = None
 			self.shape = select(shape, data.shape)
-			self.data = np.array(data).reshape(self.shape)
+			self.data = data.reshape(self.shape)
 			self.size = self.get_data().size
 			self.datanam = datanam
 			self.axisnam = axisnam

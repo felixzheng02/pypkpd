@@ -53,8 +53,8 @@ def create_design(
 		ni = Matrix(np.count_nonzero(tmp, axis=1).reshape(xt.get_shape()[0], 1))
 	
 	
-	if test_mat_size(np.array([m, 1]), ni.get_data(), "ni") == 1:
-		ni.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
+	if test_mat_size([m.get_value(), 1], ni.get_shape(), "ni") == 1:
+		ni.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], 
 						list(itertools.repeat("n_obs", ni.get_shape()[1]))]) 
 		design["ni"] = ni
 
@@ -68,8 +68,8 @@ def create_design(
 	if model_switch.get_shape()[0] == 1 and m != 1:
 		model_switch.repeat([1, m], [m, model_switch.get_size()], True, False)  # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
-	if test_mat_size(np.array(xt.get_shape()), model_switch.get_data(), "model_switch") == 1:
-		model_switch.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
+	if test_mat_size(xt.get_shape(), model_switch.get_shape(), "model_switch") == 1:
+		model_switch.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], 
 								["obs_"+str(i) for i in range(1, model_switch.get_shape()[1]+1)]]) 
 		design["model_switch"] = model_switch
 
@@ -80,13 +80,13 @@ def create_design(
 		if colnam is None:
 			colnam = a.get_axisnam()[1]
 		if a.get_shape()[0] == 1 and m != 1:
-			a.repeat([1, m], [m, a.get_size()], datanam=True)
+			a.repeat([1, m.get_value()], [m.get_value(), a.get_size()], datanam=True)
 			a.set_axisnam(([["grp_"+str(i) for i in range(1, m+1)],
 							colnam]))
 
 		if a.get_shape()[0] != m:
-			raise Exception("The number of rows in a (" + str(a.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m) + ")")
-		a.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], a.get_axisnam()[1]])
+			raise Exception("The number of rows in a (" + str(a.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m.get_value()) + ")")
+		a.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], a.get_axisnam()[1]])
 		if a.get_axisnam()[1] is not None:
 			count = 0
 			for i in range(0, a.get_shape()[1]):
@@ -102,25 +102,27 @@ def create_design(
 		colnam = x.get_datanam()
 		if colnam is None:
 			colnam = x.get_axisnam()[1]
-		if x.get_shape()[0] == 1 and m != 1:
-			x.repeat([1, m], [m, x.get_size()], datanam=True)
-			x.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], colnam])
+		if x.get_shape()[0] == 1 and m.get_value() != 1:
+			x.repeat([1, m.get_value()], [m.get_value(), x.get_size()], datanam=True)
+			x.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], colnam])
 
-		if x.get_shape()[0] != m:
-			raise Exception("The number of rows in x (" + str(x.get_shape()[0]) + "is not the same as the number of groups m (" + str(m) + ")")
-		x.set_axisnam(["grp_"+str(i) for i in range(1, m+1)], x.get_axisnam()[1])
+		if x.get_shape()[0] != m.get_value():
+			raise Exception("The number of rows in x (" + str(x.get_shape()[0]) + "is not the same as the number of groups m (" + str(m.get_value()) + ")")
+		x.set_axisnam(["grp_"+str(i) for i in range(1, m.get_value()+1)], x.get_axisnam()[1])
 		design["x"] = x
 
 
 	### for groupsize ###
 	if type(groupsize) is Matrix:
-		if max(groupsize.get_shape()) == 1 and m != 1:
-			groupsize.repeat([m, 1], [m, 1], datanam=True)
-			groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)], 
+		if max(groupsize.get_shape()) == 1 and m.get_value() != 1:
+			groupsize.repeat([m.get_value(), 1], [m.get_value(), 1], datanam=True)
+			groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], 
 									None])
-		
-	if test_mat_size(np.array([m, 1]), groupsize.get_data(), "groupsize") == 1:
-		groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)],
+	else:
+		groupsize = Matrix(groupsize)
+			
+	if test_mat_size([m.get_value(), 1], groupsize.get_shape(), "groupsize") == 1:
+		groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)],
 								["n_id"] * groupsize.shape[1]])
 		design["groupsize"] = groupsize
 	

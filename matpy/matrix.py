@@ -40,10 +40,12 @@ class Matrix:
 
 		else:
 			if type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
-				data = np.array([data]).reshape([1, 1])
-
-				
+				data = np.array([data]).reshape([1, 1])			
+			elif type(data) is list:
 				# needs to fill empty places by np.nan
+				recursively_fill_list(data)
+				data = np.array(data)
+
 			self.shape = None
 			self.shape = select(shape, data.shape)
 			self.data = data.reshape(self.shape)
@@ -226,3 +228,19 @@ def select(input, default):
 		return default
 	else:
 		return input
+
+
+def recursively_fill_list(input_list):
+	"""
+	recursively fill np.nan values to blank spaces in a list,
+	which probably includes multiple layers of sublist
+	"""
+	if type(input_list[0]) is list:
+		length = max([len(sub_list) for sub_list in input_list])
+		for i in range(0, len(input_list)):
+			recursively_fill_list(input_list[i])
+			# fill
+			input_list[i] = input_list[i] + [np.nan] * (length - len(input_list[i]))
+
+	else: # sub-list structure ends
+		return

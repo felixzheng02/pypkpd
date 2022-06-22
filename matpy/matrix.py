@@ -18,8 +18,7 @@ class Matrix:
 	def __init__(self, data, shape: list = None, datanam: list = None, axisnam: list = None):
 		"""
 		@parameters:
-			data: int, float, [int], [float], np.ndarray, Matrix
-			shape: [int], if 2-d, [row, column]
+			data: int, float, [int], [float], np.ndarray
 			datanam: [str]
 			axisnam: [str]
 		"""
@@ -31,27 +30,19 @@ class Matrix:
 		# datanam: list of data name
 		# axisnam: list of axis name, stored as [[str]]
 
-		if type(data) is Matrix: # axisnam is not kept
-			self.shape = select(shape, data.get_shape())
-			self.data = np.array(data.get_data()).reshape(shape)
-			self.size = data.get_size()
-			self.datanam = select(datanam, data.get_datanam())
-			self.axisnam = axisnam
+		if type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
+			data = np.array([data]).reshape([1, 1])			
+		elif type(data) is list:
+			# needs to fill empty places by np.nan
+			recursively_fill_list(data)
+			data = np.array(data)
 
-		else:
-			if type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
-				data = np.array([data]).reshape([1, 1])			
-			elif type(data) is list:
-				# needs to fill empty places by np.nan
-				recursively_fill_list(data)
-				data = np.array(data)
-
-			self.shape = None
-			self.shape = select(shape, data.shape)
-			self.data = data.reshape(self.shape)
-			self.size = self.get_data().size
-			self.datanam = datanam
-			self.axisnam = axisnam
+		self.shape = None
+		self.shape = select(shape, data.shape)
+		self.data = data.reshape(self.shape)
+		self.size = self.get_data().size
+		self.datanam = datanam
+		self.axisnam = axisnam
 
 	def get_shape(self):
 		"""
@@ -201,10 +192,11 @@ class Matrix:
 		axisnam: if axisnam are repeated, all set to None if 0
 		"""
 		data = np.tile(self.get_data(), n)
-		if shape is not None:
-			if len(shape) == 1:
-				shape = [1, shape[0]]
-			data.reshape(shape)
+		if shape is None:
+			shape = data.shape
+		if len(shape) == 1:
+			shape = [1, shape[0]]
+		data = data.reshape(tuple(shape))
 		self.set_data(data)
 		self.set_shape(data.shape)
 		self.size = data.size

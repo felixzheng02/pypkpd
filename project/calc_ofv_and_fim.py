@@ -123,7 +123,7 @@ def calc_ofv_and_fim(poped_db, *argv):
                 fmf = output["E_fim"] 
             else:
                 ## update poped_db with options supplied in function
-                called_args = match.call()
+                called_args = match_call()
                 default_args = formals()
                 for i in called_args.keys()[-1]:
                     if len(re.match("^poped\\.db\\$", inspect.getsource(default_args[i]))) == 1:

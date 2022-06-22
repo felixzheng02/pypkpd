@@ -9,12 +9,12 @@ import warnings
 import numpy as np
 from project.size import size
 from project.zeros import zeros
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.diag_matlab import diag_matlab
 from project.get_all_params import get_all_params
 from project.get_unfixed_params import get_unfixed_params
 
-def get_cv(param_vars:np.ndarray,poped_db):
+def get_cv(param_vars:np.ndarray, poped_db):
     #Return the RSE,CV of parameters
     ## Author: Andrew Hooker
     params_all =  get_all_params(poped_db)[7]
@@ -100,7 +100,7 @@ def get_rse(fim, poped_db,*argv):
 
     if inv_fim is None:
         mess = "\n  Could not invert the FIM." + "\n  Is the design adequate to estimate all parameters?"
-        eig = eigen(fim)["values"]
+        eig = np.linalg.eig(fim)["values"][0]
         eig.keys() = get_parnam(poped_db)
         neg_vals:np.ndarray = eig[eig < 0]
         num_neg = neg_vals.size
@@ -110,7 +110,7 @@ def get_rse(fim, poped_db,*argv):
                 mess = mess + ("\n %12s  %8.7e" %(neg_vals[i].keys(),neg_vals[i]))
         #warning(simpleWarning(mess,call="get_rse()"))
         warnings.warn(mess)
-        return (np.repeat(np.nan, length(get_parnam(poped_db))))
+        return (np.repeat(np.nan, len(get_parnam(poped_db))))
 
     param_vars = diag_matlab(inv_fim)
     returnArgs =  get_cv(param_vars,poped_db) 

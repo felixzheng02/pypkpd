@@ -132,8 +132,8 @@ class Matrix:
 		self.data = self.get_data().reshape(shape)
 		if axisnam is not None:
 			self.set_axisnam(axisnam)
-		elif len(self.get_axisnam()) != len(self.get_shape()):
-			self.set_axisnam(None)
+			if len(self.get_axisnam()) != len(self.get_shape()):
+				self.set_axisnam(None)
 
 	def set_datanam(self, datanam: list):
 		self.datanam = datanam

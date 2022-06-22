@@ -66,7 +66,7 @@ def create_design(
 	if model_switch is None:
 		model_switch = Matrix(xt.get_data() * 0 + 1)
 	if model_switch.get_shape()[0] == 1 and m != 1:
-		model_switch.repeat([1, m], [m, model_switch.get_size()], True, False)  # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
+		model_switch.repeat([1, m.get_value()], [m.get_value(), model_switch.get_size()], True, False)  # flatten xt, repeat by m times, and reshape to (col: xt's element number, row: m)
 
 	if test_mat_size(xt.get_shape(), model_switch.get_shape(), "model_switch") == 1:
 		model_switch.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], 
@@ -78,15 +78,19 @@ def create_design(
 	if type(a) is Matrix: # a is a Matrix
 		colnam = a.get_datanam()
 		if colnam is None:
-			colnam = a.get_axisnam()[1]
+			if a.get_axisnam() is not None:
+				colnam = a.get_axisnam()[1]
 		if a.get_shape()[0] == 1 and m != 1:
 			a.repeat([1, m.get_value()], [m.get_value(), a.get_size()], datanam=True)
-			a.set_axisnam(([["grp_"+str(i) for i in range(1, m+1)],
+			a.set_axisnam(([["grp_"+str(i) for i in range(1, m.get_value()+1)],
 							colnam]))
 
-		if a.get_shape()[0] != m:
+		if a.get_shape()[0] != m.get_value():
 			raise Exception("The number of rows in a (" + str(a.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m.get_value()) + ")")
-		a.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], a.get_axisnam()[1]])
+		tmp_colnam = None
+		if a.get_axisnam() is not None:
+			tmp_colnam = a.get_axisnam()[1]
+		a.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], tmp_colnam])
 		if a.get_axisnam()[1] is not None:
 			count = 0
 			for i in range(0, a.get_shape()[1]):
@@ -113,13 +117,15 @@ def create_design(
 
 
 	### for groupsize ###
-	if type(groupsize) is Matrix:
-		if max(groupsize.get_shape()) == 1 and m.get_value() != 1:
-			groupsize.repeat([m.get_value(), 1], [m.get_value(), 1], datanam=True)
-			groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], 
-									None])
-	else:
+	if type(groupsize) is not Matrix:
 		groupsize = Matrix(groupsize)
+	
+	if max(groupsize.get_shape()) == 1 and m.get_value() != 1:
+		groupsize.repeat([m.get_value(), 1], [m.get_value(), 1], datanam=True)
+		groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], 
+								None])	
+	else:
+		groupsize.set_shape([m.get_value(), 1])
 			
 	if test_mat_size([m.get_value(), 1], groupsize.get_shape(), "groupsize") == 1:
 		groupsize.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)],

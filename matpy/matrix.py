@@ -37,8 +37,9 @@ class Matrix:
 			recursively_fill_list(data)
 			data = np.array(data)
 
-		self.shape = None
 		self.shape = select(shape, data.shape)
+		if len(self.shape) == 1:
+			self.shape = [1, self.shape[0]]
 		self.data = data.reshape(self.shape)
 		self.size = self.get_data().size
 		self.datanam = datanam

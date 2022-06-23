@@ -75,6 +75,8 @@ def create_design(
 
 
 	### for a ###
+	if type(a) is list or type(a) is np.ndarray:
+		a = Matrix(a)
 	if type(a) is Matrix: # a is a Matrix
 		colnam = a.get_datanam()
 		if colnam is None:

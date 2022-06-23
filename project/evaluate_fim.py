@@ -24,14 +24,14 @@
 ## @param approx.method Approximation method for model, 0=FO, 1=FOCE, 2=FOCEI, 3=FOI
 ## @param FOCE.num Number individuals in each step of FOCE approximation method 
 ## @param bpop_val The fixed effects parameter values.  Supplied as a vector.
-## @param d_full A between subject variability matrix (OMEGA in NONMEM).
-## @param docc_full A between occasion variability matrix.
-## @param sigma_full A residual unexplained variability matrix (SIGMA in NONMEM).
-## @param model_switch A matrix that is the same size as xt, specifying which model each sample belongs to.
+## @param d_full A between subject variability Matrix (OMEGA in NONMEM).
+## @param docc_full A between occasion variability Matrix.
+## @param sigma_full A residual unexplained variability Matrix (SIGMA in NONMEM).
+## @param model_switch A Matrix that is the same size as xt, specifying which model each sample belongs to.
 ## @param ni A vector of the number of samples in each group.
-## @param xt A matrix of sample times.  Each row is a vector of sample times for a group.
-## @param x A matrix for the discrete design variables.  Each row is a group.
-## @param a A matrix of covariates.  Each row is a group.
+## @param xt A Matrix of sample times.  Each row is a vector of sample times for a group.
+## @param x A Matrix for the discrete design variables.  Each row is a group.
+## @param a A Matrix of covariates.  Each row is a group.
 ## @param groupsize A vector of the number of individuals in each group.
 ## @param deriv_type A number indicating the type of derivative to use:
 ## \itemize{

@@ -3,13 +3,13 @@
 ## 
 ## This function tries to match the MATLAB version in handling vectors
 ## (matricies with one dimension equal to one), and will return a diagonal
-## matrix in these situations.
+## Matrix in these situations.
 ## 
-## @param mat Either a vector to make into a diagonal matrix or a matrix you 
+## @param mat Either a vector to make into a diagonal Matrix or a Matrix you 
 ##   want to extract the diagonal from
-## @return Either a diagonal matrix or the diagonal of a matrix.
+## @return Either a diagonal Matrix or the diagonal of a Matrix.
 ## @family MATLAB
-## @family matrix_manipulation
+## @family Matrix_manipulation
 ## @example test/Test_diag_matlab.py
 ## @export
 ## @keywords internal
@@ -20,14 +20,14 @@
 
 
 import numpy as np
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 
-def diag_matlab(mat:matrix):
+def diag_matlab(mat:Matrix):
     dim_mat = mat.get_shape()
     if dim_mat is not None:
         if  1 in dim_mat:
             if all(dim_mat[i] == 1 for i in range(0, len(dim_mat))) is False:
-                return matrix(np.diag(mat.get_all_data()))
-    return matrix(np.diag(mat.get_all_data()))
+                return Matrix(np.diag(mat.get_all_data()))
+    return Matrix(np.diag(mat.get_all_data()))
 
 

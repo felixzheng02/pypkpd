@@ -1,7 +1,7 @@
 """
-## Compute the Bayesian Fisher information matrix 
+## Compute the Bayesian Fisher information Matrix 
 ## 
-## Computation of the Bayesian Fisher information matrix for 
+## Computation of the Bayesian Fisher information Matrix for 
 ## individual parameters of a population model based on 
 ## Maximum A Posteriori (MAP) estimation of the empirical Bayes estimates (EBEs) in a population model 
 ##
@@ -12,16 +12,16 @@
 ##   not then then a first order approximation is used
 ## @param use_purrr If \code{use_mc=TRUE} then should the method use the package
 ##   purrr in calculations?  This may speed up computations (potentially).
-## @param shrink_mat Should the shrinkage matrix be returned.  Calculated as the
-## inverse of the  Bayesian Fisher information matrix times the inverse of the 
-## omega matrix (variance matrix of the between-subject variability).
-## @return The Bayesian Fisher information matrix for each design group 
+## @param shrink_mat Should the shrinkage Matrix be returned.  Calculated as the
+## inverse of the  Bayesian Fisher information Matrix times the inverse of the 
+## omega Matrix (variance Matrix of the between-subject variability).
+## @return The Bayesian Fisher information Matrix for each design group 
 ## @export
 ##
 ## @references \enumerate{ 
 ##   \item Combes, F. P., Retout, S.,
 ##   Frey, N., & Mentre, F. (2013). Prediction of shrinkage of individual
-##   parameters using the Bayesian information matrix in non-linear mixed effect
+##   parameters using the Bayesian information Matrix in non-linear mixed effect
 ##   models with evaluation in pharmacokinetics. Pharmaceutical Research, 30(9),
 ##   2355-67. \doi{10.1007/s11095-013-1079-3}. 
 ##   \item Hennig, S., Nyberg, J., Fanta, S., Backman, J.

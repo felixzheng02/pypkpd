@@ -96,7 +96,7 @@ class Matrix:
 
 	def set_data(self, data, shape: list = None, datanam: list = None):
 		"""
-		set data of the matrix, datanam, colnam, rownam are lost
+		set data of the Matrix, datanam, colnam, rownam are lost
 		@parameters:
 			data: int, float, [int], [float], np.ndarray, Matrix
 			shape: list
@@ -118,7 +118,7 @@ class Matrix:
 
 	def set_shape(self, shape: list, axisnam: list = None):
 		"""
-		set shape of the matrix, keep axisnam if applicable
+		set shape of the Matrix, keep axisnam if applicable
 		"""
 		self.shape = shape
 		self.data = self.get_data().reshape(shape)

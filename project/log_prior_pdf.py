@@ -25,7 +25,7 @@ from project.diag_matlab import diag_matlab
 def log_prior_pdf(alpha,bpopdescr,ddescr,return_gradient=False,return_hessian=False):
     #returns the logarithm of the probability density for alpha,given the prior
     #and if required the gradient
-    #priordescr=matrix(c(bpopdescr[bpopdescr[,1]!=0,], ddescr[ddescr[,1]!=0,]),nrow=1,byrow=T)
+    #priordescr=Matrix(c(bpopdescr[bpopdescr[,1]!=0,], ddescr[ddescr[,1]!=0,]),nrow=1,byrow=T)
     priordescr = np.concatenate((bpopdescr,ddescr), axis=0)
     priordescr = priordescr[priordescr[:,0]!=0,:]
     if any(priordescr[:,0] > 4 or priordescr[:,0] == 3):

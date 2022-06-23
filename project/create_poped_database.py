@@ -40,7 +40,7 @@ All elements set to zero => only calculate the FIM with current design
  If only one vector is supplied, e.g. \code{c(1,2,3,4)}, then all groups will 
 have the same initial design. 
 @param m Number of groups in the study.  Each individual in a group will have the same design. 
-@param x A matrix defining the initial discrete values for the model 
+@param x A Matrix defining the initial discrete values for the model 
 Each row is a group/individual.
 @param nx Number of discrete design variables.
 @param a Matrix defining the initial continuous covariate values. 
@@ -107,7 +107,7 @@ D-family design (1) or ED-family design (0) (with or without parameter uncertain
 \itemize{ 
 \item 1 = "D-optimality". Determinant of the FIM: det(FIM)
 \item 2 = "A-optimality".  Inverse of the sum of the expected parameter variances: 
-1/trace_matrix(inv(FIM)) 
+1/trace_Matrix(inv(FIM)) 
 \item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
 \item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
 rows and columns of the FIM: det(FIM)/det(FIM_u)
@@ -146,11 +146,11 @@ Can also just supply the parameter values as a vector \code{c()} if no uncertain
 parameter value is to be used. The parameter order of  'bpop' is defined in the 'fg_fun' or 'fg_file'. If you use named 
 arguments in 'bpop' then the order will be worked out automatically.
 @param d Matrix defining the diagonals of the IIV (same logic as for the fixed effects 
-matrix bpop to define uncertainty). One can also just supply the parameter values as a \code{c()}. 
+Matrix bpop to define uncertainty). One can also just supply the parameter values as a \code{c()}. 
 The parameter order of 'd' is defined in the 'fg_fun' or 'fg_file'. If you use named 
 arguments in 'd' then the order will be worked out automatically.
 @param covd Column major vector defining the covariances of the IIV variances. 
-That is, from your full IIV matrix  \code{covd =  IIV[lower.tri(IIV)]}. 
+That is, from your full IIV Matrix  \code{covd =  IIV[lower.tri(IIV)]}. 
 @param sigma Matrix defining the variances can covariances of the residual variability terms of the model.
 can also just supply the diagonal parameter values (variances) as a \code{c()}. 
 @param docc Matrix defining the IOV, the IOV variances and the IOV distribution as for d and bpop. 
@@ -165,7 +165,7 @@ The parameter order of 'notfixed_d' is defined in the 'fg_fun' or 'fg_file'. If 
 arguments in 'notfixed_d' then the order will be worked out automatically. 
 @param notfixed_covd Vector defining if a covariance IIV is fixed or not (1=not fixed, 0=fixed)
 @param notfixed_docc Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed)  
-@param notfixed_covdocc Vector row major order for lower triangular matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) 
+@param notfixed_covdocc Vector row major order for lower triangular Matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) 
 @param notfixed_sigma Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) 
 @param notfixed_covsigma Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed). 
 Default is fixed.
@@ -282,7 +282,7 @@ from project.cell import cell
 from project.ones import ones
 from project.size import size
 from matpy.num import num
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.zeros import zeros
 from project.feval import feval
 from project.pargen import pargen
@@ -300,7 +300,7 @@ from project.get_all_params import get_all_params
 from project.get_unfixed_params import get_unfixed_params
 
 
-def reorder_vec(your_vec: matrix, name_order):
+def reorder_vec(your_vec: Matrix, name_order):
     if your_vec.get_datanam() is not None:
         if all(your_vec.get_datanam()) in name_order:
             your_vec = your_vec[name_order[name_order in your_vec.get_datanam()]]
@@ -351,7 +351,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Vector of optimization tasks (1=True,0=False)
     # (Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group)
     # -- All elements set to zero => only calculate the FIM with current design --
-    optsw = param_choose(popedInput, matrix(np.array([0, 0, 0, 0, 0])), 0, param, kwargs, 'settings', 'optsw')
+    optsw = param_choose(popedInput, Matrix(np.array([0, 0, 0, 0, 0])), 0, param, kwargs, 'settings', 'optsw')
 
     # --------------------------
     # ---- Initial Design
@@ -381,7 +381,7 @@ def create_poped_database(popedInput={}, **kwargs):
 
     groupsize = param_choose(popedInput, "'groupsize' needs to be defined", 1, param, kwargs, 'design', 'groupsize')
     # -- Vector defining the number of samples for each group --
-    # ni=poped_choose(popedInput["design"]ni,matrix(size(xt,2),m,1)),
+    # ni=poped_choose(popedInput["design"]ni,Matrix(size(xt,2),m,1)),
     ni = param_choose(popedInput, None, 0, param, kwargs, 'design', 'ni')
     # -- Vector defining which response a certain sampling time belongs to --
     # model_switch=poped_choose(popedInput["design"]model_switch,ones(size(xt,1),size(xt,2))),
@@ -451,7 +451,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Num individuals in each step of FOCE --
     iFOCENumInd = param_choose(popedInput, 1000, 0, param, kwargs, 'settings', 'iFOCENumInd')
     # -- The prior FIM (added to calculated FIM) --
-    prior_fim = param_choose(popedInput, matrix(np.array([0])), 0, param, kwargs, 'settings', 'prior_fim')
+    prior_fim = param_choose(popedInput, Matrix(np.array([0])), 0, param, kwargs, 'settings', 'prior_fim')
     # -- Filname and path for the Autocorrelation function, empty string means no autocorrelation --
     strAutoCorrelationFile = param_choose(popedInput, "", 0, param, kwargs, "model", 'auto_pointer')
 
@@ -517,7 +517,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # can also just supply the diagonal values as a c()
     sigma = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'sigma')
     # -- Matrix defining the IOV, the IOV variances and the IOV distribution --
-    docc = param_choose(popedInput, matrix(np.array([np.nan, np.nan, np.nan])), 0, param, kwargs, 'parameters', 'docc')
+    docc = param_choose(popedInput, Matrix(np.array([np.nan, np.nan, np.nan])), 0, param, kwargs, 'parameters', 'docc')
     # -- Matrix defining the covariance of the IOV --
     if np.array_equal(docc.get_all_data(), np.array([np.nan, np.nan, np.nan]), equal_nan=True):
         tmp = 0
@@ -536,10 +536,10 @@ def create_poped_database(popedInput={}, **kwargs):
     notfixed_covd = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_covd')
     # -- Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed) --
     notfixed_docc = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_docc')
-    # -- Vector row major order for lower triangular matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
+    # -- Vector row major order for lower triangular Matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
     notfixed_covdocc = param_choose(popedInput, zeros(1, covdocc.get_size()), 0, param, kwargs, 'parameters', 'notfixed_covdocc')
     # -- Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_sigma = param_choose(popedInput, matrix(np.ones(size(sigma)[1])), 0, param, kwargs, 'parameters', 'notfixed_sigma')
+    notfixed_sigma = param_choose(popedInput, Matrix(np.ones(size(sigma)[1])), 0, param, kwargs, 'parameters', 'notfixed_sigma')
     # -- Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed) --
     ## default is fixed
     notfixed_covsigma = param_choose(popedInput, zeros(1, (notfixed_sigma.get_size())*((notfixed_sigma.get_size())-1)/2), 0, param, kwargs, 'parameters', 'notfixed_covsigma')
@@ -592,7 +592,7 @@ def create_poped_database(popedInput={}, **kwargs):
     # -- Vector for line search on continuous design variables (1=True,0=False) --
     line_opta = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'line_opta')
     # -- Vector for line search on discrete design variables (1=True,0=False) --
-    line_optx = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'line_optx')  # matrix(0,0,1)
+    line_optx = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'line_optx')  # Matrix(0,0,1)
     # -- Use graph output during search --
     bShowGraphs = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bShowGraphs')
     # -- If a log file should be used (0=False, 1=True) --
@@ -1151,11 +1151,11 @@ def create_poped_database(popedInput={}, **kwargs):
     d_arr = np.array([1])
     bpop_arr = np.array([1])
     poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, 
-        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")])), 0)
+        Matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")])), 0)
     poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, 
-        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")])), 0)
+        Matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")])), 0)
     poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, 
-        matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")])), 0)
+        Matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")])), 0)
 
 
 # reorder named values
@@ -1201,8 +1201,8 @@ def create_poped_database(popedInput={}, **kwargs):
         bpop = bpop_descr
 
     # we have just the diagonal parameter values
-    if size(sigma)[0] == 1 and (type(sigma) is not np.ndarray or type(sigma) is not matrix):
-        sigma_tmp = matrix(np.diag(sigma, size(sigma)[1], size(sigma)[1]))
+    if size(sigma)[0] == 1 and (type(sigma) is not np.ndarray or type(sigma) is not Matrix):
+        sigma_tmp = Matrix(np.diag(sigma, size(sigma)[1], size(sigma)[1]))
         sigma_tmp.set_colnam(sigma.keys())
         # sigma_tmp.columns.values = sigma.keys()
         sigma = sigma_tmp
@@ -1226,27 +1226,27 @@ def create_poped_database(popedInput={}, **kwargs):
 
         iMaxCorrIndNeeded = 100
         bzeros = zeros(poped_db["parameters"]["NumRanEff"], 1)
-        bones = matrix(np.ones(int(poped_db["parameters"]["NumRanEff"])), (int(poped_db["parameters"]["NumRanEff"]), 1))
+        bones = Matrix(np.ones(int(poped_db["parameters"]["NumRanEff"])), (int(poped_db["parameters"]["NumRanEff"]), 1))
         bocczeros = zeros(poped_db["parameters"]["NumDocc"], 1)
-        boccones = matrix(np.ones(int(poped_db["parameters"]["NumDocc"])), (int(poped_db["parameters"]["NumDocc"]), 1))
+        boccones = Matrix(np.ones(int(poped_db["parameters"]["NumDocc"])), (int(poped_db["parameters"]["NumDocc"]), 1))
 
         poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"], max(
             poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded))
 
-        fulld = getfulld(matrix(d.get_all_data()[:,1]), poped_db["parameters"]["covd"])
-        fulldocc = getfulld(matrix(docc.get_all_data()[:,1]), poped_db["parameters"]["covdocc"])
+        fulld = getfulld(Matrix(d.get_all_data()[:,1]), poped_db["parameters"]["covd"])
+        fulldocc = getfulld(Matrix(docc.get_all_data()[:,1]), poped_db["parameters"]["covdocc"])
 
         poped_db["parameters"]["bocc_global"] = cell(
             poped_db["settings"]["iFOCENumInd"], 1)
 
         if poped_db["settings"]["d_switch"] is True:
-            poped_db["parameters"]["b_global"] = matrix(np.transpose(np.random.multivariate_normal(
+            poped_db["parameters"]["b_global"] = Matrix(np.transpose(np.random.multivariate_normal(
                 max(poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), sigma=fulld)))
             for i in range(0, poped_db["settings"]["iFOCENumInd"]):
                 poped_db["parameters"]["bocc_global"][i] = zeros(
                     size(docc)[0], poped_db["parameters"]["NumOcc"])
                 if poped_db["parameters"]["NumOcc"] != 0:
-                    poped_db["parameters"]["bocc_global"][i] = matrix(np.transpose(np.random.multivariate_normal(
+                    poped_db["parameters"]["bocc_global"][i] = Matrix(np.transpose(np.random.multivariate_normal(
                         poped_db["parameters"]["NumOcc"], sigma=fulldocc)))
 
         else:
@@ -1255,17 +1255,17 @@ def create_poped_database(popedInput={}, **kwargs):
             docc_dist = pargen(docc, poped_db["model"]["user_distribution_pointer"], poped_db["settings"]
                                ["iFOCENumInd"], poped_db["settings"]["bLHS"], zeros(1, 0), poped_db)
 
-            ## set one data with type of matrix
+            ## set one data with type of Matrix
             if len(d_dist) != 0:
                 for i in range(0, max(poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)):
                     for j in range(0, poped_db["parameters"]["b_global"].get_shape[0]):
-                        poped_db["parameters"]["b_global"].set_one_data(matrix(np.transpose(
+                        poped_db["parameters"]["b_global"].set_one_data(Matrix(np.transpose(
                             np.random.multivariate_normal(
                                 1, sigma=getfulld(d_dist[i,:], poped_db["parameters"]["covd"])))), None, [j,i])                        
 
             if len(docc_dist) != 0:
                 for i in range(0, poped_db["settings"]["iFOCENumInd"]):
-                    poped_db["parameters"]["bocc_global"].set_one__data(matrix(np.transpose(
+                    poped_db["parameters"]["bocc_global"].set_one__data(Matrix(np.transpose(
                         np.random.multivariate_normal(
                         poped_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], poped_db["parameters"]["covdocc"])))), None, [0,i])
     else:
@@ -1335,13 +1335,13 @@ def create_poped_database(popedInput={}, **kwargs):
     # create ds_index if not already done
     if poped_db["parameters"]["ds_index"] is not None:
         unfixed_params = get_unfixed_params(poped_db)
-        poped_db["parameters"]["ds_index"] = matrix(np.transpose(
+        poped_db["parameters"]["ds_index"] = Matrix(np.transpose(
             np.repeat(0, unfixed_params["all"])))
         poped_db["parameters"]["ds_index"][(
             unfixed_params["bpop"].get_size()+1):poped_db["parameters"]["ds_index"].get_size()] = 1
     else:
-        if type(poped_db["parameters"]["ds_index"]) is not matrix:
-            poped_db["parameters"]["ds_index"] = matrix(np.array(
+        if type(poped_db["parameters"]["ds_index"]) is not Matrix:
+            poped_db["parameters"]["ds_index"] = Matrix(np.array(
                 [poped_db["parameters"]["ds_index"], 1, len(poped_db["parameters"]["ds_index"])]))
 
     poped_db["settings"]["strIterationFileName"] = strIterationFileName

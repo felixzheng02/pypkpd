@@ -15,7 +15,7 @@ from project.feval import feval
 from project.LinMatrixL import LinMatrixL
 from project.LinMatrixL_occ import LinMatrixL_occ
 from project.ind_estimates import ind_estimates
-from project.trace_matrix import trace_matrix
+from project.trace_Matrix import trace_Matrix
 from project.hessian_eta_complex import hessian_eta_complex
 
 def grad_bpop (func,select_par,nout,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db,subset,offdiag=False):
@@ -68,7 +68,7 @@ def helper_LinMatrix (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind,bocc_ind,d,s
             hess_eta = zeros(xt_ind.size,1)
             for o in range(xt_ind.size):
                 hessian_eta = hessian_eta_complex(model_switch[o],xt_ind[o],x,a,bpop,b_ind,bocc_ind,poped_db)
-                hess_eta[o] = 1/2 * trace_matrix(hessian_eta * d)
+                hess_eta[o] = 1/2 * trace_Matrix(hessian_eta * d)
             ferror = ferror + hess_eta  
     else:
         #FOCE, FOCEI

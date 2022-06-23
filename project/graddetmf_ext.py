@@ -11,7 +11,7 @@ from project.cell import cell
 from project.size import size
 from project.zeros import zeros
 from project.mftot import mftot
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.get_fim_size import get_fim_size
 from project.update_designinlist import update_designinlist
 
@@ -21,10 +21,10 @@ def graddetmf_ext(model_switch,aX,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db
     n = get_fim_size(poped_db)
     m = size(ni)[0]
     if gradxt is False:
-        gdmf = matrix(1, (m, size(a)[1]))
+        gdmf = Matrix(1, (m, size(a)[1]))
         G_X = poped_db["design_space"]["G_a"]
     else:
-        gdmf = matrix(1, (m, size(xt)[1]))
+        gdmf = Matrix(1, (m, size(xt)[1]))
         G_X = poped_db["design_space"]["G_xt"]
     
     

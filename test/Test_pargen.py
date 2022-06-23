@@ -29,7 +29,7 @@
 import numpy as np
 import scipy as sp
 from project.ones import ones
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.pargen import pargen
 from project.models import feps_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
@@ -40,13 +40,13 @@ from project.create_poped_database import create_poped_database
 poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
                                   fg_fun=sfg,
                                   fError_fun=feps_prop,
-                                  bpop=matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), ["CL", "V", "KA", "Favail"], None, None),
-                                  notfixed_bpop=matrix(np.array([1,1,1,0]), (1, 4), None, None, None),
-                                  d=matrix(np.array([0.07, 0.02, 0.6]), (1, 3), ["CL", "V", "KA"], None, None),
-                                  sigma=matrix(np.array([0.01]), (1, 1), ["prop"], None, None),
+                                  bpop=Matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), ["CL", "V", "KA", "Favail"], None, None),
+                                  notfixed_bpop=Matrix(np.array([1,1,1,0]), (1, 4), None, None, None),
+                                  d=Matrix(np.array([0.07, 0.02, 0.6]), (1, 3), ["CL", "V", "KA"], None, None),
+                                  sigma=Matrix(np.array([0.01]), (1, 1), ["prop"], None, None),
                                   groupsize=32,
-                                  xt=matrix(np.array([0.5,1,2,6,24,36,72,120]), (1, 8), None, None, None),
-                                  a=matrix(np.array([70]), (1, 1), ["DOSE"], None, None))
+                                  xt=Matrix(np.array([0.5,1,2,6,24,36,72,120]), (1, 8), None, None, None),
+                                  a=Matrix(np.array([70]), (1, 1), ["DOSE"], None, None))
 
 print(poped_db)
 ############# END ###################
@@ -56,7 +56,7 @@ print(poped_db)
 
 
 # Adding 40% Uncertainty to fixed effects log-normal (not Favail)
-bpop_vals = matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), ["CL", "V", "KA", "Favail"], None, None)
+bpop_vals = Matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), ["CL", "V", "KA", "Favail"], None, None)
 bpop_vals_ed_ln = np.stack((ones(bpop_vals.get_size(), 1)*4, # log-normal distribution
                       bpop_vals,
                       ones(bpop_vals.get_size(), 1)*(bpop_vals*0.4)^2), axis=1) # 40% of bpop value

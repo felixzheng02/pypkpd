@@ -33,7 +33,7 @@
 import re
 import inspect
 import numpy as np
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.feval import feval
 from project.ofv_fim import ofv_fim
 from project.mc_mean import mc_mean
@@ -67,7 +67,7 @@ def calc_ofv_and_fim(poped_db, *argv):
     if ofv == 0:
         if d_switch: 
             if ofv_fun is not None:
-                if type(fim) is matrix: 
+                if type(fim) is Matrix: 
                     fmf = evaluate_fim(poped_db, *argv)
                     bpop_val = bpop
                     d_full = d
@@ -136,7 +136,7 @@ def calc_ofv_and_fim(poped_db, *argv):
                 fmf = None
     
         ofv = dmf
-        if type(fim) is matrix:
+        if type(fim) is Matrix:
             fim = fmf
     
     
@@ -188,6 +188,6 @@ def calc_ofv_and_fim(poped_db, *argv):
             fmf = output["E_fim"]
         fim = fmf
     
-    calc_mat = matrix(np.array([[ofv], [fim]]))
+    calc_mat = Matrix(np.array([[ofv], [fim]]))
     calc_mat.set_datanam(["ofv", "fim"])
     return calc_mat

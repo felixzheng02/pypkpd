@@ -22,7 +22,7 @@ from project.grad_all import grad_all
 ## @param b_ind vector of individual realization of the BSV terms b
 ## @param bocc_ind Vector of individual realizations of the BOV terms bocc
 ## 
-## @return A matrix of size (samples per individual x number of epsilons) 
+## @return A Matrix of size (samples per individual x number of epsilons) 
 ##  
 ## @family FIM
 ##     
@@ -63,7 +63,7 @@ def LinMatrixH (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
 ## @inheritParams LinMatrixH
 ## @param num_eps The number of \code{eps()} in the model.
 ## 
-## @return A matrix of size (samples per individual x number of epsilons) 
+## @return A Matrix of size (samples per individual x number of epsilons) 
 ##  
 ## @family FIM
 ## @example tests/testthat/examples_fcn_doc/warfarin_optimize.R

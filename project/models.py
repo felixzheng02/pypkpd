@@ -251,7 +251,7 @@ def ff_PKPD_1_comp_oral_md_CL_imax(model_switch, xt, parameters: dict, poped_db)
 ##  \code{fError_file} argument.
 ##
 ## @inheritParams ff.PK.1.comp.oral.md.KE
-## @param epsi A matrix with the same number of rows as the \code{xt} vector, columns match the numbers defined in this 
+## @param epsi A Matrix with the same number of rows as the \code{xt} vector, columns match the numbers defined in this 
 ## function.
 ## 
 ## @return A list consisting of:
@@ -284,7 +284,7 @@ def feps_add_prop(model_switch, xt, parameters, epsi, poped_db):
 ##  \code{fError_file} argument.
 ##
 ## @inheritParams ff.PK.1.comp.oral.md.KE
-## @param epsi A matrix with the same number of rows as the \code{xt} vector, columns match the numbers defined in this 
+## @param epsi A Matrix with the same number of rows as the \code{xt} vector, columns match the numbers defined in this 
 ## function.
 ## 
 ## @return A list consisting of:
@@ -317,7 +317,7 @@ def feps_add(model_switch, xt, parameters, epsi, poped_db):
 ##  \code{fError_file} argument.
 ##
 ## @inheritParams ff.PK.1.comp.oral.md.KE
-## @param epsi A matrix with the same number of rows as the \code{xt} vector, columns match the numbers defined in this 
+## @param epsi A Matrix with the same number of rows as the \code{xt} vector, columns match the numbers defined in this 
 ## function.
 ## 
 ## @return A list consisting of:

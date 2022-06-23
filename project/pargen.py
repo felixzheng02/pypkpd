@@ -4,8 +4,8 @@
 ## Function generates random samples for a list of parameters
 ## Function similar to that in matlab
 ## 
-## @param par A matrix describing the parameters. Each row is a parameter and 
-##   the matrix has three columns: 
+## @param par A Matrix describing the parameters. Each row is a parameter and 
+##   the Matrix has three columns: 
 ##   \enumerate{ 
 ##   \item First column - Type of
 ##   distribution (0-fixed, 1-normal, 2-uniform, 3-user specified, 4-lognormal,
@@ -21,7 +21,7 @@
 ## @param sample_number The sample number to extract from a user distribution.
 ## @param poped_db A PopED database.
 ##   
-## @return A matrix of random samples of size (sample_size x number_of_parameters)
+## @return A Matrix of random samples of size (sample_size x number_of_parameters)
 ## @example test/Test_pargen.py
 ## @export
 
@@ -35,18 +35,18 @@ from scipy.stats import norm
 import numpy
 # from scipy.linalg import norm
 from project.size import size
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.zeros import zeros
 from project.feval import feval
 from project.getTruncatedNormal import getTruncatedNormal
 
 
-def pargen (par:matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
+def pargen (par:Matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
     
-    #par: type matrix to ndarray
+    #par: type Matrix to ndarray
     par = par.get_all_data()
     nvar = par.get_size()[0]
-    #ret: type matrix to ndarray
+    #ret: type Matrix to ndarray
     ret = zeros(sample_size, nvar).get_all_data()
     
     # for log-normal distributions
@@ -134,8 +134,8 @@ def pargen (par:matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db
                 else:
                     ret[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],par[:,0],sample_number,poped_db) + ")")
     
-    #return type: matrix
-    return matrix(ret, ret.shape)
+    #return type: Matrix
+    return Matrix(ret, ret.shape)
 
 
 

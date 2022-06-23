@@ -1,5 +1,5 @@
 """
-## The linearized matrix L
+## The linearized Matrix L
 ## 
 ## Function computes the derivative of the model with respect to the between subject variability 
 ## terms in the model (b's and bocc's) evaluated at
@@ -13,7 +13,7 @@
 ## @param poped_db A PopED database.
 ## 
 ## @return As a list:
-## \item{y}{A matrix of size (samples per individual x number of random effects)}
+## \item{y}{A Matrix of size (samples per individual x number of random effects)}
 ## \item{poped_db}{A PopED database}
 ## @export
 ## @keywords internal

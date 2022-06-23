@@ -1,6 +1,6 @@
 """
-## size(obj: int/np.ndarray/pd.Dataframe/matrix) -> list
-## @param obj: an object (that you want to know the dimensions). Typically a matrix.
+## size(obj: int/np.ndarray/pd.Dataframe/Matrix) -> list
+## @param obj: an object (that you want to know the dimensions). Typically a Matrix.
 ## @return: the dimensions of the object or specific dimension you are interested in. 
 
 
@@ -10,15 +10,15 @@
 
 import numpy as np
 import pandas as pd
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 
 
 def size(obj): # @param dimension_index is removed
 	dim_obj = None
 	if type(obj) is int:
 		dim_obj = None
-	elif type(obj) is np.ndarray or type(obj) is pd.DataFrame or type(obj) is matrix:
-		if type(obj) is matrix:
+	elif type(obj) is np.ndarray or type(obj) is pd.DataFrame or type(obj) is Matrix:
+		if type(obj) is Matrix:
 			obj = obj.get_all_data()
 		dim_obj = obj.shape
 		if len(dim_obj) == 1:

@@ -5,10 +5,10 @@
 
 import numpy as np
 from matpy.num import num
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 
 def sfg(x,a,bpop,b,bocc):
-    parameters = matrix(np.array([bpop.get_by_index(0)*np.exp(b.get_by_index(0)), 
+    parameters = Matrix(np.array([bpop.get_by_index(0)*np.exp(b.get_by_index(0)), 
                                 bpop.get_by_index(1)*np.exp(b.get_by_index(1)),
                                 bpop.get_by_index(2)*np.exp(b.get_by_index(2)),
                                 bpop.get_by_index(3),

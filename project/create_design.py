@@ -62,7 +62,7 @@ def create_design(
 	### for model_switch ###
 	# if type(model_switch) is list:
 	# 	length = max([len(i) for i in model_switch])
-	# 	model_switch = matrix(np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch])) # convert a list of vectors to an array
+	# 	model_switch = Matrix(np.array([np.pad(i, (0, length-len(i)), 'constant', constant_values=np.nan) for i in model_switch])) # convert a list of vectors to an array
 	if model_switch is None:
 		model_switch = Matrix(xt.get_data() * 0 + 1)
 	if model_switch.get_shape()[0] == 1 and m != 1:

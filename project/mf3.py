@@ -33,7 +33,7 @@ from project.m3 import m3
 from project.size import size
 from project.zeros import zeros
 from project.feval import feval
-from project.trace_matrix import trace_matrix
+from project.trace_Matrix import trace_Matrix
 from project.ind_estimates import ind_estimates
 
 def mf3(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db):
@@ -128,19 +128,19 @@ def mf3(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db):
                 m2_tmp:np.ndarray.reshape((n,n,n_fixed_eff))
                 for m in range(1, n_fixed_eff):
                     for k in range(0, n_fixed_eff):
-                        tmp_fim[m,k] = tmp_fim[m,k]+trace_matrix(np.matmul(np.matmul(np.matmul(m2_tmp[:,:,m], v_tmp_inv), m2_tmp[:,:,k]), v_tmp_inv))
+                        tmp_fim[m,k] = tmp_fim[m,k]+trace_Matrix(np.matmul(np.matmul(np.matmul(m2_tmp[:,:,m], v_tmp_inv), m2_tmp[:,:,k]), v_tmp_inv))
     
                 if n_rand_eff != 0:
                     for m in range(0, n_rand_eff):
                         for k in range(0, n_fixed_eff):
-                            num = trace_matrix(np.matmul(np.matmul(np.matmul(m3_tmp[:,:,m],v_tmp_inv), m2_tmp[:,:,k]), v_tmp_inv))
+                            num = trace_Matrix(np.matmul(np.matmul(np.matmul(m3_tmp[:,:,m],v_tmp_inv), m2_tmp[:,:,k]), v_tmp_inv))
                             tmp_fim[n_fixed_eff+m, k] = num
                             tmp_fim[k, n_fixed_eff+m] = num
             
             if n_rand_eff != 0:
                 for m in range(0, n_rand_eff):
                     for k in range(0, n_rand_eff):
-                        tmp_fim[n_fixed_eff+m, n_fixed_eff+k] = trace_matrix(np.matmul(np.matmul(np.matmul(m3_tmp[:,:,m],v_tmp_inv), m3_tmp[:,:,k]), v_tmp_inv))
+                        tmp_fim[n_fixed_eff+m, n_fixed_eff+k] = trace_Matrix(np.matmul(np.matmul(np.matmul(m3_tmp[:,:,m],v_tmp_inv), m3_tmp[:,:,k]), v_tmp_inv))
 
             ret = ret+1/2*tmp_fim
 

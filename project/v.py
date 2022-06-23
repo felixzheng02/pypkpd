@@ -15,7 +15,7 @@ from project.LinMatrixH import LinMatrixH
 from project.LinMatrixLH import LinMatrixLH
 from project.LinMatrixL_occ import LinMatrixL_occ
 from project.hessian_eta_complex import hessian_eta_complex
-from project.trace_matrix import trace_matrix
+from project.trace_Matrix import trace_Matrix
 from project.diag_matlab import diag_matlab
 
 
@@ -52,7 +52,7 @@ def v(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
       var_eta = zeros(1, len(xt_ind))
       for o in range(0,len(xt_ind)):
         hessian_eta = hessian_eta_complex(model_switch,xt_ind[o],x,a,bpop,b_ind,bocc_ind,poped_db)
-        var_eta[o] = 1/4 * trace_matrix(hessian_eta * d * (2 * hessian_eta) * d)
+        var_eta[o] = 1/4 * trace_Matrix(hessian_eta * d * (2 * hessian_eta) * d)
       ret = ret + diag_matlab(var_eta)
     
     locc = cell(1, poped_db["parameters"]["NumOcc"])

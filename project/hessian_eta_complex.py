@@ -14,7 +14,7 @@ def hessian_eta_complex(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db,ret
     bAutomatic = False
     epsi0 = zeros(1, len(poped_db["parameters"]["notfixed_sigma"]))
     n = len(b_ind)
-    hess= zeros(n)   # Memory for the Hessian matrix
+    hess= zeros(n)   # Memory for the Hessian Matrix
     g = zeros(n,1)    # Memory for the gradient vector
     
     if bAutomatic:

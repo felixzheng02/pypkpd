@@ -38,7 +38,7 @@ def is_not_none(d: dict, k: str):
 def trans(x, exp_index):
         x[exp_index] = np.exp(x[exp_index])
         return x
-#trans  = function(x) matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T
+#trans  = function(x) Matrix(c(x[bpop_index],exp(x[d_index])),ncol=1,byrow=T
 
 
 def dots(*args):

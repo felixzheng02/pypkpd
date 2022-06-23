@@ -9,7 +9,7 @@ import numpy as np
 # from project.evaluate_design import evaluate_design
 
 from project.sfg import sfg
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.models import feps_prop
 from project.models import ff_PK_1_comp_oral_sd_CL
 from project.create_poped_database import create_poped_database
@@ -20,12 +20,12 @@ poped_db = create_poped_database(
                                  ff_file=ff_PK_1_comp_oral_sd_CL,
                                  fg_file=sfg,
                                  fError_file=feps_prop,
-                                 bpop=matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), None, None, None), 
-                                 notfixed_bpop=matrix(np.array([1,1,1,0]), (1, 4), None, None, None),
-                                 d=matrix(np.array([0.07, 0.02, 0.6]), (1, 3), None, None, None), 
+                                 bpop=Matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), None, None, None), 
+                                 notfixed_bpop=Matrix(np.array([1,1,1,0]), (1, 4), None, None, None),
+                                 d=Matrix(np.array([0.07, 0.02, 0.6]), (1, 3), None, None, None), 
                                  sigma=0.01,
                                  groupsize=32,
-                                 xt=matrix(np.array([0.5,1,2,6,24,36,72,120]), (1, 8), None, None, None),
+                                 xt=Matrix(np.array([0.5,1,2,6,24,36,72,120]), (1, 8), None, None, None),
                                  minxt=0,
                                  maxxt=120,
                                  a=70)

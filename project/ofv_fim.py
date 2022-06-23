@@ -10,7 +10,7 @@
 ## \itemize{ 
 ## \item 1 = "D-optimality". Determinant of the FIM: det(FIM)
 ## \item 2 = "A-optimality".  Inverse of the sum of the expected parameter variances: 
-## 1/trace_matrix(inv(FIM)) 
+## 1/trace_Matrix(inv(FIM)) 
 ## \item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
 ## \item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
 ## rows and columns of the FIM: det(FIM)/det(FIM_u)
@@ -40,7 +40,7 @@
 import numpy as np
 from project.size import size
 from project.get_cv import get_rse
-from project.trace_matrix import trace_matrix
+from project.trace_Matrix import trace_Matrix
 
 
 def ofv_fim(fmf,poped_db,*argv):
@@ -71,7 +71,7 @@ def ofv_fim(fmf,poped_db,*argv):
     
     if ofv_calc_type == 2:  #trace of the inverse of FIM
         imf = np.linalg.inv(fmf)
-        ofv_value = trace_matrix(imf)
+        ofv_value = trace_Matrix(imf)
         ofv_value = 1/ofv_value #Make it a max-problem
         return( ofv_value ) 
     

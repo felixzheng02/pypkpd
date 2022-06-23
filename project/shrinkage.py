@@ -1,5 +1,5 @@
 """
-## shrinkage(poped_db: Dict, use_mc: boolean, num_sim_ids: int, use_purrr: boolean) -> matrix
+## shrinkage(poped_db: Dict, use_mc: boolean, num_sim_ids: int, use_purrr: boolean) -> Matrix
  
 ## Predict shrinkage of empirical Bayes estimates (EBEs) in a population model
 ##
@@ -18,7 +18,7 @@
 ## @references \enumerate{ 
 ##   \item Combes, F. P., Retout, S.,
 ##   Frey, N., & Mentre, F. (2013). Prediction of shrinkage of individual
-##   parameters using the Bayesian information matrix in non-linear mixed effect
+##   parameters using the Bayesian information Matrix in non-linear mixed effect
 ##   models with evaluation in pharmacokinetics. Pharmaceutical Research, 30(9),
 ##   2355-67. \doi{10.1007/s11095-013-1079-3}. 
 ##   \item Hennig, S., Nyberg, J., Fanta, S., Backman, J.
@@ -37,7 +37,7 @@ import warnings
 import numpy as np
 from project.size import size
 from project.zeros import zeros
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.get_cv import get_rse
 from project.getfulld import getfulld
 from project.get_parnam import get_parnam
@@ -81,23 +81,23 @@ def shrinkage(poped_db,
     # add IIV and IOV as fixed effects
     # change to one individual
     # TODO: need to add iov
-    extra_bpop = matrix(0, (largest_b, 3))
-    bpop_tmp = matrix([poped_db["parameters"]["bpop"], extra_bpop])
+    extra_bpop = Matrix(0, (largest_b, 3))
+    bpop_tmp = Matrix([poped_db["parameters"]["bpop"], extra_bpop])
     notfixed_d = poped_db["parameters"]["notfixed_d"]
     non_zero_d = poped_db["parameters"]["d"][:,1] != 0
     
     notfixed_d_new = notfixed_d or non_zero_d
     
-    notfixed_bpop_tmp = matrix([np.repeat(0, largest_bpop), notfixed_d_new])
+    notfixed_bpop_tmp = Matrix([np.repeat(0, largest_bpop), notfixed_d_new])
     poped_db_sh = create_poped_database(poped_db,
                                         fg_fun = tmp_fg,
                                         bpop = bpop_tmp, 
                                         nbpop = size(bpop_tmp)[0],
                                         notfixed_bpop = notfixed_bpop_tmp,
-                                        d = matrix(nrow=0, ncol=3),
-                                        notfixed_d = matrix(nrow = 0, ncol = 3),
+                                        d = Matrix(nrow=0, ncol=3),
+                                        notfixed_d = Matrix(nrow = 0, ncol = 3),
                                         NumRanEff = 0,
-                                        notfixed_sigma = matrix(np.repeat(0, largest_eps)),
+                                        notfixed_sigma = Matrix(np.repeat(0, largest_eps)),
                                         groupsize = 1,
                                         mingroupsize = 1,
                                         mintotgroupsize = 1)
@@ -123,7 +123,7 @@ def shrinkage(poped_db,
     
     
     #out_list = list()
-    out_df = matrix()
+    out_df = Matrix()
     #for(i in 1:1){
     for i in range(0, len(db_list)):
         
@@ -132,9 +132,9 @@ def shrinkage(poped_db,
         if use_mc is True:
             # create list of eta values from pop model 
             if any(size(fulld) ==0):
-                b_sim_matrix = zeros(num_sim_ids,0)
+                b_sim_Matrix = zeros(num_sim_ids,0)
             else:
-                b_sim_matrix = np.random.multivariate_normal(num_sim_ids, sigma=fulld)            
+                b_sim_Matrix = np.random.multivariate_normal(num_sim_ids, sigma=fulld)            
             
             
             # create list of occasion eta values from pop model 
@@ -142,15 +142,15 @@ def shrinkage(poped_db,
             if NumOcc != 0: 
                 warnings.warn("Shrinkage not computed for occasions\n")
             fulldocc = getfulld(poped_db["parameters"]["docc"][:,1], poped_db["parameters"]["covdocc"])
-            bocc_sim_matrix = zeros(num_sim_ids*NumOcc, len(poped_db["parameters"]["docc"][:,1]))
+            bocc_sim_Matrix = zeros(num_sim_ids*NumOcc, len(poped_db["parameters"]["docc"][:,1]))
             if size(fulldocc)[0] != 0: 
-                bocc_sim_matrix = np.random.multivariate_normal(num_sim_ids*NumOcc, sigma=fulldocc)
+                bocc_sim_Matrix = np.random.multivariate_normal(num_sim_ids*NumOcc, sigma=fulldocc)
             
             #now use these values to compute FIMmap
             if use_purrr is True:
-                fim_mean = matrix(np.transpose(b_sim_matrix)) %>% as.list() %>% 
+                fim_mean = Matrix(np.transpose(b_sim_Matrix)) %>% as.list() %>% 
                 purrr::map(function(x){
-                    x_tmp = matrix(0,nrow = largest_b,ncol = 3)
+                    x_tmp = Matrix(0,nrow = largest_b,ncol = 3)
                     x_tmp[,2] = t(x)
                     bpop_tmp =rbind(poped_db["parameters"]bpop,x_tmp)
                     poped_db_sh_tmp = create.poped.database(poped_db_sh, bpop=bpop_tmp)
@@ -159,9 +159,9 @@ def shrinkage(poped_db,
             else:
                 fim_tmp = 0
                 for i in range(0, num_sim_ids):
-                    x_tmp = matrix(0, (largest_b, 3))
-                    x_tmp[:,1] = np.transpose(b_sim_matrix[i,:])
-                    bpop_tmp = matrix([poped_db["parameters"]["bpop"], x_tmp])
+                    x_tmp = Matrix(0, (largest_b, 3))
+                    x_tmp[:,1] = np.transpose(b_sim_Matrix[i,:])
+                    bpop_tmp = Matrix([poped_db["parameters"]["bpop"], x_tmp])
                     poped_db_sh_tmp = create_poped_database(poped_db_sh, bpop=bpop_tmp)
                     fim_tmp = fim_tmp + evaluate_fim(poped_db_sh_tmp)
                 
@@ -189,10 +189,10 @@ def shrinkage(poped_db,
         names(shrink_sd) =  names(rse)
         
 
-        out_df_tmp = matrix([shrink, shrink_sd, rse])
-        out_df_tmp["type"] = matrix(["shrink_var","shrink_sd","se"])
-        out_df_tmp["group"] = matrix(db_list[i].get_datanam())
-        out_df = matrix([out_df, out_df_tmp])
+        out_df_tmp = Matrix([shrink, shrink_sd, rse])
+        out_df_tmp["type"] = Matrix(["shrink_var","shrink_sd","se"])
+        out_df_tmp["group"] = Matrix(db_list[i].get_datanam())
+        out_df = Matrix([out_df, out_df_tmp])
         #out_list[[names(db_list[i])]] = list(shrinkage_var=shrink,shrinkage_sd=shrink_sd, rse=rse)
     
     
@@ -210,7 +210,7 @@ def shrinkage(poped_db,
                                 list(~ stats::weighted.mean(., weights,na.rm = T)))
             
         data_tmp["group"] = "all_groups"
-        out_df = matrix([out_df, data_tmp])
+        out_df = Matrix([out_df, data_tmp])
         out_df = dplyr::arrange(out_df,dplyr::desc(type),group)
     
     return out_df

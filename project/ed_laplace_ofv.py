@@ -56,7 +56,7 @@ from project.diag_matlab import diag_matlab
 from project.hesskalpha2 import hesskalpha2
 from project.d2fimdalpha2 import d2fimdalpha2
 from project.evaluate_fim import evaluate_fim
-from project.trace_matrix import trace_matrix
+from project.trace_Matrix import trace_Matrix
 from project.log_prior_pdf import log_prior_pdf
 from project.line_search_uc import line_search_uc
 
@@ -533,7 +533,7 @@ def ed_laplace_ofv(model_switch,groupsize,ni,xtopto,xopto,aopto,
         
         ddetHessdxt = zeros(dkdxt.size, 1)
         for i in range(0, dkdxt.size):
-            ddetHessdxt[i] = detHessPi*trace_matrix(np.linalg.inv(hess)*(-tensor[:,:,i]))
+            ddetHessdxt[i] = detHessPi*trace_Matrix(np.linalg.inv(hess)*(-tensor[:,:,i]))
         
         
         gf = Re(np.exp(-f_k)*(2*detHessPi*dkdxt+ddetHessdxt)/(2*detHessPi^(3/2)))

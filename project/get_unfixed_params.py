@@ -25,7 +25,7 @@ Author: Caiya Zhang, Yuchen Zheng
 import numpy as np
 from project.size import size
 from project.zeros import zeros
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.diag_matlab import diag_matlab
 
 
@@ -79,7 +79,7 @@ def get_unfixed_params(poped_db,params=None):
     else:
         var_derivative = np.array([[np.repeat(1, bpop.size)], [np.repeat(1, d.size)], [np.repeat(1, covd.size)], [np.repeat(1, docc.size)], [np.repeat(1, covdocc.size)], [np.repeat(0, sigma.size)], [np.repeat(1,covsigma.size)]])
     
-    unfixed_mat = matrix(np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma], [all], [var_derivative]]))
+    unfixed_mat = Matrix(np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma], [all], [var_derivative]]))
     unfixed_mat.set_datanam(["bpop", "d", "covd", "docc", "covdocc", "sigma", "covsigma", "all", "var_derivative"])
     
     return unfixed_mat

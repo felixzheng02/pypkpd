@@ -18,6 +18,22 @@ class TestCreateDesign(unittest.TestCase):
         xt3 = Matrix(np.array([1,2,3,4]))
 
         design_1 = create_design(xt=xt1, groupsize=20)
+
+        self.assertTrue(np.array_equal(design_1["xt"].get_data(), np.array([[1, 2, 3, np.nan], [1, 2, 3, 4]]), equal_nan=True))
+        self.assertListEqual(design_1["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4"]])
+        
+        self.assertEqual(design_1["m"].get_value(), 2)
+        self.assertEqual(design_1["m"].get_name(), "n_grp")
+        
+        self.assertTrue(np.array_equal(design_1["ni"].get_data(), np.array([[3], [4]]), equal_nan=True))
+        self.assertListEqual(design_1["ni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
+        
+        self.assertTrue(np.array_equal(design_1["model_switch"].get_data(), np.array([[1, 1, 1, np.nan], [1, 1, 1, 1]]), equal_nan=True))
+        self.assertListEqual(design_1["model_swtich"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4"]])
+        
+        self.assertTrue(np.array_equal(design_1["groupsize"].get_data(), np.array([[1., 2., 3., np.nan], [1., 2., 3., 4.]]), equal_nan=True))
+        self.assertListEqual(design_1["model_swtich"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4"]])
+        
         design_2 = create_design(xt=xt4, groupsize=20)
         design_3 = create_design(xt=xt2, groupsize=20)
 
@@ -46,5 +62,6 @@ class TestCreateDesign(unittest.TestCase):
 
         design_15 = create_design(xt=xt4, groupsize=np.array([50, 20]), 
                                     a=Matrix([[2, 3, 4], [4, 5, 6]], datanam=[["DOSE", "WT", "AGE"], [None, None, None]]))
+        
 if __name__ == '__main__':
     unittest.main()

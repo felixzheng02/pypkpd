@@ -35,7 +35,7 @@ ff.PK.1.comp.oral.sd.CL
 
 
 import numpy as np
-from matpy.matrix import matrix
+from matpy.matrix import Matrix
 from project.evaluate_fim import evaluate_fim
 from project.create_poped_database import sfg
 from project.create_poped_database import create_poped_database
@@ -50,17 +50,17 @@ from project.models import ff_PK_1_comp_oral_sd_CL
 poped_db = create_poped_database(ff_fun=ff_PK_1_comp_oral_sd_CL,
                                   fg_fun=sfg,
                                   fError_fun=feps_add_prop,
-                                  bpop=matrix(np.array([0.15,8,1.0,1])), 
-                                  notfixed_bpop=matrix(np.array([1,1,1,0])),
-                                  d=matrix(np.array([0.07,0.02,0.6])), 
-                                  sigma=matrix(np.array([0.01,0.25])),
+                                  bpop=Matrix(np.array([0.15,8,1.0,1])), 
+                                  notfixed_bpop=Matrix(np.array([1,1,1,0])),
+                                  d=Matrix(np.array([0.07,0.02,0.6])), 
+                                  sigma=Matrix(np.array([0.01,0.25])),
                                   groupsize=32,
-                                  xt=matrix(np.array([0.5,1,2,6,24,36,72,120])),
+                                  xt=Matrix(np.array([0.5,1,2,6,24,36,72,120])),
                                   minxt=0.01,
                                   maxxt=120,
-                                  a=matrix(np.array([70])),
-                                  mina=matrix(np.array([0.01])),
-                                  maxa=matrix(np.array([100])))
+                                  a=Matrix(np.array([70])),
+                                  mina=Matrix(np.array([0.01])),
+                                  maxa=Matrix(np.array([100])))
 
 ############# END ###################
 ## Create PopED database
@@ -94,7 +94,7 @@ print(FIM)
 #>  5.096246  3.031164 14.260384 29.761226 36.681388 26.748640 32.011719 25.637971 
 print(np.linalg.det(FIM))
 #> [1] 1.143859e+24ofv_fim(FIM,poped_db,ofv_calc_type=1) # det(FIM)
-#> [1] 1.143859e+24ofv_fim(FIM,poped_db,ofv_calc_type=2) # 1/trace_matrix(inv(FIM))
+#> [1] 1.143859e+24ofv_fim(FIM,poped_db,ofv_calc_type=2) # 1/trace_Matrix(inv(FIM))
 #> [1] 9.127328ofv_fim(FIM,poped_db,ofv_calc_type=4) # log(det(FIM)) 
 #> [1] 55.39645ofv_fim(FIM,poped_db,ofv_calc_type=6) # Ds with fixed effects as "important"
 #> [1] 16.49204ofv_fim(FIM,poped_db,ofv_calc_type=6,

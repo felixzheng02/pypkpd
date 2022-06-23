@@ -9,7 +9,7 @@ from project.size import size
 from project.zeros import zeros
 from project.dfimdalpha import dfimdalpha
 from project.d2fimdalpha2 import d2fimdalpha2
-from project.trace_matrix import trace_matrix
+from project.trace_Matrix import trace_Matrix
 from project.log_prior_pdf import log_prior_pdf
 
 
@@ -29,7 +29,7 @@ def hesskalpha2(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,dde
     tigi = zeros(size(d_fim)[2])
     for i in range(0, size(d_fim)[2]):
         for j in range(0, i):
-            tigi[i,j] = trace_matrix(ifim*d_fim[:,:,i]*ifim*d_fim[:,:,j])
+            tigi[i,j] = trace_Matrix(ifim*d_fim[:,:,i]*ifim*d_fim[:,:,j])
             tigi[j,i] = tigi[i,j]
         
     d2 = d2fimdalpha2(alpha, model_switch, groupsize, ni, xtoptn, xoptn, aoptn, bpopdescr, ddescr, covd, sigma, docc, poped_db, 1e-4)["hess"].reshape(fim.size, hessp.size)
@@ -43,7 +43,7 @@ def hesskalpha2(alpha,model_switch,groupsize,ni,xtoptn,xoptn,aoptn,bpopdescr,dde
     #     # calc trace of iF*dF/dAlpha(i)*iF*dF/dAlpha(j)
     #     for(i in 1:size(d_fim,3)){
     #       for(j in 1:i){
-    #         tigi[i,j]=trace_matrix(ifim*d_fim[,,i]*ifim*d_fim[,,j])
+    #         tigi[i,j]=trace_Matrix(ifim*d_fim[,,i]*ifim*d_fim[,,j])
     #         tigi[j,i]=tigi[i,j]
     #       }
     #     }

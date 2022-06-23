@@ -1,11 +1,11 @@
 """
-trace_matrix(mat: np.ndarray) -> int
+trace_Matrix(mat: np.ndarray) -> int
 Returns the sum along the diagonal of the array.
 If 1-d, returns mat[0].
 If 2-d, returns np.trace(mat).
 Raises exception for other dimensions.
-@param mat: a matrix input
-@return: sum along the diagonal of the matrix, as an integer
+@param mat: a Matrix input
+@return: sum along the diagonal of the Matrix, as an integer
 
 Author: Caiya Zhang, Yuchen Zheng
 """
@@ -14,7 +14,7 @@ Author: Caiya Zhang, Yuchen Zheng
 import numpy as np
 
 
-def trace_matrix (mat):
+def trace_Matrix (mat):
 
     if len(mat.shape) == 1:
         return mat[0]

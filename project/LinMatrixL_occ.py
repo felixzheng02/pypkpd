@@ -8,7 +8,7 @@
 ## @inheritParams LinMatrixH
 ## @param iCurrentOcc The current occasion.
 ## 
-## @return A matrix of size (samples per individual x number of iovs)
+## @return A Matrix of size (samples per individual x number of iovs)
 ##  
 ## @family FIM
 ## @export

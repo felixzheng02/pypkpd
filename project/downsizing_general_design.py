@@ -7,11 +7,11 @@
 ## @param poped_db A PopED database 
 ## @return A list containing:
 ## \item{ni}{A vector of the number of samples in each group.}
-## \item{xt}{A matrix of sample times.  Each row is a vector of sample times for a group.}
-## \item{model_switch}{A matrix that is the same size as xt, specifying which model each sample belongs to.}
-## \item{x}{A matrix for the discrete design variables.  Each row is a group.}
-## \item{a}{A matrix of covariates.  Each row is a group.}
-## \item{bpop}{A matrix of fixed effect parameter values.}
+## \item{xt}{A Matrix of sample times.  Each row is a vector of sample times for a group.}
+## \item{model_switch}{A Matrix that is the same size as xt, specifying which model each sample belongs to.}
+## \item{x}{A Matrix for the discrete design variables.  Each row is a group.}
+## \item{a}{A Matrix of covariates.  Each row is a group.}
+## \item{bpop}{A Matrix of fixed effect parameter values.}
 ## 
 ## @family poped_input
 ## @export

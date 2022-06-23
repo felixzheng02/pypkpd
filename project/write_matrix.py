@@ -8,7 +8,7 @@
 
 import numpy as np
 
-def write_matrix(f, x: np.ndarray):
+def write_Matrix(f, x: np.ndarray):
 	for i in range(0, x.shape[0]):
 		print("%6e" % x[i, :], file = f)
 		print("\n", file = f)

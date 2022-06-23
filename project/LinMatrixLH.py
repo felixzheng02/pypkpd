@@ -9,7 +9,7 @@
 ## @inheritParams LinMatrixH
 ## @param NumEPS The number of eps() terms in the model.
 ## 
-## @return A matrix of size (samples per individual x (number of sigma x number of omega)) 
+## @return A Matrix of size (samples per individual x (number of sigma x number of omega)) 
 ##  
 ## @family FIM
 ## @export

@@ -9,7 +9,7 @@ import re
 import numpy as np
 import pandas as pd
 import itertools
-from matpy.matrix import Matrix
+from matpy.matrix import Matrix, select
 from matpy.num import Num
 from project.test_mat_size import test_mat_size
 
@@ -78,7 +78,8 @@ def create_design(
 	if type(a) is list or type(a) is np.ndarray:
 		a = Matrix(a)
 	if type(a) is Matrix: # a is a Matrix
-		colnam = None
+
+		# use datanam to create axisnam
 		if len(a.get_shape()) == 2: # this only works for 2-d Matrix now
 			if a.get_datanam() is not None:
 				i = 0
@@ -89,17 +90,21 @@ def create_design(
 							break
 					colnam = a.get_datanam()[i]
 					break
+
 		if colnam is None:
 			if a.get_axisnam() is not None:
 				colnam = a.get_axisnam()[1]
-		if a.get_shape()[0] == 1 and m != 1:
+
+		if a.get_shape()[0] == 1 and m.get_value() != 1:
 			a.repeat([1, m.get_value()], [m.get_value(), a.get_size()], datanam=True)
 			a.set_axisnam(([["grp_"+str(i) for i in range(1, m.get_value()+1)],
 							colnam]))
 
 		if a.get_shape()[0] != m.get_value():
 			raise Exception("The number of rows in a (" + str(a.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m.get_value()) + ")")
+
 		a.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], colnam])
+		
 		if a.get_axisnam()[1] is not None:
 			count = 0
 			for i in range(0, a.get_shape()[1]):

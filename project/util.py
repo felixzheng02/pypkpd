@@ -148,3 +148,10 @@ def get_fim_size(poped_db):
 	n_rand_eff = numnotfixed_d + numnotfixed_covd + numnotfixed_docc + numnotfixed_covdocc + numnotfixed_sigma + numnotfixed_covsigma
 	fim_size = n_fixed_eff+n_rand_eff
 	return fim_size
+
+
+def default_if_none(input, default):
+	"""return default if input is None"""
+	if input is None:
+		return default
+	return input

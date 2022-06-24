@@ -10,7 +10,7 @@ from matpy.matrix import Matrix
 
 class TestCreateDesign(unittest.TestCase):
 
-    def test_create_design_init(self):
+    def test_create_design(self):
         
         xt1 = Matrix([[1, 2, 3], [1, 2, 3, 4]])
         xt4 = Matrix([[1,2,3,4,5], [1,2,3,4]]) 

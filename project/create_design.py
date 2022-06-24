@@ -81,11 +81,14 @@ def create_design(
 		colnam = None
 		if len(a.get_shape()) == 2: # this only works for 2-d Matrix now
 			if a.get_datanam() is not None:
-				tmp = 0
-				for i in range(0, len(a.get_datanam())):
-					if len(a.get_datanam()[i]) > len(a.get_datanam()[tmp]):
-						tmp = i
-				colnam = a.get_datanam()[tmp]	
+				i = 0
+				while i < len(a.get_datanam()): # search for a sublist of datanam that does not contain None
+					for j in range(len(a.get_datanam()[i])-1, -1, -1):
+						if a.get_datanam()[i][j] is None:
+							i += 1
+							break
+					colnam = a.get_datanam()[i]
+					break
 		if colnam is None:
 			if a.get_axisnam() is not None:
 				colnam = a.get_axisnam()[1]
@@ -96,10 +99,7 @@ def create_design(
 
 		if a.get_shape()[0] != m.get_value():
 			raise Exception("The number of rows in a (" + str(a.get_shape()[0]) + ") is not the same as the number of groups m (" + str(m.get_value()) + ")")
-		tmp_colnam = None
-		if a.get_axisnam() is not None:
-			tmp_colnam = a.get_axisnam()[1]
-		a.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], tmp_colnam])
+		a.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], colnam])
 		if a.get_axisnam()[1] is not None:
 			count = 0
 			for i in range(0, a.get_shape()[1]):

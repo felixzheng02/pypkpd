@@ -34,7 +34,7 @@ class Matrix:
 			data = np.array([data]).reshape([1, 1])			
 		elif type(data) is list:
 			# needs to fill empty places by np.nan
-			recursively_fill_list(data)
+			recursively_fill_list(data, np.nan)
 			data = np.array(data)
 
 		self.shape = select(shape, data.shape)
@@ -44,7 +44,7 @@ class Matrix:
 		self.size = self.get_data().size
 		self.datanam = datanam
 		if self.datanam is not None:
-			recursively_fill_list(self.datanam)
+			recursively_fill_list(self.datanam, None)
 			self.datanam = np.array(self.datanam).reshape(self.shape).tolist()
 		self.axisnam = axisnam
 
@@ -226,7 +226,7 @@ def select(input, default):
 		return input
 
 
-def recursively_fill_list(input_list):
+def recursively_fill_list(input_list, value):
 	"""
 	recursively fill np.nan values to blank spaces in a list,
 	which probably includes multiple layers of sublist
@@ -234,9 +234,9 @@ def recursively_fill_list(input_list):
 	if type(input_list[0]) is list:
 		length = max([len(sub_list) for sub_list in input_list])
 		for i in range(0, len(input_list)):
-			recursively_fill_list(input_list[i])
+			recursively_fill_list(input_list[i], value)
 			# fill
-			input_list[i] = input_list[i] + [np.nan] * (length - len(input_list[i]))
+			input_list[i] = input_list[i] + [value] * (length - len(input_list[i]))
 
 	else: # sub-list structure ends
 		return

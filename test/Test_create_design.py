@@ -298,7 +298,7 @@ class TestCreateDesign(unittest.TestCase):
                                     a=Matrix([[2, 3, 4], [4, 5, 6]], datanam=[["DOSE", "WT", "AGE"], [None, None, None]]))
         
         self.assertTrue(np.array_equal(design_15["xt"].get_data(), np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
-        self.assertListEqual(design_15["xt"].get_axisnam(), [["grp_1", "grp_2", "grp_3"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
+        self.assertListEqual(design_15["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
         
         self.assertEqual(design_15["m"].get_value(), 2)
         self.assertEqual(design_15["m"].get_name(), "n_grp")

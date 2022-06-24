@@ -78,7 +78,14 @@ def create_design(
 	if type(a) is list or type(a) is np.ndarray:
 		a = Matrix(a)
 	if type(a) is Matrix: # a is a Matrix
-		colnam = a.get_datanam()
+		colnam = None
+		if len(a.get_shape()) == 2: # this only works for 2-d Matrix now
+			if a.get_datanam() is not None:
+				tmp = 0
+				for i in range(0, len(a.get_datanam())):
+					if len(a.get_datanam()[i]) > len(a.get_datanam()[tmp]):
+						tmp = i
+				colnam = a.get_datanam()[tmp]	
 		if colnam is None:
 			if a.get_axisnam() is not None:
 				colnam = a.get_axisnam()[1]

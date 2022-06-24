@@ -43,6 +43,9 @@ class Matrix:
 		self.data = data.reshape(self.shape)
 		self.size = self.get_data().size
 		self.datanam = datanam
+		if self.datanam is not None:
+			recursively_fill_list(self.datanam)
+			self.datanam = np.array(self.datanam).reshape(self.shape).tolist()
 		self.axisnam = axisnam
 
 	def get_shape(self):

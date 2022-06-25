@@ -62,7 +62,6 @@ Author: Caiya Zhang, Yuchen Zheng
 import path
 import numpy as np
 import copy
-from project.size import size
 from project.test_mat_size import test_mat_size
 from project.ones import ones
 from project.cell import cell
@@ -139,68 +138,73 @@ def create_design_space(design_,
 	# 4. check that max is greater than min
 	# 5. check that design value is wihin range of design_space
 
-	# maxni
-	if maxni.get_shape()[0] == 1 and design["m"].get_value() != 1:
-		maxni.repeat()
-	if type(maxni) is not Matrix:
-		maxni = Matrix(maxni)
-	if test_mat_size(np.array([design["m"], 1]), maxni.get_data(), "maxni") == 1:
-		maxni.set_axisnam(["n_obs"] * maxni.shape[1],
-						  ["grp_"+str(i+1) for i in range(0, design["m"])])
+	m: int = design["m"].get_value()
+	ni: Matrix = design["ni"]
+	xt: Matrix = design["xt"]
+	model_switch: Matrix = design["model_switch"]
+	groupsize: Matrix = design["groupsize"]
 
+
+	# maxni
+	if maxni.get_shape()[0] == 1 and m != 1:
+		maxni.repeat([1, m], [m, 1])
+	if test_mat_size([m, 1], maxni.get_shape(), "maxni") == 1:
+		maxni.set_axisnam(["grp_"+str(i+1) for i in range(0, m)], 
+							["n_obs"] * maxni.get_shape()[1])				  
 	# minni
-	if size(minni)[0] == 1 and design["m"] != 1:
-		minni = Matrix(np.array([minni] * design["m"]).reshape([design["m"], 1]))
-	if type(minni) is not Matrix:
-		minni = Matrix(minni)
-	if test_mat_size(np.array([design["m"], 1]), minni.get_data(), "minni") == 1:
-		minni.set_axisnam(["n_obs"] * minni.shape[1],
-						  ["grp_"+str(i+1) for i in range(0, design["m"])])
+	if minni.get_shape()[0] == 1 and m != 1:
+		minni.repeat([1, m], [m, 1])
+	if test_mat_size([m, 1], minni.get_shape(), "minni") == 1:
+		minni.set_axisnam(["grp_"+str(i+1) for i in range(0, m)], 
+							["n_obs"] * minni.get_shape[1])
 	
 	# make sure min is smaller than max
 	ret = comp_max_min(maxni, minni, called_args)
-	maxni = ret["max_val"]
-	minni = ret["min_val"]
+	maxni = Matrix(ret["max_val"])
+	minni = Matrix(ret["min_val"])
 
 	# check ni given max and min
-	if any(design["ni"].get_data() < minni.get_data()):
+	if any(ni.get_data() < minni.get_data()):
 		raise Exception("ni is less than minni")
-	if any(design["ni"].get_data() > maxni.get_data()):
+	if any(ni.get_data() > maxni.get_data()):
 		raise Exception("ni is greater than maxni")
 	
+
 	# maxtotni and mintotni
 	if maxtotni is None:
 		maxtotni = Matrix(np.sum(maxni.get_data()))
 	if mintotni is None:
 		mintotni = Matrix(np.sum(minni.get_data()))
-	test_mat_size(np.array([1, 1]), maxtotni.get_data(), "maxtotni")
-	test_mat_size(np.array([1, 1]), mintotni.get_data(), "mintotni")
+	test_mat_size([1, 1], maxtotni.get_shape(), "maxtotni")
+	test_mat_size([1, 1], mintotni.get_shape(), "mintotni")
 	ret = comp_max_min(maxtotni.get_data(), mintotni.get_data(), called_args)
 	maxtotni = Matrix(ret["max_val"])
 	mintotni = Matrix(ret["min_val"])
-	if any(design["ni"].get_data() < mintotni.get_data()):
+	if any(ni.get_data() < mintotni.get_data()):
 		raise Exception("sum of ni is less than mintotni")
-	if any(design["ni"].get_data() > maxtotni.get_data()):
+	if any(ni.get_data() > maxtotni.get_data()):
 		raise Exception("sum of ni is greater than maxtotni")
 
+
 	# update xt and model_switch given maxni
-	if np.amax(maxni.get_data()) > size(design["xt"])[1]:
+	if np.amax(maxni.get_data()) > xt.get_shape()[1]:
 
 		# xt has to increase
-		xt_full = Matrix(np.array(ones(design["m"], int(np.amax(maxni.get_data())))) * np.nan)
-		xt_full.get_data()[0:design["m"], 0:size(design["xt"])[1]] = design["xt"]
-		xt_full.set_axisnam(["obs_"+str(i+1) for i in range(0, size(xt_full)[1])],
-							["grp_"+str(i+1) for i in range(0, design["m"])])
+		xt_full = Matrix(np.ones(m, int(np.amax(maxni.get_data()))) * np.nan)
+		xt_full.get_data()[0:m, 0:xt.get_shape()[1]] = xt
+		xt_full.set_axisnam(["grp_"+str(i+1) for i in range(0, m)], 
+							["obs_"+str(i+1) for i in range(0, xt_full.get_shape()[1])])
 		design["xt"] = xt_full
-		design_new["xt"] = design["xt"]
+		xt = design["xt"]
+		design_new["xt"] = xt
 
 		# model switch has to increase
-		model_switch_full = Matrix(np.array(ones(design["m"], int(np.amax(maxni.get_data())))) * np.nan)
-		model_switch_full.set_multiple_data(design["model_switch"], [0, design["m"]], [0, size(design["model_switch"])])
-		model_switch_full.set_axisnam(["obs_"+str(i+1) for i in range(0, size(model_switch_full)[1])],
-									  ["grp_"+str(i+1) for i in range(0, design["m"])])
+		model_switch_full = Matrix(np.ones(m, int(np.amax(maxni.get_data()))) * np.nan)
+		model_switch_full.get_data()[0:m, 0:model_switch.get_shape()[1]] = model_switch
+		model_switch_full.set_axisnam(["grp_"+str(i+1) for i in range(0, m)],
+									  ["obs_"+str(i+1) for i in range(0, model_switch_full.get_shape()[1])])
 		design["model_switch"] = model_switch_full
-		for i in range(0, design["model_switch"].get_shape[0]):
+		for i in range(0, design["model_switch"].get_shape()[0]):
 			x_tmp = design["model_switch"].get_data().iloc[i, :]
 			_, idx = np.unique(x_tmp[~np.isnan(x_tmp)], return_index=True) # remove duplicated and nan values but keep order
 			if len([x_tmp[~np.isnan(x_tmp)][index] for index in sorted(idx)]) == 1:
@@ -208,30 +212,24 @@ def create_design_space(design_,
 			else:
 				raise Exception("Unable to determine the model_switch values needed for group " + str(i+1)
 								+ "\n Please supply them as input.")
-			design["model_switch"].set_multiple_data(data=x_tmp, col=i)
-		design_new["model_switch"] = design["model_switch"]
+			design["model_switch"].get_data()[i, :] = x_tmp
+		model_switch = design["model_switch"]
+		design_new["model_switch"] = model_switch
+
 
 	# maxgroupsize
-	if size(maxgroupsize)[0] == 1 and design["m"] != 1:
-		maxgroupsize = Matrix(np.array([maxgroupsize] * design["m"]).reshape([design["m"], 1]),
-									rownam=["grp_"+str(i+1) for i in range(0, design["m"])])
-	if len(maxgroupsize.shape) != 2:
-		maxgroupsize = Matrix(maxgroupsize.get_data()[:, np.newaxis])
-	if test_mat_size(np.array([design["m"], 1]), np.array(maxgroupsize.get_data()), "maxgroupsize") == 1:
-		maxgroupsize = Matrix(maxgroupsize,
-								 rownam=["grp_"+str(i) for i in range(1, design["m"]+1)],
-								 colnam=["n_id"] * maxgroupsize.shape[1])
+	if maxgroupsize.get_shape()[0] == 1 and m != 1:
+		maxgroupsize.repeat([1, m], [m, 1], axisnam=[["grp_"+str(i+1) for i in range(0, m)], None])
+	if test_mat_size([m, 1], maxgroupsize.get_shape(), "maxgroupsize") == 1:
+		maxgroupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)],
+								["n_id"] * maxgroupsize.get_shape()[1]])
 	
 	# mingroupsize
-	if size(mingroupsize)[0] == 1 and design["m"] != 1:
-		mingroupsize = Matrix(np.array([mingroupsize] * design["m"]).reshape([design["m"], 1]),
-									rownam=["grp_"+str(i+1) for i in range(0, design["m"])])
-	if len(mingroupsize.get_shape()) != 2:
-		mingroupsize = mingroupsize.get_data()[:, np.newaxis]
-	if test_mat_size(np.array([design["m"], 1]), mingroupsize.get_data(), "mingroupsize") == 1:
-		mingroupsize = Matrix(mingroupsize,
-								 rownam=["grp_"+str(i) for i in range(1, design["m"]+1)],
-								 colnam=["n_id"] * mingroupsize.shape[1])
+	if mingroupsize.get_shape()[0] == 1 and m != 1:
+		mingroupsize.repeat([1, m], [m, 1], axisnam=[["grp_"+str(i+1) for i in range(0, m)], None])
+	if test_mat_size([m, 1], mingroupsize.get_shape(), "mingroupsize") == 1:
+		mingroupsize.set_axisnam([["grp_"+str(i) for i in range(1, m+1)],
+								["n_id"] * mingroupsize.get_shape()[1]])
 
 	# make sure min is less than max
 	ret = comp_max_min(maxgroupsize.get_data(), mingroupsize.get_data(), called_args)
@@ -239,14 +237,14 @@ def create_design_space(design_,
 	mingroupsize = Matrix(ret["min_val"])
 
 	# check given max and min
-	if any(design["groupsize"].get_data() < mingroupsize.get_data()):
+	if any(groupsize.get_data() < mingroupsize.get_data()):
 		raise Exception("groupsize is less than mingroupsize")
-	if any(design["groupsize"].get_data() > maxgroupsize.get_data()):
+	if any(groupsize.get_data() > maxgroupsize.get_data()):
 		raise Exception("groupsize is greater than maxgroupsize")
 
 	# maxtotgroupsize
 	if maxtotgroupsize is None:
-		maxtotgroupsize = Matrix(np.sum(design["groupsize"].get_data()))
+		maxtotgroupsize = Matrix(np.sum(groupsize.get_data()))
 	
 	# mintotgroupsize
 	if mintotgroupsize is None:
@@ -258,73 +256,67 @@ def create_design_space(design_,
 	mintotgroupsize = Matrix(ret["min_val"])
 
 	# check given max and min
-	if any(np.sum(design["groupsize"].get_data()) < mintotgroupsize.get_data()):
+	if any(np.sum("groupsize".get_data()) < mintotgroupsize.get_data()):
 		raise Exception("sum of groupsizes is less than mintotgroupsize")
-	if any(np.sum(design["groupsize"].get_data()) > maxtotgroupsize.get_data()):
+	if any(np.sum("groupsize".get_data()) > maxtotgroupsize.get_data()):
 		raise Exception("sum of groupsizes is greater than maxtotgroupsize")
 	
 	# maxxt and minxt
 	if type(maxxt) is int or type(maxxt) is float:
-		maxxt = Matrix(ones(size(design["xt"])[0], size(design["xt"])[1]).get_data() * maxxt)
-	elif maxxt.size == 1:
-		maxxt = Matrix(np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * maxxt)
+		maxxt = Matrix(np.ones(xt.get_shape()) * maxxt)
 	if type(maxxt) is list:
-		length = max([len(i) for i in maxxt])
-		maxxt_ = []
-		for i in range(0, len(maxxt)):
-			maxxt[i] = maxxt[i].astype(np.float32)
-			maxxt[i] = np.pad(maxxt[i], (0, length-len(maxxt[i])), "constant", constant_values=np.nan)
-			maxxt_.append(maxxt[i].tolist())
-		maxxt = Matrix(maxxt_)
-	if size(maxxt)[0] == 1 and design["m"] != 1:
-		maxxt = Matrix(np.tile(maxxt.get_data().flatten(), design["m"]).reshape(design["m"], maxxt.size))
+		# length = max([len(i) for i in maxxt])
+		# maxxt_ = []
+		# for i in range(0, len(maxxt)):
+		# 	maxxt[i] = maxxt[i].astype(np.float32)
+		# 	maxxt[i] = np.pad(maxxt[i], (0, length-len(maxxt[i])), "constant", constant_values=np.nan)
+		# 	maxxt_.append(maxxt[i].tolist())
+		maxxt = Matrix(maxxt)
 	if type(maxxt) is not Matrix:
 		maxxt = Matrix(maxxt)
-	if size(maxxt)[0] != design["m"]:
+	if maxxt.get_shape()[0] == 1 and m != 1:
+		maxxt.repeat([1, m], [m, maxxt.get_shape()[1]])
+	if maxxt.get_shape()[0] != m:
 		raise Exception("The number of rows in maxxt (" +
-						str(size(maxxt)[0]) +
+						str(maxxt.shape()[0]) +
 						") is not the same as the number of groups m (" +
-						str(design["m"]) +
+						str(m) +
 						")")
-	if size(maxxt)[1] == int(np.max(design["ni"].get_data())) and int(np.max(maxni.get_data())) > int(np.max(design["ni"].get_data())) and size(design["xt"])[1] == int(np.max(maxni.get_data())):
-		maxxt_full = design["xt"].get_data()
-		maxxt_full[:, 0:np.max(design["ni"])] = maxxt.get_data()
+	if maxxt.get_shape()[1] == int(np.max(ni.get_data())) and int(np.max(maxni.get_data())) > int(np.max(ni.get_data())) and xt.get_shape()[1] == int(np.max(maxni.get_data())):
+		maxxt_full = xt.get_data()
+		maxxt_full[:, 0:np.max(ni.get_data())] = maxxt.get_data()
 		maxxt = Matrix(maxxt_full)
-	if test_mat_size(np.array(design["xt"].shape), maxxt.get_data(), "maxxt") == 1:
-		maxxt = Matrix(maxxt,
-							 rownam=["grp_"+str(i+1) for i in range(0, design["m"])],
-							 colnam=["obs_"+str(i+1) for i in range(0, maxxt.shape[1])])
+	if test_mat_size(xt.get_shape(), maxxt.get_shape(), "maxxt") == 1:
+		maxxt.set_axisnam([["grp_"+str(i+1) for i in range(0, design["m"])], 
+							["obs_"+str(i+1) for i in range(0, maxxt.shape[1])]])
 
 	if type(minxt) is int or type(minxt) is float:
-		minxt = Matrix(ones(size(design["xt"])[0], size(design["xt"])[1]).get_data() * minxt)
-	elif minxt.size == 1:
-		minxt = Matrix(ones(size(design["xt"])[0], size(design["xt"])[1]).get_data() * minxt)
+		minxt = Matrix(np.ones(xt.get_shape()) * minxt)
 	if type(minxt) is list:
-		length = max([len(i) for i in minxt])
-		minxt_ = []
-		for i in range(0, len(minxt)):
-			minxt[i] = minxt[i].astype(np.float32)
-			minxt[i] = np.pad(minxt[i], (0, length-len(minxt[i])), "constant", constant_values=np.nan)
-			minxt_.append(minxt[i].tolist())
-		minxt = Matrix(minxt_)
-	if size(minxt)[0] == 1 and design["m"] != 1:
-		minxt = Matrix(np.tile(minxt.get_data().flatten(), design["m"]).reshape(design["m"], minxt.size))
+		# length = max([len(i) for i in minxt])
+		# minxt_ = []
+		# for i in range(0, len(minxt)):
+		# 	minxt[i] = minxt[i].astype(np.float32)
+		# 	minxt[i] = np.pad(minxt[i], (0, length-len(minxt[i])), "constant", constant_values=np.nan)
+		# 	minxt_.append(minxt[i].tolist())
+		minxt = Matrix(minxt)
 	if type(minxt) is not Matrix:
 		minxt = Matrix(minxt)
-	if size(minxt)[0] != design["m"]:
-		raise Exception("The number of rows in minxt (" +
-						str(size(minxt)[0]) +
+	if minxt.get_shape()[0] == 1 and m != 1:
+		minxt.repeat([1, m], [m, minxt.get_shape()[1]])
+	if minxt.get_shape()[0] != m:
+		raise Exception("The number of rows in maxxt (" +
+						str(minxt.shape()[0]) +
 						") is not the same as the number of groups m (" +
-						str(design["m"]) +
+						str(m) +
 						")")
-	if size(minxt)[1] == int(np.max(design["ni"].get_data())) and int(np.max(maxni.get_data())) > int(np.max(design["ni"].get_data())) and size(design["xt"].get_data())[1] == int(np.max(maxni.get_data())):
-		minxt_full = design["xt"].get_data()
-		minxt_full[:, 0:np.max(design["ni"])] = minxt.get_data()
+	if minxt.get_shape()[1] == int(np.max(ni.get_data())) and int(np.max(maxni.get_data())) > int(np.max(ni.get_data())) and xt.get_shape()[1] == int(np.max(maxni.get_data())):
+		minxt_full = xt.get_data()
+		minxt_full[:, 0:np.max(ni.get_data())] = minxt.get_data()
 		minxt = Matrix(minxt_full)
-	if test_mat_size(np.array(design["xt"].shape), minxt.get_data(), "minxt") == 1:
-		minxt = Matrix(minxt,
-							 rownam=["grp_"+str(i+1) for i in range(0, design["m"])],
-							 colnam=["obs_"+str(i+1) for i in range(0, minxt.shape[1])])
+	if test_mat_size(xt.get_shape(), minxt.get_shape(), "maxxt") == 1:
+		minxt.set_axisnam([["grp_"+str(i+1) for i in range(0, design["m"])], 
+							["obs_"+str(i+1) for i in range(0, minxt.shape[1])]])
 
 	# make sure min is less than max
 	ret = comp_max_min(maxxt, minxt, called_args)
@@ -335,18 +327,19 @@ def create_design_space(design_,
 	if our_zero is not None:
 		minxt = Matrix(minxt.get_data() + our_zero * (minxt.get_data() == 0))
 		maxxt = Matrix(maxxt.get_data() + our_zero * (maxxt.get_data() == 0))
-		design["xt"] = Matrix(design["xt"].get_data() + our_zero * (design["xt"].get_data() == 0))
+		design["xt"] = Matrix(xt.get_data() + our_zero * (xt.get_data() == 0))
+		xt = design["xt"]
 	
 	# check given max and min
-	if np.greater(minxt.get_data(), design["xt"].get_data()).any():
+	if np.greater(minxt.get_data(), xt.get_data()).any():
 		raise Exception("xt is less than minxt")
-	if np.greater(design["xt"].get_data(), maxxt.get_data()).any():
+	if np.greater(xt.get_data(), maxxt.get_data()).any():
 		raise Exception("xt is greater than maxxt")
 	
 	# need to decide on appripriate values of xt and minxt and maxxt if applicable
-	if any(maxni.get_data() > design["ni"].get_data()) and any(np.isnan(design["xt"].get_data())):
-		for grp in range(0, design["m"]):
-			xt_grp = design["xt"].get_data()[grp, :]
+	if any(maxni.get_data() > ni.get_data()) and any(np.isnan(xt.get_data())):
+		for grp in range(0, m):
+			xt_grp = xt.get_data()[grp, :]
 			maxxt_grp = maxxt.get_data()[grp, :]
 			minxt_grp = minxt.get_data()[grp, :]
 			if any(np.isnan(maxxt_grp)):
@@ -383,10 +376,11 @@ def create_design_space(design_,
 				if (not one_max) and (not one_min):
 					raise Exception("Unable to determine the initial xt values needed for group " + str(grp+1) +
                                     "\n if ni increases with optimization \nPlease supply them as input.")
-			design["xt"].set_multiple_data(xt_grp, row=grp)
-			maxxt.set_multiple_data(maxxt_grp, row=grp)
-			minxt.set_multiple_data(minxt_grp, row=grp)
-		design_new["xt"] = design["xt"]
+			design["xt"].get_data()[grp, :] = xt_grp
+			xt = design["xt"]
+			maxxt.get_data()[grp, :] = maxxt_grp
+			minxt.get_data()[grp, :] = minxt_grp
+		design_new["xt"] = xt
 
 	# for a
 	if maxa is not None:
@@ -782,10 +776,11 @@ def create_design_space(design_,
 
 	return {"design": design_new, "design_space": design_space}
 
-def comp_max_min(max_val, min_val, called_args):
-	args = list(locals().values())
+def comp_max_min(max_val, min_val, called_args) -> np.ndarray:
+	args = list(locals().values()) # []: argument values
 	if type(min_val) is Matrix and type(max_val) is Matrix:
-		if np.greater(min_val.get_data(), max_val.get_data()).any():
+		if np.greater(min_val.get_data(), max_val.get_data()).any(): # if any of min_val is greater than any of max_val
+			# check if args[0] and args[1] in called_args key
 			min_val_sup = str(args[1]) in list(called_args.keys())
 			max_val_sup = str(args[0]) in list(called_args.keys())
 			if min_val_sup and max_val_sup:

@@ -38,18 +38,18 @@ def efficiency(ofv_init,
     ds_index = poped_db["parameters"]["ds_index"]
     
     eff = ofv_final/ofv_init
-    # attr(eff,"description") <- "ofv_final / ofv_init"
+    # attr(eff,"description") = "ofv_final / ofv_init"
     if ofv_calc_type == 1: # D-Optimal Design
         eff = eff^(1/npar)
-        # attr(eff,"description") <- "(ofv_final / ofv_init)^(1/n_parameters)"
+        # attr(eff,"description") = "(ofv_final / ofv_init)^(1/n_parameters)"
     if ofv_calc_type == 4: # lnD-Optimal Design
         eff = math.exp(ofv_final)/math.exp(ofv_init)^(1/npar)
-        # attr(eff,"description") <- "(exp(ofv_final) / exp(ofv_init))^(1/n_parameters)"
+        # attr(eff,"description") = "(exp(ofv_final) / exp(ofv_init))^(1/n_parameters)"
     if ofv_calc_type == 6: # Ds-Optimal design
         if use_log:
             eff = math.exp(ofv_final)/math.exp(ofv_init)^(1/)
-            # attr(eff,"description") <- "(exp(ofv_final) / exp(ofv_init))^(1/sum(interesting_parameters))"
+            # attr(eff,"description") = "(exp(ofv_final) / exp(ofv_init))^(1/sum(interesting_parameters))"
         else:
             eff = eff^(1/)
-            # attr(eff,"description") <- "(ofv_final / ofv_init)^(1/sum(interesting_parameters))"
+            # attr(eff,"description") = "(ofv_final / ofv_init)^(1/sum(interesting_parameters))"
     return eff   

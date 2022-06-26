@@ -6,6 +6,7 @@ Author: Caiya Zhang, Yuchen Zheng
 
 import re
 import warnings
+import inspect
 import numpy as np
 from project.size import size
 from project.zeros import zeros
@@ -77,8 +78,8 @@ def get_rse(fim, poped_db,*argv):
     prior_fim = poped_db["settings"]["prior_fim"]
     #pseudo_on_fail = False,
     ## update poped_db with options supplied in function
-    called_args = match_call()
-    default_args = formals()
+    called_args = locals()
+    _, _, _, default_args = inspect.getargspec()
     for i in called_args.keys()[-1]:
         if len(re.search('^poped\\_db\\[\\"[\s]*\\"\\]', str(default_args[i]))) == 1:
         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
@@ -91,12 +92,12 @@ def get_rse(fim, poped_db,*argv):
     ## if prior is given in poped_db then add it to the given fim
     if len(prior_fim) != 0 and all(size(prior_fim) == size(fim)):
         fim = fim + prior_fim
-  
-  
-    inv_fim = tryCatch({inv(fim,...)}, error=function(e){
-        warning(e)
+
+    try:
+        inv_fim = np.linalg.inv(fim)
+    except:
         return None
-    })
+   
 
     if inv_fim is None:
         mess = "\n  Could not invert the FIM." + "\n  Is the design adequate to estimate all parameters?"

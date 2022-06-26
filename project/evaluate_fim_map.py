@@ -5,7 +5,7 @@
 ## individual parameters of a population model based on 
 ## Maximum A Posteriori (MAP) estimation of the empirical Bayes estimates (EBEs) in a population model 
 ##
-## @param poped.db A PopED database
+## @param poped_db A PopED database
 ## @param num_sim_ids If \code{use_mc=TRUE}, how many individuals should be
 ##   simulated to make the computations.
 ## @param use_mc Should the calculation be based on monte-carlo simulations. If

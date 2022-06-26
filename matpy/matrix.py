@@ -219,6 +219,13 @@ class Matrix:
 			self.axisnam = None
 
 
+	def expand(self, shape: list[int], fill_value = np.nan):
+		"""
+		fill the Matrix with fill_value to shape
+		"""
+		...
+
+
 def select(input, default):
 	"""
 	designed as private method

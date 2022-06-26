@@ -144,6 +144,10 @@ def create_design_space(design_,
 	model_switch: Matrix = design["model_switch"]
 	groupsize: Matrix = design["groupsize"]
 	a: Matrix = design["a"]
+	if "x" in design.keys():
+		x: Matrix = design["x"]
+	else:
+		x = None
 
 
 	# maxni
@@ -424,45 +428,40 @@ def create_design_space(design_,
 		mina = Matrix(ret["min_val"])
 
 	# check ni given max and min
-	if mina is not None and maxa is not None and design["a"] is not None:
-		if (np.greater(mina.get_data(), design["a"].get_data())).any():
+	if mina is not None and maxa is not None and a is not None:
+		if (np.greater(mina.get_data(), a.get_data())).any():
 			raise Exception("a is less than mina")
-		if (np.greater(design["a"].get_data(), maxa.get_data())).any():
+		if (np.greater(a.get_data(), maxa.get_data())).any():
 			raise Exception("a is greater than maxa")
 
 	# for x
-	if x_space is None and "x" in design.keys():
-		x_space = cell(size(design["x"]))
-		for i in range(0, size(design["x"])[0]):
-			for j in range(0, size(design["x"])[1]):
-				x_space[i, j] = design["x"].get_data()[i, j]
+	if x_space is None and x is not None:
+		x_space = Matrix(x.get_data()) # !!! not sure if it's right
 	if x_space is not None:
-		if size(x_space)[0] == 1 and design["m"] != 1:
-			x_space = np.array(x_space * design["m"], dtype=object).reshape(design["m"], len(x_space))
-		if test_mat_size(np.array(size(design["x"])), x_space, "x_space") == 1:
-			x_space = Matrix(x_space,
-								   rownam=["grp_"+str(i+1) for i in range(0, design["m"])],
-								   colnam=design["x"].columns.values.tolist())
+		if x_space.get_shape()[0] == 1 and m != 1:
+			x_space.repeat([1, m], [m, x_space.get_size()])
+		if test_mat_size(x.get_shape(), x_space.get_shape(), "x_space") == 1:
+			x_space.set_axisnam([["grp_"+str(i+1) for i in range(0, design["m"])],
+									x.get_axisnam()[1]])
 		design_space["x_space"] = x_space
 
-		for i in range(0, size(design["x"])[0]):
-			for j in range(0, size(design["x"])[1]):
+		for i in range(0, x.get_shape()[0]):
+			for j in range(0, x.get_shape()[1]):
 				if type(x_space.get_one_data(index=[i, j])) is Matrix:
 					tmp = x_space.get_one_data(index=[i, j])
 				else:
 					tmp = [x_space.get_one_data(index=[i, j])]
-				if design["x"].get_one_data(index=[i, j]) not in tmp:
+				if x.get_one_data(index=[i, j]) not in tmp:
 					raise Exception("x value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 	
 	# for xt_space
 	if xt_space is not None:
 		if type(xt_space) is list:  # then it is a list with no dimensions, need to convert to a cell
 			nspace = len(xt_space)
-			nrow_xt = design["xt"].get_shape()[0]
-			ncol_xt = design["xt"].get_shape()[1]
+			nrow_xt = xt.get_shape()[0]
+			ncol_xt = xt.get_shape()[1]
 			if nspace == 1: # all time points in all groups have the same space
-				xt_space_tmp = design["xt"].get_data()
-				xt_space = cell(size(design["xt"]))
+				xt_space_tmp = xt.get_data()
 				xt_space = Matrix(xt_space_tmp)
 			elif nspace == ncol_xt: # we assume that all groups have the same space
 				xt_space_tmp = xt_space.get_data()

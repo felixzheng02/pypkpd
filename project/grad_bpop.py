@@ -18,7 +18,7 @@ from project.ind_estimates import ind_estimates
 from project.trace_Matrix import trace_Matrix
 from project.hessian_eta_complex import hessian_eta_complex
 
-def grad_bpop (func,select_par,nout,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db,subset,offdiag=False):
+def grad_bpop(func,select_par,nout,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db,subset,offdiag=False):
   #----------Model linearization with respect to pop parameters
   #
   # use helper function to check for/include EBEs
@@ -29,7 +29,7 @@ def grad_bpop (func,select_par,nout,model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,
     return dx_dbpop 
 
 # helper for m2
-def helper_v_EBE (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
+def helper_v_EBE(model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db):
   
     if poped_db["settings"]["bCalculateEBE"]:
         #zeros(size(b_ind)[1],size(b_ind)[2])
@@ -39,7 +39,7 @@ def helper_v_EBE (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped
   
   
     vx:np.ndarray = v(model_switch,xt_ind,x,a,bpop,b_ind_x,bocc_ind,d,sigma,docc,poped_db)[[0]]
-    vx.shape[0] = np.ndarray(np.prod(vx.shape[0]),1)
+    vx.shape[0] = np.array([np.prod(vx.shape[0]), 1])
     return {"vx": vx, "poped_db": poped_db}
 
 

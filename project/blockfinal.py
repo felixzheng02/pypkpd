@@ -1,32 +1,32 @@
 """
-#' Result function for optimization routines
-#' 
-#' Create some output to the screen and a text file that summarizes the problem you solved.
-#' 
-#' @inheritParams RS_opt
-#' @inheritParams evaluate.fim
-#' @inheritParams Doptim
-#' @inheritParams create.poped.database
-#' @inheritParams blockexp
-#' @inheritParams blockheader
-#' @param fmf_init Initial FIM.
-#' @param dmf_init Initial OFV.
-#' @param param_cvs_init The initial design parameter RSE values in percent.
-#' 
-#' @family Helper
-#' @example tests/testthat/examples_fcn_doc/warfarin_optimize.R
-#' @example tests/testthat/examples_fcn_doc/examples_blockfinal.R
-#' @export
-#' @keywords internal
-#' 
-#' 
-# @importFrom MASS write.matrix
+## Result function for optimization routines
+## 
+## Create some output to the screen and a text file that summarizes the problem you solved.
+## 
+## @inheritParams RS_opt
+## @inheritParams evaluate.fim
+## @inheritParams Doptim
+## @inheritParams create.poped.database
+## @inheritParams blockexp
+## @inheritParams blockheader
+## @param fmf_init Initial FIM.
+## @param dmf_init Initial OFV.
+## @param param_cvs_init The initial design parameter RSE values in percent.
+## 
+## @family Helper
+## @example test/test_blockfinal.R
+## @export
+## @keywords internal
+## 
+##
 ## Then manually adjusted to make work
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 
 import path
+import re
 import numpy as np
+import warnings
 from project.size import size
 from matpy.matrix import Matrix
 from project.tictoc import toc
@@ -161,6 +161,7 @@ def blockfinal(fn,fmf,dmf,groupsize,ni,xt,x,a,model_switch,bpop,d,docc,sigma,pop
         print('\nOFV = %g\n',dmf)
     
     if compute_inv:
+        fim=fmf_init
         param_cvs = get_rse(poped_db, bpop, np.diag(d),docc, sigma, fim=fim)
     
     output = get_unfixed_params(poped_db)
@@ -171,11 +172,11 @@ def blockfinal(fn,fmf,dmf,groupsize,ni,xt,x,a,model_switch,bpop,d,docc,sigma,pop
         print(fn,'\nEfficiency criterion [usually defined as det(FIM)^(1/npar)]  = %g\n',
             ofv_criterion(dmf,npar,poped_db))
     
-    
+    """
     if dmf_init is None:
         eff = efficiency(dmf_init, dmf, poped_db)
         print(fn,"\nEfficiency: \n  (%s) = %.5g\n", attr(eff,"description"),eff,both=True)
-    
+    """
     
     if param_cvs_init is None and fmf_init is not None and type(fmf_init) is Matrix and compute_inv:
         if np.isfinite(dmf_init):
@@ -185,7 +186,7 @@ def blockfinal(fn,fmf,dmf,groupsize,ni,xt,x,a,model_switch,bpop,d,docc,sigma,pop
             #param_cvs_init = returnArgs[[2]]
             param_cvs_init = get_rse(poped_db,bpop,np.diag(d),docc,sigma,fim=fmf_init)
         else:
-            param_cvs_init = suppressMessages(suppressWarnings(get_rse(poped_db,bpop,np.diag(d),docc,sigma,fim=fmf_init)))
+            param_cvs_init = warnings.warn(get_rse(poped_db,bpop,np.diag(d),docc,sigma,fim=fmf_init))
 
     
     if compute_inv:
@@ -193,12 +194,15 @@ def blockfinal(fn,fmf,dmf,groupsize,ni,xt,x,a,model_switch,bpop,d,docc,sigma,pop
       print(fn,'\nExpected relative standard error\n(%sRSE, rounded to nearest integer):\n','%')
       if fn != "":
         print('\nExpected relative standard error\n(%sRSE, rounded to nearest integer):\n','%')
-      df = data.frame("Parameter"=parnam,"Values"=sprintf("%6.3g",params), #"Variance"=param_vars, 
-                       "RSE_0"=round(param_cvs_init),"RSE"=round(param_cvs))
-                       #"RSE_0"=sprintf("%6.3g",param_cvs_init),"RSE"=sprintf("%6.3g",param_cvs))
-      print(df,digits=3, print.gap=3,row.names=F)
-      if(fn!="") capture.output(print(df,digits=3, print.gap=3,row.names=F),file=fn)
-    
+      df = Matrix(np.array([parnam, ("%6.3g"+params), #"Variance"=param_vars, 
+                       round(param_cvs_init), round(param_cvs)]),
+                       (1, 4),
+                       ["Parameter","Values", #"Variance"=param_vars, 
+                       "RSE_0","RSE"],
+                       None, None)
+      #print(df,digits=3, print_gap=3,row_names=F)
+      #if fn != "":
+        #capture_output(print(df,digits=3, print.gap=3,row.names=F),file=fn)
     
     if time_value is not None:
       print(fn,'\nTotal running time: %g seconds\n', time_value)
@@ -220,96 +224,90 @@ def print_xt(xtopt, ni, model_switch,fn="",head_txt="Optimized sample times:\n",
     if xt_other is not None:
       xt_other_i = xt_other[j, 0:ni[j]]
 
-    for i in unique(as.vector(model_switch_i)):
-      xtopt_i_sort = sort(xtopt_i[model_switch_i==i])
-      if(!is.null(xt_other)) xt_other_i_sort = xt_other_i[order(xtopt_i[model_switch_i==i])]
+    for i in np.unique(np.array([model_switch_i])):
+      xtopt_i_sort = sorted(xtopt_i[model_switch_i==i])
+      if xt_other is not None:
+        xt_other_i_sort = xt_other_i[np.argsort(xtopt_i[model_switch_i==i])]
       # if(size(xtopt,1)>1) cat(sprintf("Group %g : ", j),file=fn)
-      cat(sprintf("Group %g: ", j),file=fn)
-      if len(unique(as.vector(model_switch_i)))>1:
-        cat(sprintf("Model %g: ", i),file=fn)
+      print("Group %g: " % j)
+      if len(np.unique(np.array([model_switch_i]))) > 1:
+        print("Model %g: " % i)
 
       if xt_other is not None:
         print((("%" + (digits + 2) + "." + digits + "g") + xt_other_i_sort) + fn)
       else:
         print((("%" + (digits + 2) + "." + digits + "g") + xtopt_i_sort) + fn)
-      
       print("\n" + fn)
-    
-  
   return
 
 
 
 def get_parnam(poped_db):
-  nbpop = length(poped_db["parameters"]["notfixed_bpop"])
-  nd = length(poped_db["parameters"]["notfixed_d"])
-  ncovd = length(poped_db["parameters"]["notfixed_covd"])
-  ndocc = length(poped_db["parameters"]["notfixed_docc"])
-  ncovdocc = length(poped_db["parameters"]["notfixed_covdocc"])
-  nsigma = length(poped_db["parameters"]["notfixed_sigma"])
-  ncovsigma = length(poped_db["parameters"]["notfixed_covsigma"])
+  nbpop = len(poped_db["parameters"]["notfixed_bpop"])
+  nd = len(poped_db["parameters"]["notfixed_d"])
+  ncovd = len(poped_db["parameters"]["notfixed_covd"])
+  ndocc = len(poped_db["parameters"]["notfixed_docc"])
+  ncovdocc = len(poped_db["parameters"]["notfixed_covdocc"])
+  nsigma = len(poped_db["parameters"]["notfixed_sigma"])
+  ncovsigma = len(poped_db["parameters"]["notfixed_covsigma"])
+
+  not_fixed = Matrix(np.array([poped_db["parameters"]["notfixed_bpop"], 
+                                poped_db["parameters"]["notfixed_d"],
+                                poped_db["parameters"]["notfixed_covd"],
+                                poped_db["parameters"]["notfixed_docc"],
+                                poped_db["parameters"]["notfixed_covdocc"],
+                                poped_db["parameters"]["notfixed_sigma"],
+                                poped_db["parameters"]["notfixed_covsigma"]]),
+                        (1, 7),
+                        ["bpop","D","D_cov","D_occ","D_occ_cov","SIGMA","SIGMA_cov"],
+                        None, None)
   
-  not_fixed = list("bpop"=poped_db["parameters"]["notfixed_bpop"],
-                    "D"=poped_db["parameters"]["notfixed_d"],
-                    "D_cov"=poped_db["parameters"]["notfixed_covd"],
-                    "D.occ"=poped_db["parameters"]["notfixed_docc"],
-                    "D.occ_cov"=poped_db["parameters"]["notfixed_covdocc"],
-                    "SIGMA"=poped_db["parameters"]["notfixed_sigma"],
-                    "SIGMA_cov"=poped_db["parameters"]["notfixed_covsigma"])
+  bpop_names = poped_db["parameters"]["bpop"].get_axisnam()[0]
+  d_names = poped_db["parameters"]["d"].get_axisnam()[0]
+  sig_names = poped_db["parameters"]["sigma"].get_axisnam()[0]
   
-  bpop_names = rownames(poped_db["parameters"]["bpop"])
-  d_names = rownames(poped_db["parameters"]["d"])
-  sig_names = rownames(poped_db["parameters"]["sigma"])
-  
-  parnam = c()
+  parnam = np.array([])
   for i in range(0, size(not_fixed)):
-    if length(not_fixed[[i]])==0:
+    if len(not_fixed[[i]])==0:
       next
-    for(j in 1:length(not_fixed[[i]])){
-      
-      if(not_fixed[[i]][j]==1){ 
-        if(names(not_fixed[i])=="bpop"){
-          default_name = TRUE
-          if(!is.null(bpop_names)){
-            if(bpop_names[j]!="") {
-              default_name = FALSE
-              parnam = c(parnam,bpop_names[j])
-            }
-          } 
-          if(default_name)  parnam = c(parnam,paste(names(not_fixed[i]),"[",j,"]",sep=""))    
-        } 
-        if(any(names(not_fixed[i])==c("D"))){
-          default_name = TRUE
-          if(!is.null(d_names)){
-            if(d_names[j]!="") {
-              default_name = FALSE
-              parnam = c(parnam,paste0("d_",d_names[j]))
-            }
-          } 
+    for j in range(0, len(not_fixed[[i]])):
+      if not_fixed[i][j] == 1: 
+        if (not_fixed[i]).get_axisnam() == "bpop":
+          default_name = True
+          if bpop_names is not None:
+            if bpop_names[j] != "":
+              default_name = False
+              parnam = np.array([parnam, bpop_names[j]])
           if default_name:
-            parnam = c(parnam,paste(names(not_fixed[i]),"[",j,",",j,"]",sep=""))
-        }
-        if(any(names(not_fixed[i])==c("SIGMA"))){
-          default_name = TRUE
-          if(!is.null(sig_names)){
-            if(sig_names[j]!="") {
-              default_name = FALSE
-              parnam = c(parnam,paste0("sig_",sig_names[j]))
-            }
-          } 
-          if(default_name) parnam = c(parnam,paste(names(not_fixed[i]),"[",j,",",j,"]",sep=""))
-        }
-        if(any(names(not_fixed[i])==c("D_cov"))){
-          mat_ind = which(lower.tri(poped_db["parameters"]param.pt.val$d, diag = FALSE), arr.ind=T)[j,]
-          parnam = c(parnam,paste("D","[",mat_ind[1],",",mat_ind[2],"]",sep=""))
-        }
+            parnam = np.array([parnam, (not_fixed[i] +"[",j,"]")])    
         
-        if(any(names(not_fixed[i])==c("D.occ"))) parnam = c(parnam,paste(names(not_fixed[i]),"[",j,",",j,"]",sep=""))
-        if((length(grep("_cov",names(not_fixed[i])))!=0) and (!any(names(not_fixed[i])==c("D_cov")))) parnam = c(parnam,paste(names(not_fixed[i]),"[",j,"]",sep="")) 
-      }
-    }
-  }
- 
+        if any((not_fixed[i]).get_axisnam()) == "D":
+          default_name = True
+          if d_names is not None:
+            if d_names[j] != "":
+              default_name = False
+              parnam = np.array([parnam, ("d_" + d_names[j])])
+          if default_name:
+            parnam = np.array([parnam, (not_fixed[i]).get_axisnam() +"["+j+","+j+"]"])
+        
+        if any((not_fixed[i]).get_axisnam()) == "SIGMA":
+          default_name = True
+          if sig_names is not None:
+            if sig_names[j] != "":
+              default_name = False
+              parnam = np.array([parnam, ("sig_"+sig_names[j])])
+            
+          if default_name:
+            parnam = np.array([parnam, (not_fixed[i]).get_axisnam()+"["+j+","+j+"]"])
+
+        if any((not_fixed[i]).get_axisnam()) == "D_cov":
+          mat_ind = np.where(poped_db["parameters"]["param_pt_val"]["d"][np.tril_indices(poped_db["parameters"]["param_pt_val"]["d"].shape[0],-1)])[j,:]
+          parnam = np.array([parnam, ("D"+"["+mat_ind[0]+","+mat_ind[1]+"]")])
+        
+        if any((not_fixed[i]).get_axisnam()) == "D_occ":
+          parnam = np.array([parnam, ((not_fixed[i]).get_axisnam()+"["+j+","+j+"]")])
+            
+        if len(re.search("_cov", (not_fixed[i]).get_axisnam())) != 0 and any((not_fixed[i]).get_axisnam()) =="D_cov":
+          parnam = np.array([parnam, ((not_fixed[i]).get_axisnam()+"["+j+"]")]) 
   
-  return(parnam)
-}
+  return parnam

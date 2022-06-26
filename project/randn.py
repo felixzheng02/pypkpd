@@ -24,6 +24,6 @@ def randn (dim1, dim2=None):
     if dim2 is None:
         dim2 = dim1
     tmp = np.random.normal(dim1*dim2)
-    mat = np.ndarray(tmp).reshape([dim1,dim2])
+    mat = np.array([tmp]).reshape([dim1,dim2])
     #mat = Matrix(tmp,dim1,dim2)
     return mat

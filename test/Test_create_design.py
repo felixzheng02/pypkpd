@@ -4,7 +4,6 @@ import path
 import unittest
 import numpy as np
 from project.create_design import create_design
-from project.ones import ones
 from matpy.matrix import Matrix
 
 
@@ -115,7 +114,7 @@ class TestCreateDesign(unittest.TestCase):
        
         ################################################
         
-        design_6 = create_design(xt=xt1, groupsize=20, model_switch=ones([2, 4]))
+        design_6 = create_design(xt=xt1, groupsize=20, model_switch=Matrix(np.ones([2, 4])))
         
         self.assertTrue(np.array_equal(design_6["xt"].get_data(), np.array([[1, 2, 3, np.nan], [1, 2, 3, 4]]), equal_nan=True))
         self.assertListEqual(design_6["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4"]])
@@ -224,7 +223,7 @@ class TestCreateDesign(unittest.TestCase):
         ################################################
         
         design_11 = create_design(xt=Matrix([0, 1, 2, 4, 6, 8, 24]), groupsize=50, 
-                                    a=Matrix([70, 1000], datanam=["WT", "DOSE"]))
+                                    a=Matrix([70, 1000], axisnam=[None, ["WT", "DOSE"]]))
         
         self.assertTrue(np.array_equal(design_11["xt"].get_data(), np.array([[0, 1, 2, 4, 6, 8, 24]]), equal_nan=True))
         self.assertListEqual(design_11["xt"].get_axisnam(), [["grp_1"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5", "obs_6", "obs_7"]])
@@ -247,7 +246,7 @@ class TestCreateDesign(unittest.TestCase):
         ################################################
         
         design_12 = create_design(xt=Matrix([0, 1, 2, 4, 6, 8, 24]), groupsize=50, 
-                                    a=Matrix([70, 1000], datanam=["WT", "DOSE"]), m=2)
+                                    a=Matrix([70, 1000], axisnam=[None, ["WT", "DOSE"]]), m=2)
 
         self.assertTrue(np.array_equal(design_12["xt"].get_data(), np.array([[0, 1, 2, 4, 6, 8, 24], [0, 1, 2, 4, 6, 8, 24]]), equal_nan=True))
         self.assertListEqual(design_12["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5", "obs_6", "obs_7"]])
@@ -270,7 +269,7 @@ class TestCreateDesign(unittest.TestCase):
         ################################################
         
         design_13 = create_design(xt=Matrix([0, 1, 2, 4, 6, 8, 24]), groupsize=50, 
-                                    a=Matrix([[70, 1000], [200, 90, 45]], datanam=[["WT", "DOSE"], ["WT", "DOSE", "AGE"]]), m=2)
+                                    a=Matrix([[70, 1000], [200, 90, 45]], axisnam=[None, ["WT", "DOSE", "AGE"]]), m=2)
 
         self.assertTrue(np.array_equal(design_13["xt"].get_data(), np.array([[0, 1, 2, 4, 6, 8, 24], [0, 1, 2, 4, 6, 8, 24]]), equal_nan=True))
         self.assertListEqual(design_13["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5", "obs_6", "obs_7"]])
@@ -295,7 +294,7 @@ class TestCreateDesign(unittest.TestCase):
         # design_14 same as design_13
 
         design_15 = create_design(xt=xt4, groupsize=np.array([50, 20]), 
-                                    a=Matrix([[2, 3, 4], [4, 5, 6]], datanam=[["DOSE", "WT", "AGE"], [None, None, None]]))
+                                    a=Matrix([[2, 3, 4], [4, 5, 6]], axisnam=[None, ["DOSE", "WT", "AGE"]]))
         
         self.assertTrue(np.array_equal(design_15["xt"].get_data(), np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
         self.assertListEqual(design_15["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])

@@ -97,16 +97,14 @@ class Matrix:
 		"""
 		return self.data
 
-	def set_data(self, data, shape: list = None, datanam: list = None):
+	def set_data(self, data, shape: list = None, datanam: bool = False, axisnam: bool = False):
 		"""
 		set data of the Matrix, datanam, colnam, rownam are lost
 		@parameters:
 			data: int, float, [int], [float], np.ndarray, Matrix
 			shape: list
 		"""
-		if type(data) is Matrix:
-			data = data.get_data()
-		elif type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
+		if type(data) is int or type(data) is float or type(data) is np.int32 or type(data) is np.int64 or type(data) is np.float32 or type(data) is np.float64:
 			data = np.array([data]).reshape([1, 1])
 		elif type(data) is list:
 			data = np.array(data)
@@ -116,8 +114,11 @@ class Matrix:
 			raise Exception("must provide int, float, list, np.ndarray, or Matrix as data input")
 		self.shape = select(shape, data.shape)
 		self.data = data.reshape(self.get_shape())
-		self.set_datanam(datanam)
-		self.set_axisnam(None)
+		if not datanam:
+			self.datanam = None
+		if not axisnam:
+			self.axisnam = None
+
 
 	def set_shape(self, shape: list, axisnam: list = None):
 		"""
@@ -135,7 +136,7 @@ class Matrix:
 
 	def set_axisnam(self, axisnam: list):
 		self.axisnam = axisnam
-
+			
 	def set_one_data(self, new_data, new_datanam, name: str = None, index: list = None): # could only set by int or float
 		"""
 		provided with either name (as str) or index (as list) of the data that needs to be changed, 
@@ -201,16 +202,19 @@ class Matrix:
 		if len(shape) == 1:
 			shape = [1, shape[0]]
 		data = data.reshape(tuple(shape))
-		self.set_data(data)
+		self.set_data(data, datanam=True, axisnam=True)
 		self.set_shape(data.shape)
 		self.size = data.size
 		if datanam:
-			self.datanam = np.tile(self.get_datanam(), n).tolist()
+			if self.get_datanam() is not None:
+				self.set_datanam(np.tile(self.get_datanam(), n).reshape(self.shape).tolist())
 		else:
 			self.datanam = None
 		if axisnam:
-			for i in range(0, len(self.get_axisnam())):
-				self.get_axisnam()[i] = self.get_axisnam[i] * n[i]
+			if self.get_axisnam() is not None:
+				for i in range(0, len(self.get_axisnam())):
+					if self.get_axisnam()[i] is not None:
+						self.get_axisnam()[i] = self.get_axisnam()[i] * int(self.get_shape()[i]/shape[i])
 		else:
 			self.axisnam = None
 

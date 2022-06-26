@@ -143,6 +143,7 @@ def create_design_space(design_,
 	xt: Matrix = design["xt"]
 	model_switch: Matrix = design["model_switch"]
 	groupsize: Matrix = design["groupsize"]
+	a: Matrix = design["a"]
 
 
 	# maxni
@@ -384,40 +385,37 @@ def create_design_space(design_,
 
 	# for a
 	if maxa is not None:
-		if type(maxa) is list:
-			maxa = Matrix(maxa)
-		if size(maxa)[0] == 1 and design["m"] != 1:
-			maxa = Matrix(np.tile(maxa.get_data().flatten(), design["m"]).reshape(design["m"], maxa.size))
 		if type(maxa) is not Matrix:
 			maxa = Matrix(maxa)
-		if size(maxa)[0] != design["m"]:
+		if maxa.get_shape()[0] == 1 and m != 1:
+			maxa.repeat([1, m], [m, maxa.get_size()])
+		if maxa.get_shape()[0] != m:
 			raise Exception("The number of rows in maxa (" +
-							str(size(maxa)[0]) +
+							str(maxa.get_shape()[0]) +
 							") is not the same as the number of groups m (" +
-							str(design["m"]) + ")")
-		maxa = Matrix(maxa.get_data(),
-							rownam=["grp_" + str(i+1) for i in range(0, design["m"])])
-		if maxa.get_colnam == []:
-			maxa.set_colnam(design["a"].get_colnam())
+							str(m) + ")")
+		colnam = maxa.get_axisnam()[1]
+		if colnam is None:
+			colnam = a.get_axisnam()[1]
+		maxa.set_axisnam([["grp_" + str(i+1) for i in range(0, m)], colnam])
 		design_space["maxa"] = maxa
 	
 	if mina is not None:
-		if type(mina) is list:
-			mina = Matrix(mina)
-		if size(mina)[0] == 1 and design["m"] != 1:
-			mina = Matrix(np.tile(mina.get_data().flatten(), design["m"]).reshape(design["m"], mina.size))
 		if type(mina) is not Matrix:
 			mina = Matrix(mina)
-		if size(mina)[0] != design["m"]:
-			raise Exception("The number of rows in maxa (" +
-							str(size(mina)[0]) +
+		if mina.get_shape()[0] == 1 and m != 1:
+			mina.repeat([1, m], [m, mina.get_size()])
+		if mina.get_shape()[0] != m:
+			raise Exception("The number of rows in mina (" +
+							str(mina.get_shape()[0]) +
 							") is not the same as the number of groups m (" +
-							str(design["m"]) + ")")
-		mina = Matrix(mina.get_data(),
-							rownam=["grp_" + str(i+1) for i in range(0, design["m"])])
-		if mina.get_colnam() == []:
-			mina.set_colnam(design["a"].get_colnam())
+							str(m) + ")")
+		colnam = mina.get_axisnam()[1]
+		if colnam is None:
+			colnam = a.get_axisnam()[1]
+		mina.set_axisnam([["grp_" + str(i+1) for i in range(0, m)], colnam])
 		design_space["mina"] = mina
+	
 
 	# make sure max is min smaller than max
 	if mina is not None and maxa is not None:

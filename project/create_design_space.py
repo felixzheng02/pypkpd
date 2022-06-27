@@ -499,8 +499,8 @@ def create_design_space(design_,
 
 	# for a_space
 	if a_space is not None:
-		if type(a_space) is not Matrix and type(a_space) is list:
-			a_space = Matrix(np.array(a_space * design["m"]).reshape([design["m"], len(a_space)]))
+		if type(a_space) is list:
+			a_space = Matrix(a_space * m, [m, len(a_space)])
 		else:
 			tmp_lst = Matrix(np.array(a_space).reshape([1, a_space.size])
 								   # 没写 dimnames = list(None,names(x))

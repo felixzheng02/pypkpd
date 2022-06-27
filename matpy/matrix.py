@@ -11,6 +11,7 @@ from xmlrpc.client import boolean
 import numpy as np
 import pandas as pd
 from project.poped_choose import poped_choose
+from project.cell import cell
 
 
 class Matrix:
@@ -136,6 +137,9 @@ class Matrix:
 
 	def set_axisnam(self, axisnam: list):
 		self.axisnam = axisnam
+	
+	def set_one_axisnam(self, index: int, new_axisnam: list):
+		self.axisnam[index] = new_axisnam
 			
 	def set_one_data(self, new_data, new_datanam, name: str = None, index: list = None): # could only set by int or float
 		"""
@@ -223,7 +227,17 @@ class Matrix:
 		"""
 		fill the Matrix with fill_value to shape
 		"""
-		...
+		new_data = cell(shape, fill_value)
+		new_data[0:self.get_shape()[0], 0:self.get_shape()[1]] = self.get_data()
+		self.set_data(new_data)
+		if self.get_axisnam() is not None:
+			for i in range(0, len(shape)):
+				self.set_one_axisnam(i, self.get_axisnam()[i].expand((shape[i]-self.get_shape()[i]) * None))
+		if self.get_datanam() is not None:
+			new_datanam = cell(shape, None)
+			new_datanam[0:self.get_shape()[0], 0:self.get_shape()[1]] = self.get_datanam()
+			self.set_datanam(new_datanam)
+		self.set_shape(shape)
 
 
 def select(input, default):

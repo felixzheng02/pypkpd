@@ -9,5 +9,5 @@ Author: Caiya Zhang, Yuchen Zheng
 import numpy as np
 
 
-def cell(shape: list):
-	return np.full(shape=shape, fill_value=np.nan)
+def cell(shape: list, fill_value = np.nan):
+	return np.full(shape=shape, fill_value=fill_value)

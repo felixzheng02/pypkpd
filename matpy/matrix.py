@@ -85,8 +85,9 @@ class Matrix:
 
 		if name is not None: # search by name
 			if self.get_datanam() is not None:
-				for index in range(0, len(self.get_datanam())):
-					if name == self.get_datanam()[index]:
+				tmp_datanam = np.array(self.get_datanam()).flatten().tolist()
+				for index in range(0, len(tmp_datanam)):
+					if name == tmp_datanam[index]:
 						return self.get_data().flatten()[index]
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None: # search by index
@@ -150,14 +151,16 @@ class Matrix:
 			raise Exception("Please specify the name or the index of the data that needs to be changed.")
 
 		if name is not None: # search by name
-			data = self.get_data().flatten()
 			if self.get_datanam() is not None:
-				for index in range(0, len(self.get_datanam())):
-					if name == self.get_datanam()[index]:
+				data = self.get_data().flatten()
+				datanam = np.array(self.get_datanam()).flatten().tolist()
+				for index in range(0, len(datanam)):
+					if name == datanam[index]:
 						data[index] = new_data
 						self.data = data.reshape(self.get_shape())
-						if new_datanam is not None:
-							self.datanam[index] = new_datanam
+						self.set_one_datanam(new_datanam, name=name)
+						# datanam[index] = new_datanam
+						# self.datanam = np.array(datanam).reshape(self.get_shape()).tolist()
 						return
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None: # search by index
@@ -175,16 +178,15 @@ class Matrix:
 
 		if name is not None: # search by name
 			if self.get_datanam() is not None:
-				for index in range(0, len(self.get_datanam())):
-					if name == self.get_datanam()[index]:
-						self.datanam[index] = new_datanam
+				datanam = np.array(self.get_datanam()).flatten().tolist()
+				for index in range(0, len(datanam)):
+					if name == datanam[index]:
+						datanam[index] = new_datanam
+						self.datanam = np.array(datanam).reshape(self.get_shape()).tolist()
 						return
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None: # search by index
-			datanam_index = 0
-			for i in range(0, len(index)):
-				datanam_index += index[i] * int(np.prod(self.get_shape()[i+1:]))
-			self.datanam[datanam_index] = new_datanam
+			self.set_datanam(np.array(self.get_datanam))
 
 	def get_dataframe(self):
 		return pd.DataFrame(self.get_data(),
@@ -242,7 +244,6 @@ class Matrix:
 
 def select(input, default):
 	"""
-	designed as private method
 	if given input, set target variable as input, else, set target variable as default
 	"""
 	if input is None:
@@ -253,6 +254,7 @@ def select(input, default):
 
 def recursively_fill_list(input_list, value):
 	"""
+	designed as private method
 	recursively fill np.nan values to blank spaces in a list,
 	which probably includes multiple layers of sublist
 	"""

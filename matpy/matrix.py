@@ -113,7 +113,7 @@ class Matrix:
 		elif type(data) is np.ndarray:
 			data = data
 		else:
-			raise Exception("must provide int, float, list, np.ndarray, or Matrix as data input")
+			raise Exception("must provide int, float, list, or np.ndarray as data input")
 		self.shape = select(shape, data.shape)
 		self.data = data.reshape(self.get_shape())
 		if not datanam:
@@ -186,7 +186,9 @@ class Matrix:
 						return
 			raise Exception("'%s' does not exists." % name)
 		elif index is not None: # search by index
-			self.set_datanam(np.array(self.get_datanam))
+			datanam = np.array(self.get_datanam())
+			datanam[tuple(index)] = new_datanam
+			self.set_datanam(datanam.tolist())
 
 	def get_dataframe(self):
 		return pd.DataFrame(self.get_data(),

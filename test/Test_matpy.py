@@ -54,8 +54,6 @@ class TestMatpy(unittest.TestCase):
         self.assertEqual(matrix.get_one_data(index=[0, 0, 1]), 2)
         matrix.set_data([10, 20, 30], [3, 1])
         self.assertEqual(matrix.get_one_data(index=[2, 0]), 30)
-        matrix.set_data(matrix, [1, 3])
-        self.assertListEqual(matrix.get_shape(), [1, 3])
         print("test 2 passed")
     
     def test_set_shape(self):
@@ -118,8 +116,8 @@ class TestMatpy(unittest.TestCase):
 			            [["row_1", "row_2"], ["col_1", "col_2"]]
                         )
         matrix.expand([3, 3], fill_value=0)
-        self.assertTrue(np.array_equal(matrix.get_data(), np.array([[1, 2, 0]
-                                                                    [3, 4, 0]
+        self.assertTrue(np.array_equal(matrix.get_data(), np.array([[1, 2, 0],
+                                                                    [3, 4, 0],
                                                                     [0, 0, 0]])))
 
 if __name__ == '__main__':

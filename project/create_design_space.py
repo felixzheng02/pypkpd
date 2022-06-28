@@ -461,40 +461,36 @@ def create_design_space(design_,
 			nrow_xt = xt.get_shape()[0]
 			ncol_xt = xt.get_shape()[1]
 			if nspace == 1: # all time points in all groups have the same space
-				xt_space_tmp = xt.get_data()
-				xt_space = Matrix(xt_space_tmp)
+				xt_space = Matrix(xt_space).expand(xt.get_shape())
 			elif nspace == ncol_xt: # we assume that all groups have the same space
-				xt_space_tmp = xt_space.get_data()
-				xt_space = cell(size(design["xt"]))
-				tmp_list = []
+				# len(xt_space) == xt.get_shape()[1] (column)
+				xt_space_tmp = np.array(xt_space)
+				xt_space = Matrix(xt_space).expand(xt.get_shape(), fill_value=0) # expand xt_space to xt size
 				for i in range(0, nrow_xt):
-					for j in range(0, len(xt_space_tmp)):
-						tmp_list.append(xt_space_tmp[j])
-				xt_space = Matrix(np.array(tmp_list).reshape(nrow_xt, len(xt_space_tmp), len(xt_space_tmp[0])))
+					xt_space.get_data()[i, :] = xt_space_tmp # every new xt_space row is whole old xt_space values
 			elif nspace == (ncol_xt * nrow_xt): # we assume that spaces are entered in row major form
-				xt_space_tmp = xt_space
-				xt_space = Matrix(np.array(xt_space_tmp).reshape([int((xt_space_tmp.size)/nrow_xt), nrow_xt]))
+				xt_space = Matrix(xt_space)
+				xt_space.set_shape([int(xt_space.get_size()/nrow_xt), nrow_xt])
 		else: # then it is a vector, assume the vector is the same for all xt's
-			tmp_lst = xt_space.get_data().tolist()
-			xt_space = cell(size(design["xt"]))
-			xt_space = tmp_lst
-		if size(xt_space)[0] == 1 and design["m"] != 1:
-			xt_space = Matrix(np.tile(xt_space.get_data().flatten(), design["m"]).reshape(design["m"], xt_space.size))
-		if size(xt_space)[1] == 1 and size(design["xt"])[2] != 1:
-			xt_space = Matrix(np.transpose(np.tile(xt_space.get_data().flatten(), size(design["xt"])[1]).reshape(design["m"], size(design["xt"])[1])))
-		if test_mat_size(np.array(size(design["xt"])), np.array(xt_space), "xt_space") == 1:
-			xt_space = Matrix(xt_space,
-									rownam=["grp_"+str(i+1) for i in range(0, design["m"])],
-									colnam=design["xt"].get_colnam())
+			if type(xt_space) is not Matrix:
+				xt_space = Matrix(xt_space)
+			xt_space.expand(xt.get_shape())
+
+		if xt_space.get_shape()[0] == 1 and m != 1:
+			xt_space.repeat([1, m], [m, xt_space.get_size()])
+		if xt_space.get_shape()[1] == 1 and xt.get_shape()[2] != 1:
+			xt_space.repeat([xt.get_shape()[1], 1], [m, xt.get_shape()[1]])
+		if test_mat_size(xt.get_shape(), xt_space.get_shape(0), "xt_space") == 1:
+			xt_space.set_axisnam([["grp_"+str(i+1) for i in range(0, m)], xt.get_axisnam()[1]])
 		
-		for i in range(0, design["xt"].shape[0]):
-			for j in range(0, design["xt"].shape[1]):
-				if ~np.isnan(design["xt"].get_data())[i, j]:
+		for i in range(0, xt.get_shape()[0]):
+			for j in range(0, xt.get_shape()[1]):
+				if ~np.isnan(xt.get_data())[i, j]:
 					if type(xt_space.get_data()[i, j]) is int or type(xt_space.get_data()[i, j]) is np.float64:
 						tmp = [xt_space.get_data()[i, j]]
-					else:
+					else: # xt_space.get_data()[i, j] is list
 						tmp = xt_space.get_data()[i, j]
-					if design["xt"].get_data()[i, j] not in tmp:
+					if xt.get_data()[i, j] not in tmp:
 						raise Exception("xt value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 
 	# for a_space

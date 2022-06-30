@@ -496,31 +496,31 @@ def create_design_space(design_,
 	# for a_space
 	if a_space is not None:
 		if type(a_space) is list:
-			a_space = Matrix(a_space * m, [m, len(a_space)])
-		else:
-			tmp_lst = Matrix(np.array(a_space).reshape([1, a_space.size])
-								   # 没写 dimnames = list(None,names(x))
-								   )
-			mat = Matrix([])
-			for jj in range(0, tmp_lst.size):
-				tmp = tmp_lst[0, jj]
-				if any(type(i) == str for i in tmp.columns.values.tolist()) and any(type(i) == str for i in design["a"].columns.values.tolist()):
-					tmp = tmp[design["a"].columns.values.tolist()]
-					mat = mat.append(tmp)
-			a_space = mat
-		if size(a_space)[0] == 1 and design["m"] != 1:
-			a_space = Matrix(np.tile(a_space.get_data().flatten(), design["m"]).reshape(design["m"], a_space.size))
-		if size(a_space)[1] == 1 and size(design["a"])[1] == 1:
-			a_space = Matrix(np.transpose(np.tile(a_space.get_data().flatten(), size(design["a"])[1]).reshape(design["m"], size(design["a"])[1])))
-		if test_mat_size(np.array(size(design["a"])), a_space.get_data(), "a_space") == 1:
-			if type(a_space) is not Matrix and all(np.array(size(a_space)) == 1):
-				a_space = Matrix(a_space,
-									   rownam=["grp_" + str(i+1) for i in range(0, design["m"])],
-									   colnam=design["a"].get_colnam())
-		for i in range(0, design["a"].get_shape()[0]):
-			for j in range(0, design["a"].get_shape()[1]):
-				if design["a"][i, j] not in [a_space[i, j]] and design["a"] is not None:
-					raise Exception("a value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
+			if type(a_space[0]) is not list:
+				a_space = Matrix(a_space * m, [m, len(a_space)])
+			else:
+				tmp_lst = []
+				for i in range(0, len(a_space)):
+					tmp_lst[i] = Matrix(a_space[i], [1, len(a_space[i])]) # !!! did not write "dimnames = list(None,names(x))"							
+				mat = None
+				for jj in range(0, len(tmp_lst)):
+					tmp = tmp_lst[jj]
+					if tmp.get_axisnam()[1] is not None and a.get_axisnam()[1] is not None:
+						tmp = tmp.get_data()[:, [int(i) for i in a.get_axisnam()[1]]]
+						mat = Matrix(tmp)
+				a_space = mat
+
+		if a_space.get_shape()[0] == 1 and m != 1:
+			a_space.repeat([1, m], [m, a_space.get_size()])
+		if a_space.get_shape()[1] == 1 and a.get_shape()[1] != 1:
+			a_space.repeat([a.get_shape()[1], 1], [m, a.get_shape(0[1])])
+		if test_mat_size(a.get_shape(), a_space.get_shape(), "a_space") == 1:
+			a_space.set_axisnam([["grp_" + str(i+1) for i in range(0, m)], a.get_axisnam()[1]])
+		for i in range(0, a.get_shape()[0]):
+			for j in range(0, a.get_shape()[1]):
+				if a.get_data()[i, j] is not None:
+					if a.get_data()[i, j] not in [a_space.get_data()[i, j]]
+						raise Exception("a value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 
 	# for grouped_xt
 	if grouped_xt is None:

@@ -30,7 +30,7 @@ import warnings
 from project.size import size
 from matpy.matrix import Matrix
 from project.tictoc import toc
-from project.get_cv import get_rse
+from project.get_rse import get_rse
 from project.ofv_criterion import ofv_criterion
 from project.get_unfixed_params import get_unfixed_params
 

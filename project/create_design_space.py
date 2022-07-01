@@ -519,18 +519,18 @@ def create_design_space(design_,
 		for i in range(0, a.get_shape()[0]):
 			for j in range(0, a.get_shape()[1]):
 				if a.get_data()[i, j] is not None:
-					if a.get_data()[i, j] not in [a_space.get_data()[i, j]]
+					if a.get_data()[i, j] not in [a_space.get_data()[i, j]]:
 						raise Exception("a value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 
 	# for grouped_xt
 	if grouped_xt is None:
-		grouped_xt = Matrix(design["xt"].get_data() * np.nan)
+		grouped_xt = Matrix(xt.get_data() * np.nan)
 		val = 1
-		for i in range(0, design["xt"].get_shape()[0]):
+		for i in range(0, xt.get_shape()[0]):
 			if use_grouped_xt:
 				val = 1
-			for j in range(0, design["xt"].get_shape()[1]):
-				if design["xt"].get_data()[i, j] is not None:
+			for j in range(0, xt.get_shape()[1]):
+				if xt.get_one_data(index=[i, j]) is not None:
 					grouped_xt.set_one_data(val, index=[i, j])
 					val += 1
 

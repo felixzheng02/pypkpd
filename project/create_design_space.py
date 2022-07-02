@@ -62,11 +62,11 @@ Author: Caiya Zhang, Yuchen Zheng
 import path
 import numpy as np
 import copy
-from project.test_mat_size import test_mat_size
-from project.ones import ones
-from project.cell import cell
 from matpy.matrix import Matrix
+from project.test_mat_size import test_mat_size
+from project.cell import cell
 from project.util import default_if_none
+from project.size import size
 
 
 def create_design_space(design_,
@@ -141,9 +141,7 @@ def create_design_space(design_,
 	m: int = design["m"].get_value()
 	ni: Matrix = design["ni"]
 	xt: Matrix = design["xt"]
-	model_switch: Matrix = design["model_switch"]
 	groupsize: Matrix = design["groupsize"]
-	a: Matrix = design["a"]
 	if "x" in design.keys():
 		x: Matrix = design["x"]
 	else:
@@ -534,34 +532,33 @@ def create_design_space(design_,
 					grouped_xt.set_one_data(val, index=[i, j])
 					val += 1
 
-	if grouped_xt.size == 1:
-		grouped_xt = Matrix(np.array(ones(size(design["xt"])[0], size(design["xt"])[1])) * grouped_xt)
+	if size(grouped_xt) == 1: # grouped_xt is int or float
+		grouped_xt = Matrix(np.ones(tuple(xt.get_shape())) * grouped_xt)
 		use_grouped_xt = True
 	if type(grouped_xt) is list:
-		length = max([len(i) for i in grouped_xt])
-		grouped_xt_ = []
-		for i in range(0, len(grouped_xt)):
-			grouped_xt[i] = grouped_xt[i].astype(np.float32)
-			grouped_xt[i] = np.pad(grouped_xt[i], (0, length-len(grouped_xt[i])), "constant", constant_values=np.nan)
-			grouped_xt_.append(grouped_xt[i].tolist())
-		grouped_xt = Matrix(grouped_xt_)
-	if size(grouped_xt)[0] == 1 and design["m"] != 1:
-		grouped_xt = Matrix(np.tile(grouped_xt.flatten(), design["m"]).reshape(design["m"], grouped_xt.size))
+		# length = max([len(i) for i in grouped_xt])
+		# grouped_xt_ = []
+		# for i in range(0, len(grouped_xt)):
+		# 	grouped_xt[i] = grouped_xt[i].astype(np.float32)
+		# 	grouped_xt[i] = np.pad(grouped_xt[i], (0, length-len(grouped_xt[i])), "constant", constant_values=np.nan)
+		# 	grouped_xt_.append(grouped_xt[i].tolist())
+		grouped_xt = Matrix(grouped_xt)
+	if grouped_xt.get_shape()[0] == 1 and m != 1:
+		grouped_xt.repeat([1, m], [m, grouped_xt.get_size()])
 		use_grouped_xt = True
 	if type(grouped_xt) is not Matrix:
 		grouped_xt = Matrix(grouped_xt)
-	if size(grouped_xt)[1] == np.max(design["ni"].get_data()) and np.max(maxni.get_data()) > np.max(design["ni"].get_data()) and size(design["xt"])[1] == np.max(maxni.get_data()):
-		grouped_xt_full = design["xt"].get_data() * np.nan
-		grouped_xt_full[:, 0:int(np.max(design["ni"]))] = np.array(grouped_xt.astype(np.float32))
+	if grouped_xt.get_shape()[1] == np.max(ni.get_data()) and np.max(maxni.get_data()) > np.max(ni.get_data()) and xt.get_shape()[1] == np.max(maxni.get_data()):
+		grouped_xt_full = xt.get_data() * np.nan
+		grouped_xt_full[:, 0:int(np.max(ni.get_data()))] = grouped_xt.get_data()
 		grouped_xt = Matrix(grouped_xt_full)
-	if test_mat_size(np.array(size(design["xt"])), grouped_xt.get_data(), "grouped_xt") == 1:
-		grouped_xt = Matrix(grouped_xt,
-								  rownam=["grp_" + str(i+1) for i in range(0, design["m"])],
-								  colnam=["obs_" + str(i+1) for i in range(0, grouped_xt.shape[1])])
+	if test_mat_size(xt.get_shape(), grouped_xt.get_shape(), "grouped_xt") == 1:
+		grouped_xt.set_axisnam([["grp_" + str(i+1) for i in range(0, m)],
+								["obs_" + str(i+1) for i in range(0, grouped_xt.shape[1])]])
 
 	# get values in the NA region if possible
-	if any(maxni.get_data() > design["ni"].get_data()) and any(np.isnan(grouped_xt.get_data())):
-		for grp in range(0, design["m"]):
+	if any(maxni.get_data() > ni.get_data()) and any(np.isnan(grouped_xt.get_data())):
+		for grp in range(0, m):
 			grouped_xt_grp = grouped_xt.get_data()[grp, :]
 			if any(np.isnan(grouped_xt_grp)):
 				_, idx = np.unique(grouped_xt_grp[~np.isnan(grouped_xt_grp)], return_index=True) # remove duplicated and nan values but keep order
@@ -572,70 +569,73 @@ def create_design_space(design_,
 					raise Exception("Unable to determine the grouped_xt values needed for group " +
 									str(grp+1) +
 									"\n if ni increases with optimization \nPlease supply them as input.")
-			grouped_xt.set_multiple_data(grouped_xt_grp, row=grp)
+			grouped_xt.get_data()[grp, :] = grouped_xt_grp
 
-	_, idx = np.unique(grouped_xt.get_data()[~np.isnan(design["xt"].get_data())], return_index=True) # remove duplicated and nan values but keep order
-	for i in [grouped_xt.get_data()[~np.isnan(design["xt"].get_data())][index] for index in sorted(idx)]:
-		_, idx = np.unique(design["xt"].get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))], return_index=True) # remove duplicated and nan values but keep order
-		if len([design["xt"].get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))][index] for index in sorted(idx)]) != 1:
+	_, idx = np.unique(grouped_xt.get_data()[~np.isnan(xt.get_data())], return_index=True) # remove duplicated and nan values but keep order
+	for i in [grouped_xt.get_data()[~np.isnan(xt.get_data())][index] for index in sorted(idx)]:
+		_, idx = np.unique(xt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))], return_index=True) # remove duplicated and nan values but keep order
+		if len([xt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))][index] for index in sorted(idx)]) != 1:
 			raise Exception("xt values grouped with value %g from grouped_xt do not have the same initial values.\n'" % i)
-		_, idx = np.unique(maxxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))], return_index=True) # remove duplicated and nan values but keep order
-		if len([maxxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))][index] for index in sorted(idx)]) != 1:
+		_, idx = np.unique(maxxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))], return_index=True) # remove duplicated and nan values but keep order
+		if len([maxxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))][index] for index in sorted(idx)]) != 1:
 			raise Exception("xt values grouped with value %g from grouped_xt do not have the same maximum allowed values (maxxt).\n" % i)
-		_, idx = np.unique(minxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))], return_index=True) # remove duplicated and nan values but keep order
-		if len([minxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))][index] for index in sorted(idx)]) != 1:
+		_, idx = np.unique(minxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))], return_index=True) # remove duplicated and nan values but keep order
+		if len([minxt.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))][index] for index in sorted(idx)]) != 1:
 			raise Exception("xt values grouped with value %g from grouped_xt do not have the same maximum allowed values (minxt).\n" % i)
 		if xt_space is None:
 			grouped_cells_xt = None
 		else:
-			grouped_cells_xt = xt_space.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(design["xt"].get_data()))]
-			for j in range(0, grouped_cells_xt.get_shape()[0]):
-				for k in range(j, grouped_cells_xt.get_shape()[0]):
-					if ((np.array(size(grouped_cells_xt.get_data()[j])) != np.array(size(grouped_cells_xt.get_data()[k]))).any() or
-						(grouped_cells_xt.get_data()[j] != grouped_cells_xt.get_data()[k]).any()):
+			grouped_cells_xt = xt_space.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))]
+			for j in range(0, grouped_cells_xt.shape[0]):
+				for k in range(j, grouped_cells_xt.shape[1]):
+					if ((np.array(size(grouped_cells_xt[j, 0])) != np.array(size(grouped_cells_xt[k, 0]))).any() or
+						(grouped_cells_xt[j, 0] != grouped_cells_xt[k, 0]).any()):
 						raise Exception("xt values grouped with value % g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
 
-	_, idx = np.unique(grouped_xt.get_data()[~np.isnan(design["xt"].get_data())], return_index=True) # remove duplicated and nan values but keep order
-	for i in range(0, int(np.max([grouped_xt.get_data()[~np.isnan(design["xt"].get_data())][index] for index in sorted(idx)]))):
-		_, idx = np.unique(design["xt"].get_data()[np.logical_and(grouped_xt.get_data() == i+1, ~np.isnan(design["xt"].get_data()))], return_index=True) # remove duplicated and nan values but keep order
-		if len([design["xt"].get_data()[np.logical_and(grouped_xt.get_data() == i+1, ~np.isnan(design["xt"].get_data()))][index] for index in sorted(idx)]) == 0:
+	_, idx = np.unique(grouped_xt.get_data()[~np.isnan(xt.get_data())], return_index=True) # remove duplicated and nan values but keep order
+	for i in range(0, int(np.max([grouped_xt.get_data()[~np.isnan(xt.get_data())][index] for index in sorted(idx)]))):
+		_, idx = np.unique(xt.get_data()[np.logical_and(grouped_xt.get_data() == i+1, ~np.isnan(xt.get_data()))], return_index=True) # remove duplicated and nan values but keep order
+		if len([xt.get_data()[np.logical_and(grouped_xt.get_data() == i+1, ~np.isnan(xt.get_data()))][index] for index in sorted(idx)]) == 0:
 			raise Exception("grouped_xt must be sequential and cannot have missing values.\nNo xt values were grouped with value %g in grouped_xt.\n" % i)
 
 	# for grouped_a
 	if "a" in design.keys():
-		if design["a"] is not None:
+		a = design["a"]
+		if a is not None:
 			if grouped_a is None:
-				grouped_a = Matrix(design["a"].get_data() * np.nan)
+				grouped_a = Matrix(a.get_data() * np.nan)
 				val = 1
-				for i in range(0, size(design["a"])[0]):
+				for i in range(0, a.get_shape()[0]):
 					if use_grouped_a:
 						val = 1
-					for j in range(0, size(design["a"])[1]):
-						if ~np.isnan(design["a"].get_one_data(index=[i, j])):
+					for j in range(0, a.get_shape()[1]):
+						if ~np.isnan(a.get_one_data(index=[i, j])):
 							grouped_a.set_one_data(val, index=[i, j])
 							val += 1
 
-			if size(grouped_a) == [1, 1]:
-				grouped_a = Matrix(np.ones(size(design["a"])) * grouped_a.get_one_data(index=[0, 0]))
+			if size(grouped_a) == 1:
+				if type(grouped_a) is Matrix:
+					grouped_a = grouped_a.get_one_data(index=[0, 0])
+				grouped_a = Matrix(np.ones(tuple(a.get_shape())) * grouped_a)
 
 			if type(grouped_a) == list:
-				length = max([len(i) for i in grouped_a])
-				grouped_a_ = []
-				for i in range(0, len(grouped_a)):
-					grouped_a[i] = grouped_a[i].astype(np.float32)
-					grouped_a[i] = np.pad(grouped_a[i], (0,length-len(grouped_a[i])),"constant",constant_values=np.nan)
-					grouped_a_.append(grouped_a[i].tolist())
-				grouped_a = Matrix(np.array(grouped_a_))
+				# length = max([len(i) for i in grouped_a])
+				# grouped_a_ = []
+				# for i in range(0, len(grouped_a)):
+				# 	grouped_a[i] = grouped_a[i].astype(np.float32)
+				# 	grouped_a[i] = np.pad(grouped_a[i], (0,length-len(grouped_a[i])),"constant",constant_values=np.nan)
+				# 	grouped_a_.append(grouped_a[i].tolist())
+				grouped_a = Matrix(grouped_a)
 				use_grouped_a = True
 
 			if type(grouped_a) is not Matrix:
 				grouped_a = Matrix(grouped_a)
 
-			if test_mat_size(np.array(size(design["a"])), grouped_a, "grouped_a") == 1:
-				grouped_a = Matrix(grouped_a,
-										rownam=["grp_" + str(i+1) for i in range(0, design["m"])])
-				if grouped_a.get_colnam == []:
-					grouped_a.set_colnam(design["a"].get_colnam())
+			if test_mat_size(a.get_shape(), grouped_a.get_shape(), "grouped_a") == 1:
+				tmp_colnam = grouped_a.get_axisnam()[1]
+				if tmp_colnam == None:
+					tmp_colnam = a.get_axisnam()[1]
+				grouped_a.set_axisnam([["grp_" + str(i+1) for i in range(0, design["m"])], tmp_colnam])
 
 			_, idx = np.unique(grouped_a.get_data()[~np.isnan(design["a"].get_data())], return_index=True) # remove duplicated and nan values but keep order
 			for i in [grouped_a.get_data()[~np.isnan(design["a"].get_data())][index] for index in sorted(idx)]:

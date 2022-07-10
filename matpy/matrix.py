@@ -49,7 +49,7 @@ class Matrix:
 			self.datanam = np.array(self.datanam).reshape(self.shape).tolist()
 		self.axisnam = axisnam
 
-	def get_shape(self):
+	def get_shape(self, index: int = None):
 		"""
 		get the shape of the Matrix, return as [int]
 		"""
@@ -57,7 +57,7 @@ class Matrix:
 			return [1, self.shape[0]]
 		return list(self.shape)
 
-	def get_size(self):
+	def get_size(self) -> int:
 		"""
 		get the size of the Matrix, return as int
 		"""
@@ -69,12 +69,18 @@ class Matrix:
 		"""
 		return self.datanam
 
-	def get_axisnam(self):
+	def get_axisnam(self, index: int = None):
 		"""
 		get the axis names of the Matrix, return as [[str]], 
 		each [str] represents names in one axis
 		"""
-		return self.axisnam
+		if index is None:
+			return self.axisnam
+		else:
+			if self.axisnam is None:
+				return None
+			else:
+				return self.axisnam[index]
 
 	def get_one_data(self, name: str = None, index: list = None):
 		"""
@@ -142,7 +148,7 @@ class Matrix:
 	def set_one_axisnam(self, index: int, new_axisnam: list):
 		self.axisnam[index] = new_axisnam
 			
-	def set_one_data(self, new_data, new_datanam, name: str = None, index: list = None): # could only set by int or float
+	def set_one_data(self, new_data, new_datanam = None, name: str = None, index: list = None): # could only set by int or float
 		"""
 		provided with either name (as str) or index (as list) of the data that needs to be changed, 
 		change the data and its data name

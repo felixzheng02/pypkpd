@@ -279,7 +279,6 @@ import pandas as pd
 from os import name
 from project.sfg import sfg
 from project.cell import cell
-from project.ones import ones
 from project.size import size
 from matpy.num import num
 from matpy.matrix import Matrix

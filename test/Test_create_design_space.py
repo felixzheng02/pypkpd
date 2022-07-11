@@ -224,70 +224,70 @@ class TestCreateDesign(unittest.TestCase):
 
         ds_3 = create_design_space(design_1,maxni=10, mingroupsize=20, maxxt=10, minxt=0)
 
-        self.assertTrue(np.array_equal(ds_1["design"]["xt"].get_data(),
-                        np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
-        self.assertListEqual(ds_1["design"]["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
+        self.assertTrue(np.array_equal(ds_3["design"]["xt"].get_data(),
+                        np.array([[1, 2, 3, 4, 5, 5, 5, 5, 5, 5], [1, 2, 3, 4, 5, 5, 5, 5, 5, 5]]), equal_nan=True))
+        self.assertListEqual(ds_3["design"]["xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5", "obs_6", "obs_7", "obs_8", "obs_9", "obs_10"]])
 
-        self.assertEqual(ds_1["design"]["m"].get_value(), 2)
-        self.assertEqual(ds_1["design"]["m"].get_name(), "n_grp")
+        self.assertEqual(ds_3["design"]["m"].get_value(), 2)
+        self.assertEqual(ds_3["design"]["m"].get_name(), "n_grp")
 
-        self.assertTrue(np.array_equal(ds_1["design"]["ni"].get_data(), np.array([[5], [4]]), equal_nan=True))
-        self.assertListEqual(ds_1["design"]["ni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
+        self.assertTrue(np.array_equal(ds_3["design"]["ni"].get_data(), np.array([[5], [4]]), equal_nan=True))
+        self.assertListEqual(ds_3["design"]["ni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
         
-        self.assertTrue(np.array_equal(ds_1["design"]["model_switch"].get_data(), np.array([[1, 1, 1, 1, 1], [1, 1, 1, 1, np.nan]]), equal_nan=True))
-        self.assertListEqual(ds_1["design"]["model_switch"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
+        self.assertTrue(np.array_equal(ds_3["design"]["model_switch"].get_data(), np.array([[1, 1, 1, 1, 1], [1, 1, 1, 1, np.nan]]), equal_nan=True))
+        self.assertListEqual(ds_3["design"]["model_switch"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
         
-        self.assertTrue(np.array_equal(ds_1["design"]["a"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
-        self.assertListEqual(ds_1["design"]["a"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
+        self.assertTrue(np.array_equal(ds_3["design"]["a"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
+        self.assertListEqual(ds_3["design"]["a"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
 
-        self.assertTrue(np.array_equal(ds_1["design"]["groupsize"].get_data(), np.array([[50], [20]]), equal_nan=True))
-        self.assertListEqual(ds_1["design"]["groupsize"].get_axisnam(), [["grp_1", "grp_2"], ["n_id"]])
+        self.assertTrue(np.array_equal(ds_3["design"]["groupsize"].get_data(), np.array([[50], [20]]), equal_nan=True))
+        self.assertListEqual(ds_3["design"]["groupsize"].get_axisnam(), [["grp_1", "grp_2"], ["n_id"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["maxa"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["maxa"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["maxa"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["maxa"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["mina"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["mina"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["mina"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["mina"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["grouped_a"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["grouped_a"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["grouped_a"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["grouped_a"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
 
-        self.assertFalse(ds_1["design_space"]["use_grouped_a"])
+        self.assertFalse(ds_3["design_space"]["use_grouped_a"])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["maxni"].get_data(), np.array([[5], [4]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["maxni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["maxni"].get_data(), np.array([[5], [4]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["maxni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["minni"].get_data(), np.array([[5], [4]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["minni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["minni"].get_data(), np.array([[5], [4]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["minni"].get_axisnam(), [["grp_1", "grp_2"], ["n_obs"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["maxtotni"].get_data(), np.array([[9]]), equal_nan=True))
-        self.assertIsNone(ds_1["design_space"]["maxtotni"].get_axisnam())
+        self.assertTrue(np.array_equal(ds_3["design_space"]["maxtotni"].get_data(), np.array([[9]]), equal_nan=True))
+        self.assertIsNone(ds_3["design_space"]["maxtotni"].get_axisnam())
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["mintotni"].get_data(), np.array([[9]]), equal_nan=True))
-        self.assertIsNone(ds_1["design_space"]["maxtotni"].get_axisnam())
+        self.assertTrue(np.array_equal(ds_3["design_space"]["mintotni"].get_data(), np.array([[9]]), equal_nan=True))
+        self.assertIsNone(ds_3["design_space"]["maxtotni"].get_axisnam())
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["maxgroupsize"].get_data(), np.array([[50], [20]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["maxgroupsize"].get_axisnam(), [["grp_1", "grp_2"], ["n_id"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["maxgroupsize"].get_data(), np.array([[50], [20]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["maxgroupsize"].get_axisnam(), [["grp_1", "grp_2"], ["n_id"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["mingroupsize"].get_data(), np.array([[50], [20]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["mingroupsize"].get_axisnam(), [["grp_1", "grp_2"], ["n_id"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["mingroupsize"].get_data(), np.array([[50], [20]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["mingroupsize"].get_axisnam(), [["grp_1", "grp_2"], ["n_id"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["maxtotgroupsize"].get_data(), np.array([[70]]), equal_nan=True))
-        self.assertIsNone(ds_1["design_space"]["maxtotgroupsize"].get_axisnam())
+        self.assertTrue(np.array_equal(ds_3["design_space"]["maxtotgroupsize"].get_data(), np.array([[70]]), equal_nan=True))
+        self.assertIsNone(ds_3["design_space"]["maxtotgroupsize"].get_axisnam())
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["mintotgroupsize"].get_data(), np.array([[70]]), equal_nan=True))
-        self.assertIsNone(ds_1["design_space"]["mintotgroupsize"].get_axisnam())
+        self.assertTrue(np.array_equal(ds_3["design_space"]["mintotgroupsize"].get_data(), np.array([[70]]), equal_nan=True))
+        self.assertIsNone(ds_3["design_space"]["mintotgroupsize"].get_axisnam())
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["maxxt"].get_data(), np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["maxxt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["maxxt"].get_data(), np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["maxxt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["minxt"].get_data(), np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["minxt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["minxt"].get_data(), np.array([[1, 2, 3, 4, 5], [1, 2, 3, 4, np.nan]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["minxt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
 
-        self.assertTrue(np.array_equal(ds_1["design_space"]["grouped_xt"].get_data(), np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, np.nan]]), equal_nan=True))
-        self.assertListEqual(ds_1["design_space"]["grouped_xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
+        self.assertTrue(np.array_equal(ds_3["design_space"]["grouped_xt"].get_data(), np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, np.nan]]), equal_nan=True))
+        self.assertListEqual(ds_3["design_space"]["grouped_xt"].get_axisnam(), [["grp_1", "grp_2"], ["obs_1", "obs_2", "obs_3", "obs_4", "obs_5"]])
 
-        self.assertFalse(ds_1["design_space"]["use_grouped_xt"])
+        self.assertFalse(ds_3["design_space"]["use_grouped_xt"])
 
         ############################################
 

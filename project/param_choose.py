@@ -1,25 +1,26 @@
 """
-Get parameter from popedInput and replace it by None if key does not exist.
+For parameter choose in create_poped_database()
 
 Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-def param_choose(input: dict, rep_val, exp: int, param: list = None, kwargs: dict = None, *argv):
-	
-	# determine if parameter's value is given as function input
-	if param is not None and kwargs is not None:
-		if argv[-1] in param:
-			return kwargs[argv[-1]]
-	
-	# look for keys in dicts
-	tmp_dict = input
-	for k in argv:
-		if k not in list(tmp_dict.keys()):
-			if exp == 1:
-				raise Exception(rep_val)
-			else:
-				return rep_val
+def param_choose(param, pypkpdInput, replace, key_1, key_2=None, key_3=None):
+	if param is not None:
+		return param
+	if pypkpdInput is not None:
+		if key_1 is not None:
+			if key_1 in pypkpdInput.keys():
+				if key_2 is not None:
+					if key_2 in pypkpdInput[key_1].keys():
+						if key_3 is not None:
+							if key_3 in pypkpdInput[key_1][key_2].keys():
+								return pypkpdInput[key_1][key_2][key_3]
+							else: raise Exception(key_3 + "not in keys.")
+						else: return pypkpdInput[key_1][key_2]
+					else: raise Exception(key_2 + "not in keys.")
+				else: return pypkpdInput[key_1]
+			else: raise Exception(key_1 + "not in keys.")
 		else:
-			tmp_dict = tmp_dict[k]
-	return tmp_dict
+			return Exception("Must provide at least one key.")
+	raise Exception("Must provide pypkpdInput dict.")

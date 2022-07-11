@@ -1,277 +1,9 @@
 """
-create.poped.database.R
-Create a PopED database
-This function takes the input file (a previously created poped database) supplied by the user, or function arguments, 
-and creates a database that can then be used to 
-run all other PopED functions.  The function supplies default values to elements of the 
-database that are not specified in the
-input file or as function arguments. Default arguments are supplied in the Usage section 
-(easiest to use a text search to find values you are interested in).  
-@inheritParams create_design_space
-@param popedInput A PopED database file or an empty list \code{list()}.  List elements should match the values seen in 
-the Usage section (the defaults to function arguments). 
-@param ff_file  \itemize{
-\item \bold{******START OF MODEL DEFINITION OPTIONS**********}
-}
-A string giving the function name or filename and path of the structural model. 
-The filename and the function name must be the same if giving a filename. 
-e.g. \code{"ff.PK.1.comp.oral.md.KE"}
-@param ff_fun Function describing the structural model. e.g. \code{ff.PK.1.comp.oral.md.KE}. 
-@param fg_file A string giving the function name or filename and path of the 
-parameter model. 
-The filename and the function name must be the same if giving a filename. 
-e.g. \code{"parameter.model"}
-@param fg_fun Function describing the parameter model. e.g. \code{parameter.model}.
-@param fError_file A string giving the function name or filename and path of the 
-residual error model. 
-The filename and the function name must be the same if giving a filename. 
-e.g. \code{"feps.prop"}.
-@param fError_fun Function describing the residual error model. e.g. \code{feps.prop}.
-##
-@param optsw  \itemize{
-\item \bold{******WHAT TO OPTIMIZE**********}}
- Row vector of optimization tasks (1=True,0=False) in the following order: 
-(Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group). 
-All elements set to zero => only calculate the FIM with current design
-@param xt  \itemize{
-\item \bold{******START OF INITIAL DESIGN OPTIONS**********}}
- Matrix defining the initial sampling schedule. 
- Each row is a group/individual.
- If only one vector is supplied, e.g. \code{c(1,2,3,4)}, then all groups will 
-have the same initial design. 
-@param m Number of groups in the study.  Each individual in a group will have the same design. 
-@param x A Matrix defining the initial discrete values for the model 
-Each row is a group/individual.
-@param nx Number of discrete design variables.
-@param a Matrix defining the initial continuous covariate values. 
-n_rows=number of groups, n_cols=number of covariates.
-If the number of rows is one and the number of groups > 1 then all groups are assigned the 
-same values.
-# @param na The number of covariates in the model.
-@param groupsize Vector defining the size of the different groups (num individuals in each group).
-If only one number then the number will be the same in every group.
-@param ni Vector defining the number of samples for each group. 
-@param model_switch Matrix defining which response a certain sampling time belongs to.
-@param maxni  \itemize{
-\item \bold{******START OF DESIGN SPACE OPTIONS**********}}
-Max number of samples per group/individual
-@param minni Min number of samples per group/individual 
-@param maxgroupsize Vector defining the max size of the different groups (max number of individuals in each group)
-@param mingroupsize Vector defining the min size of the different groups (min num individuals in each group) --
-@param maxtotgroupsize The total maximal groupsize over all groups
-@param mintotgroupsize The total minimal groupsize over all groups
-@param maxxt Matrix or single value defining the maximum value for each xt sample.  If a single value is 
-supplied then all xt values are given the same maximum value.
-@param minxt Matrix or single value defining the minimum value for each xt sample.  If a single value is 
-supplied then all xt values are given the same minimum value
-@param discrete_x Cell array defining the discrete variables for each x value. 
-  See examples in \code{\link{create_design_space}}.
-@param discrete_xt Cell array \code{\link{cell}} defining the discrete variables allowed for each xt value.
-  Can also be a list of values \code{list(1:10)} (same values allowed for all xt), or a list of lists 
- \code{list(1:10, 2:23, 4:6)} (one for each value in xt). See examples in \code{\link{create_design_space}}.
-@param discrete_a Cell array \code{\link{cell}} defining the discrete variables allowed for each a value.
-  Can also be a list of values \code{list(1:10)} (same values allowed for all a), or a list of lists 
- \code{list(1:10, 2:23, 4:6)} (one for each value in a). See examples in \code{\link{create_design_space}}.
-@param maxa Vector defining the max value for each covariate. If a single value is supplied then
- all a values are given the same max value
-@param mina Vector defining the min value for each covariate. If a single value is supplied then
- all a values are given the same max value
-@param bUseGrouped_xt Use grouped time points (1=True, 0=False).
-@param G_xt Matrix defining the grouping of sample points. Matching integers mean that the points are matched.
-@param bUseGrouped_a Use grouped covariates (1=True, 0=False)
-@param G_a Matrix defining the grouping of covariates. Matching integers mean that the points are matched.
-@param bUseGrouped_x Use grouped discrete design variables (1=True, 0=False).
-@param G_x  Matrix defining the grouping of discrete design variables. Matching integers mean that the points are matched.
-@param iFIMCalculationType  \itemize{
-\item \bold{******START OF FIM CALCULATION OPTIONS**********}}
-Fisher Information Matrix type
-\itemize{
-\item 0=Full FIM
-\item 1=Reduced FIM
-\item 2=weighted models
-\item 3=Loc models
-\item 4=reduced FIM with derivative of SD of sigma as in PFIM
-\item 5=FULL FIM parameterized with A,B,C matrices & derivative of variance
-\item 6=Calculate one model switch at a time, good for large matrices
-\item 7=Reduced FIM parameterized with A,B,C matrices & derivative of variance
-}
-@param iApproximationMethod Approximation method for model, 0=FO, 1=FOCE, 2=FOCEI, 3=FOI
-@param iFOCENumInd Num individuals in each step of FOCE 
-@param prior_fim The prior FIM (added to calculated FIM) 
-@param strAutoCorrelationFile Filename and path, or function name, for the Autocorrelation function, 
-empty string means no autocorrelation.
-@param d_switch  \itemize{
-\item \bold{******START OF CRITERION SPECIFICATION OPTIONS**********}}
-D-family design (1) or ED-family design (0) (with or without parameter uncertainty) 
-@param ofv_calc_type  OFV calculation type for FIM 
-\itemize{ 
-\item 1 = "D-optimality". Determinant of the FIM: det(FIM)
-\item 2 = "A-optimality".  Inverse of the sum of the expected parameter variances: 
-1/trace_Matrix(inv(FIM)) 
-\item 4 = "lnD-optimality".  Natural logarithm of the determinant of the FIM: log(det(FIM)) 
-\item 6 = "Ds-optimality". Ratio of the Determinant of the FIM and the Determinant of the uninteresting
-rows and columns of the FIM: det(FIM)/det(FIM_u)
-\item 7 = Inverse of the sum of the expected parameter RSE: 1/sum(get_rse(FIM,poped_db,use_percent=False))
-}
-@param ds_index Ds_index is a vector set to 1 if a parameter is uninteresting, otherwise 0.
-size=(1,num unfixed parameters). First unfixed bpop, then unfixed d, then unfixed docc and last unfixed sigma. 
-Default is the fixed effects being important, everything else not important.  Used in conjunction with
-\code{ofv_calc_type=6}.
-@param strEDPenaltyFile Penalty function name or path and filename, empty string means no penalty.  
-User defined criterion can be defined this way.
-@param ofv_fun User defined function used to compute the objective function. The function must have a poped database object as its first
-argument and have "..." in its argument list.  Can be referenced as a function or as a file name where the function defined in the file has the same name as the file.
-e.g. "cost.txt" has a function named "cost" in it.
-@param iEDCalculationType  \itemize{
-\item \bold{******START OF E-FAMILY CRITERION SPECIFICATION OPTIONS**********}}
-ED Integral Calculation, 0=Monte-Carlo-Integration, 1=Laplace Approximation, 2=BFGS Laplace Approximation  -- --
-@param ED_samp_size Sample size for E-family sampling 
-@param bLHS How to sample from distributions in E-family calculations. 0=Random Sampling, 1=LatinHyperCube --
-@param strUserDistributionFile Filename and path, or function name, for user defined distributions for E-family designs 
-@param nbpop  \itemize{
-\item \bold{******START OF Model parameters  SPECIFICATION OPTIONS**********}}
-Number of typical values 
-@param NumRanEff Number of IIV parameters. Typically can be computed from other values and not supplied. 
-@param NumDocc Number of IOV variance parameters. Typically can be computed from other values and not supplied. 
-@param NumOcc Number of occasions. Typically can be computed from other values and not supplied. 
-# @param ng The length of the g parameter vector. Typically can be computed from other values and not supplied.
-@param bpop Matrix defining the fixed effects, per row (row number = parameter_number) we should have:
-\itemize{
-\item column 1 the type of the distribution for E-family designs (0 = Fixed, 1 = Normal, 2 = Uniform,
- 3 = User Defined Distribution, 4 = lognormal and 5 = truncated normal)
-\item column 2  defines the mean.
-\item column 3 defines the variance of the distribution (or length of uniform distribution).
-}
-Can also just supply the parameter values as a vector \code{c()} if no uncertainty around the 
-parameter value is to be used. The parameter order of  'bpop' is defined in the 'fg_fun' or 'fg_file'. If you use named 
-arguments in 'bpop' then the order will be worked out automatically.
-@param d Matrix defining the diagonals of the IIV (same logic as for the fixed effects 
-Matrix bpop to define uncertainty). One can also just supply the parameter values as a \code{c()}. 
-The parameter order of 'd' is defined in the 'fg_fun' or 'fg_file'. If you use named 
-arguments in 'd' then the order will be worked out automatically.
-@param covd Column major vector defining the covariances of the IIV variances. 
-That is, from your full IIV Matrix  \code{covd =  IIV[lower.tri(IIV)]}. 
-@param sigma Matrix defining the variances can covariances of the residual variability terms of the model.
-can also just supply the diagonal parameter values (variances) as a \code{c()}. 
-@param docc Matrix defining the IOV, the IOV variances and the IOV distribution as for d and bpop. 
-@param covdocc Column major vector defining the covariance of the IOV, as in covd. 
-@param notfixed_bpop  \itemize{
-\item \bold{******START OF Model parameters fixed or not  SPECIFICATION OPTIONS**********}}
-Vector defining if a typical value is fixed or not (1=not fixed, 0=fixed). 
-The parameter order of 'notfixed_bpop' is defined in the 'fg_fun' or 'fg_file'. If you use named 
-arguments in 'notfixed_bpop' then the order will be worked out automatically.
-@param notfixed_d Vector defining if a IIV is fixed or not (1=not fixed, 0=fixed). 
-The parameter order of 'notfixed_d' is defined in the 'fg_fun' or 'fg_file'. If you use named 
-arguments in 'notfixed_d' then the order will be worked out automatically. 
-@param notfixed_covd Vector defining if a covariance IIV is fixed or not (1=not fixed, 0=fixed)
-@param notfixed_docc Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed)  
-@param notfixed_covdocc Vector row major order for lower triangular Matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) 
-@param notfixed_sigma Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) 
-@param notfixed_covsigma Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed). 
-Default is fixed.
-@param bUseRandomSearch  \itemize{
-\item \bold{******START OF Optimization algorithm  SPECIFICATION OPTIONS**********}}
-Use random search (1=True, 0=False)
-@param bUseStochasticGradient Use Stochastic Gradient search (1=True, 0=False) 
-@param bUseLineSearch Use Line search (1=True, 0=False) 
-@param bUseExchangeAlgorithm Use Exchange algorithm (1=True, 0=False)        
-@param bUseBFGSMinimizer Use BFGS Minimizer (1=True, 0=False) 
-@param EACriteria Exchange Algorithm Criteria, 1 = Modified, 2 = Fedorov 
-@param strRunFile Filename and path, or function name, for a run file that is used instead of the regular PopED call. 
-@param poped_version  \itemize{
-\item \bold{******START OF Labeling and file names  SPECIFICATION OPTIONS**********}}
-The current PopED version 
-@param modtit The model title 
-@param output_file Filename and path of the output file during search 
-@param output_function_file Filename suffix of the result function file 
-@param strIterationFileName Filename and path for storage of current optimal design 
-@param user_data  \itemize{
-\item \bold{******START OF Miscellaneous SPECIFICATION OPTIONS**********}}
-User defined data structure that, for example could be used to send in data to the model 
-@param ourzero Value to interpret as zero in design 
-@param dSeed The seed number used for optimization and sampling -- integer or -1 which creates a random seed \code{as.integer(Sys.time())} or None.
-@param line_opta Vector for line search on continuous design variables (1=True,0=False)
-@param line_optx Vector for line search on discrete design variables (1=True,0=False) 
-@param bShowGraphs Use graph output during search
-@param use_logfile If a log file should be used (0=False, 1=True)
-@param m1_switch Method used to calculate M1 
-(0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) 
-@param m2_switch Method used to calculate M2
-(0=Central difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) 
-@param hle_switch Method used to calculate linearization of residual error
-(0=Complex difference, 1=Central difference, 30=Automatic differentiation) 
-@param gradff_switch Method used to calculate the gradient of the model
-(0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) 
-@param gradfg_switch Method used to calculate the gradient of the parameter vector g
-(0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) 
-@param grad_all_switch Method used to calculate all the gradients
-(0=Complex difference, 1=Central difference) 
-@param rsit_output Number of iterations in random search between screen output 
-@param sgit_output Number of iterations in stochastic gradient search between screen output 
-@param hm1 Step length of derivative of linearized model w.r.t. typical values 
-@param hlf Step length of derivative of model w.r.t. g 
-@param hlg Step length of derivative of g w.r.t. b
-@param hm2 Step length of derivative of variance w.r.t. typical values 
-@param hgd Step length of derivative of OFV w.r.t. time 
-@param hle Step length of derivative of model w.r.t. sigma
-@param AbsTol The absolute tolerance for the diff equation solver
-@param RelTol The relative tolerance for the diff equation solver
-@param iDiffSolverMethod The diff equation solver method, None as default.
-@param bUseMemorySolver If the differential equation results should be stored in memory (1) or not (0)
-@param rsit Number of Random search iterations 
-@param sgit Number of stochastic gradient iterations
-@param intrsit Number of Random search iterations with discrete optimization.
-@param intsgit Number of Stochastic Gradient search iterations with discrete optimization 
-@param maxrsnullit Iterations until adaptive narrowing in random search
-@param convergence_eps Stochastic Gradient convergence value,
-(difference in OFV for D-optimal, difference in gradient for ED-optimal)
-@param rslxt Random search locality factor for sample times 
-@param rsla Random search locality factor for covariates 
-@param cfaxt Stochastic Gradient search first step factor for sample times 
-@param cfaa Stochastic Gradient search first step factor for covariates 
-@param bGreedyGroupOpt Use greedy algorithm for group assignment optimization 
-@param EAStepSize Exchange Algorithm StepSize 
-@param EANumPoints Exchange Algorithm NumPoints 
-@param EAConvergenceCriteria Exchange Algorithm Convergence Limit/Criteria 
-@param bEANoReplicates Avoid replicate samples when using Exchange Algorithm 
-@param BFGSConvergenceCriteriaMinStep BFGS Minimizer Convergence Criteria Minimum Step 
-@param BFGSProjectedGradientTol BFGS Minimizer Convergence Criteria Normalized Projected Gradient Tolerance 
-@param BFGSTolerancef BFGS Minimizer Line Search Tolerance f 
-@param BFGSToleranceg BFGS Minimizer Line Search Tolerance g 
-@param BFGSTolerancex BFGS Minimizer Line Search Tolerance x 
-@param ED_diff_it Number of iterations in ED-optimal design to calculate convergence criteria 
-@param ED_diff_percent ED-optimal design convergence criteria in percent 
-@param line_search_it Number of grid points in the line search 
-@param Doptim_iter Number of iterations of full Random search and full Stochastic Gradient if line search is not used 
-@param iCompileOption \bold{******START OF PARALLEL OPTIONS**********} Compile options for PopED
-\itemize{
-\item -1 = No compilation,
-\item 0 or 3 = Full compilation,
-\item 1 or 4 = Only using MCC (shared lib),
-\item 2 or 5 = Only MPI,
-\item Option 0,1,2 runs PopED and option 3,4,5 stops after compilation
-}
-@param iUseParallelMethod Parallel method to use (0 = Matlab PCT, 1 = MPI) 
-@param MCC_Dep Additional dependencies used in MCC compilation (mat-files), if several space separated 
-@param strExecuteName Compilation output executable name 
-@param iNumProcesses Number of processes to use when running in parallel (e.g. 3 = 2 workers, 1 job manager) 
-@param iNumChunkDesignEvals Number of design evaluations that should be evaluated in each process before getting new work from job manager
-# @param strMatFileInputPrefix The prefix of the input mat file to communicate with the executable 
-@param Mat_Out_Pre The prefix of the output mat file to communicate with the executable 
-@param strExtraRunOptions Extra options send to e$g. the MPI executable or a batch script, see execute_parallel$m for more information and options 
-@param dPollResultTime Polling time to check if the parallel execution is finished 
-@param strFunctionInputName The file containing the popedInput structure that should be used to evaluate the designs 
-@param bParallelRS If the random search is going to be executed in parallel
-@param bParallelSG If the stochastic gradient search is going to be executed in parallel 
-@param bParallelMFEA If the modified exchange algorithm is going to be executed in parallel 
-@param bParallelLS If the line search is going to be executed in parallel 
-@return A PopED database
-
-
 Author: Caiya Zhang, Yuchen Zheng
 """
 
 
+import path
 import random
 import datetime
 import numpy as np
@@ -307,12 +39,122 @@ def reorder_vec(your_vec: Matrix, name_order):
     return your_vec
 
 
-def create_poped_database(popedInput={}, **kwargs):
-    
-
-    
-    
-    param = list(kwargs.keys())
+def create_poped_database(pypkpdInput={},
+                            ff_file=None,
+                            ff_fun=None,
+                            fg_file=None,
+                            fg_fun=None,
+                            fError_file=None,
+                            fError_fun=None,
+                            optsw=None,
+                            # design,
+                            # design_space,
+                            iFIMCalculationType=None,
+                            iApproximationMethod=None,
+                            iFOCENumInd=None,
+                            prior_fim=None,
+                            strAutoCorrelationFile=None,
+                            d_switch=None,
+                            ofv_calc_type=None,
+                            ds_index=None,
+                            strEDPenaltyFile=None,
+                            ofv_fun=None,
+                            iEDCalculationType=None,
+                            ED_samp_size=None,
+                            bLHS=None,
+                            strUserDistributionFile=None,
+                            nbpop=None,
+                            NumRanEff=None,
+                            NumDocc=None,
+                            NumOcc=None,
+                            bpop=None,
+                            d=None,
+                            covd=None,
+                            sigma=None,
+                            docc=None,
+                            covdocc=None,
+                            notfixed_bpop=None,
+                            notfixed_d=None,
+                            notfixed_covd=None,
+                            notfixed_docc=None,
+                            notfixed_covdocc=None,
+                            notfixed_sigma=None,
+                            notfixed_covsigma=None,
+                            bUseRandomSearch=None,
+                            bUseStochasticGradient=None,
+                            bUseLineSearch=None,
+                            bUseExchangeAlgorithm=None,
+                            bUseBFGSMinimizer=None,
+                            EACriteria=None,
+                            strRunFile=None,
+                            pypkpd_version=None,
+                            modtit=None,
+                            output_file=None,
+                            output_function_file=None,
+                            strIterationFileName=None,
+                            user_data=None,
+                            ourzero=None,
+                            dSeed=None,
+                            line_opta=None,
+                            line_optx=None,
+                            bShowGraphs=None,
+                            use_logfile=None,
+                            m1_switch=None,
+                            m2_switch=None,
+                            hle_switch=None,
+                            gradff_switch=None,
+                            gradfg_switch=None,
+                            grad_all_switch=None,
+                            rsit_output=None,
+                            sgit_output=None,
+                            hm1=None,
+                            hlf=None,
+                            hlg=None,
+                            hm2=None,
+                            hgd=None,
+                            hle=None,
+                            AbsTol=None,
+                            RelTol=None,
+                            iDiffSolverMethod=None,
+                            bUseMemorySolver=None,
+                            rsit=None,
+                            sgit=None,
+                            intrsit=None,
+                            intsgit=None,
+                            maxrsnullit=None,
+                            convergence_eps=None,
+                            rslxt=None,
+                            rsla=None,
+                            cfaxt=None,
+                            cfaa=None,
+                            bGreedyGroupOpt=None,
+                            EAStepSize=None,
+                            EANumPoints=None,
+                            EAConvergenceCriteria=None,
+                            bEANoReplicates=None,
+                            BFGSConvergenceCriteriaMinStep=None,
+                            BFGSProjectedGradientTol=None,
+                            BFGSTolerancef=None,
+                            BFGSToleranceg=None,
+                            BFGSTolerancex=None,
+                            ED_diff_it=None,
+                            ED_diff_percent=None,
+                            line_search_it=None,
+                            Doptim_iter=None,
+                            iCompileOption=None,
+                            iUseParallelMethod=None,
+                            MCC_Dep=None,
+                            strExecuteName=None,
+                            iNumProcesses=None,
+                            iNumChunkDesignEvals=None,
+                            Mat_Out_Pre=None,
+                            strExtraRunOptions=None,
+                            dPollResultTime=None,
+                            strFunctionInputName=None,
+                            bParallelRS=None,
+                            bParallelSG=None,
+                            bParallelMFEA=None,
+                            bParallelLS=None):
 
     
     # for i in range(0, len(param)):

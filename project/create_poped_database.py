@@ -22,6 +22,7 @@ from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
 from project.param_choose import param_choose
+from project.param_set import param_set
 from project.test_mat_size import test_mat_size
 from project.create_design import create_design
 from project.create_design_space import create_design_space
@@ -156,483 +157,140 @@ def create_poped_database(pypkpdInput={},
                             bParallelMFEA=None,
                             bParallelLS=None):
 
+    # Filname and path of the model file
+    ff_fun = param_choose(ff_fun, pypkpdInput, None, "model", "ff_pointer")
+    fg_fun = param_choose(fg_fun, pypkpdInput, None, "model", "fg_pointer")
+    fError_fun = param_choose(fError_fun, pypkpdInput, None, "model", "ferror_pointer")
+    optsw = param_choose(optsw, pypkpdInput, Matrix(np.array([0, 0, 0, 0, 0])), "settings", "optsw")
     
-    # for i in range(0, len(param)):
-    #     k = param[i]
-    #     v = kwargs[k]
-    #     exec("%s = %s" % (k, "v"))
-    # parameters
-
-    # --------------------------
-    # ---- Model definition
-    # --------------------------
-    keys = list(popedInput.keys())
-    # -- Filname and path of the model file --
-    ff_file = param_choose(kwargs, None, 0, param, kwargs, "ff_file")
-
-    # if "ff_file" not in param:
-    #     ff_file = None
-    ff_fun = param_choose(popedInput, None, 0, param, kwargs, "model", "ff_pointer")
-
-    # -- Filname and path of the g parameter file --
-    fg_file = param_choose(kwargs, None, 0, param, kwargs, "fg_file")
-    # if "fg_file" not in param:
-    #     fg_file = None
-    fg_fun = param_choose(popedInput, None, 0, param, kwargs, "model", "fg_pointer")
-    # -- Filname and path of the error model file --
-    fError_file = param_choose(kwargs, None, 0, param, kwargs, "fError_file")
-    # if "fError_file" not in param:
-    #     fError_file = None
-    fError_fun = param_choose(popedInput, None, 0, param, kwargs, "model", "ferror_pointer")
-
-    # --------------------------
-    # ---- What to optimize
-    # --------------------------
-
-    # -- Vector of optimization tasks (1=True,0=False)
-    # (Samples per subject, Sampling schedule, Discrete design variable, Continuous design variable, Number of id per group)
-    # -- All elements set to zero => only calculate the FIM with current design --
-    optsw = param_choose(popedInput, Matrix(np.array([0, 0, 0, 0, 0])), 0, param, kwargs, 'settings', 'optsw')
-
-    # --------------------------
-    # ---- Initial Design
-    # --------------------------
-
-    # -- Matrix defining the initial sampling schedule --
+    # Initial Design
+    xt = param_choose(xt, pypkpdInput, Exception("'xt' needs to be defined"), "design", "xt")
+    m = param_choose(m, pypkpdInput, None, "design", "m")
+    x = param_choose(x, pypkpdInput, None, "design", "x")
+    nx = param_choose(nx, pypkpdInput, None, "design", "nx")
+    a = param_choose(a, pypkpdInput, None, "design", "a")
+    groupsize = param_choose(groupsize, pypkpdInput, Exception("'groupsize' needs to be defined"), "design", "groupsize")
+    ni = param_choose(ni, pypkpdInput, None, "design", "ni")
+    model_switch = param_choose(model_switch, pypkpdInput, None, "design", "model_switch")
     
-    xt = param_choose(popedInput, "'xt' needs to be defined", 1, param, kwargs, 'design', 'xt')
-    # -- Number of groups/individuals --
-    # size(,1) find number of rows
-    #m=poped_choose(popedInput['m'], size(xt,1)),
-    m = param_choose(popedInput, None, 0, param, kwargs, 'design', 'm')
-    # -- Matrix defining the initial discrete values --
-    #x=poped_choose(popedInput['design']['x'], zeros(m,0)),
-    x = param_choose(popedInput, None, 0, param, kwargs, 'design', 'x')
-    # -- Number of discrete design variables --
-    # size(,1) find number of cols
-    #nx=poped_choose(popedInput['nx'], size(x,2)),
-    nx = param_choose(popedInput, None, 0, param, kwargs, 'design', 'nx')
-    # -- Vector defining the initial covariate values --
-    # a=poped_choose(popedInput$design["a"],zeros(m,0)),
-    a = param_choose(popedInput, None, 0, param, kwargs, 'design', 'a')
-    # number of continuous design variables that are not time (e.g. continuous covariates)
-    # na=poped_choose(popedInput['na'],size(a,2)),
-    # na=poped_choose(popedInput['na'],None),
-    # -- Vector defining the size of the different groups (num individuals in each group) --
+    # Design space
+    maxni = param_choose(maxni, pypkpdInput, None, "design_space", "maxni")
+    minni = param_choose(minni, pypkpdInput, None, "design_space", "minni")
+    maxtotni = param_choose(maxtotni, pypkpdInput, None, "design_space", "maxtotni")
+    mintotni = param_choose(mintotni, pypkpdInput, None, "design_space", "mintotni")
+    maxgroupsize = param_choose(maxgroupsize, pypkpdInput, None, "design_space", "maxgroupsize")
+    mingroupsize = param_choose(mingroupsize, pypkpdInput, None, "design_space", "mingroupsize")
+    maxtotgroupsize = param_choose(maxtotgroupsize, pypkpdInput, None, "design_space", "maxtotgroupsize")
+    mintotgroupsize = param_choose(mintotgroupsize, pypkpdInput, None, "design_space", "mintotgroupsize")
+    maxxt = param_choose(maxxt, pypkpdInput, None, "design_space", "maxxt")
+    minxt = param_choose(minxt, pypkpdInput, None, "design_space", "minxt")
+    discrete_xt = param_choose(discrete_xt, pypkpdInput, None, "design_space", "xt_space")
+    discrete_x = param_choose(discrete_x, pypkpdInput, None, "design_space", "discrete_x")
+    maxa = param_choose(maxa, pypkpdInput, None, "design_space", "maxa")
+    mina = param_choose(mina, pypkpdInput, None, "design_space", "mina")
+    discrete_a = param_choose(discrete_a, pypkpdInput, None, "design_space", "a_space")
+    bUseGrouped_xt = param_choose(bUseGrouped_xt, pypkpdInput, False, "design_space", "bUseGrouped_xt")
+    G_xt = param_choose(G_xt, pypkpdInput, None, "design_space", "G_xt")
+    bUseGrouped_a = param_choose(bUseGrouped_a, pypkpdInput, False, "design_space", "bUseGrouped_a")
+    G_a = param_choose(G_a, pypkpdInput, None, "design_space", "G_a")
+    bUseGrouped_x = param_choose(bUseGrouped_x, pypkpdInput, False, "design_space", "bUseGrouped_x")
+    G_x = param_choose(G_x, pypkpdInput, None, "design_space", "G_x")
 
-    groupsize = param_choose(popedInput, "'groupsize' needs to be defined", 1, param, kwargs, 'design', 'groupsize')
-    # -- Vector defining the number of samples for each group --
-    # ni=poped_choose(popedInput["design"]ni,Matrix(size(xt,2),m,1)),
-    ni = param_choose(popedInput, None, 0, param, kwargs, 'design', 'ni')
-    # -- Vector defining which response a certain sampling time belongs to --
-    # model_switch=poped_choose(popedInput["design"]model_switch,ones(size(xt,1),size(xt,2))),
-    model_switch = param_choose(popedInput, None, 0, param, kwargs, 'design', 'model_switch')
+    # FIM calculation
+    iFIMCalculationType = param_choose(iFIMCalculationType, pypkpdInput, 1, "settings", "iFIMCalculationType")
+    iApproximationMethod = param_choose(iApproximationMethod, pypkpdInput, 0, "settings", "iApproximationMethod")
+    iFOCENumInd = param_choose(iFOCENumInd, pypkpdInput, 1000, "settings", "iFOCENumInd")
+    prior_fim = param_choose(prior_fim, pypkpdInput, Matrix(np.array([0, 0, 1])), "settings", "prior_fim")
+    strAutoCorrelationFile = param_choose(strAutoCorrelationFile, pypkpdInput, "", "model", "auto_pointer")
 
-    # --------------------------
-    # ---- Design space
-    # --------------------------
+    # Criterion specification
+    d_switch = param_choose(d_switch, pypkpdInput, 1, "settings", "d_switch")
+    ofv_calc_type = param_choose(ofv_calc_type, pypkpdInput, 4, "settings", "ofv_calc_type")
+    ds_index = param_set(ds_index, pypkpdInput, "parameters", "ds_index")
+    strEDPenaltyFile = param_choose(strEDPenaltyFile, pypkpdInput, "", "settings", "strEDPenaltyFile")
+    ofv_fun = param_choose(ofv_fun, pypkpdInput, None, "settings", "ofv_fun")
+    
+    # E-family Criterion options
+    iEDCalculationType = param_choose(iEDCalculationType, pypkpdInput, 0, "settings", "iEDCalculationType")
+    ED_samp_size = param_choose(ED_samp_size, pypkpdInput, 45, "settings", "ED_samp_size")
+    bLHS = param_choose(bLHS, pypkpdInput, 1, "settings", "bLHS")
+    strUserDistributionFile = param_choose(strUserDistributionFile, pypkpdInput, "", "model", "user_distribution_pointer")
 
-    # -- Max number of samples per group/individual --
-    maxni = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'maxni')
-    # -- Min number of samples per group/individual --
-    minni = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'minni')
-    maxtotni = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'maxtotni')
-    mintotni = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'mintotni')
-    # -- Vector defining the max size of the different groups (max num individuals in each group) --
-    maxgroupsize = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'maxgroupsize')
-    # -- Vector defining the min size of the different groups (min num individuals in each group) --
-    # mingroupsize=poped_choose(popedInput["design"]mingroupsize,ones(m,1)),
-    mingroupsize = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'mingroupsize')
-    # -- The total maximal groupsize over all groups--
-    maxtotgroupsize = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'maxtotgroupsize')
-    # -- The total minimal groupsize over all groups--
-    mintotgroupsize = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'mintotgroupsize')
-    # -- Matrix defining the max value for each sample --
-    maxxt = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'maxxt')
-    # -- Matrix defining the min value for each sample --
-    minxt = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'minxt')
-    discrete_xt = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'xt_space')
-    # -- Cell defining the discrete variables --
-    # discrete_x=poped_choose(popedInput["design"]discrete_x,cell(m,nx)),
-    discrete_x = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'discrete_x')
-    # -- Vector defining the max value for each covariate --
-    maxa = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'maxa')
-    # -- Vector defining the min value for each covariate --
-    mina = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'mina')
-    discrete_a = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'a_space')
-    # -- Use grouped time points (1=True, 0=False) --
-    bUseGrouped_xt = param_choose(popedInput, False, 0, param, kwargs, 'design_space', 'bUseGrouped_xt')
-    # -- Matrix defining the grouping of sample points --
-    G_xt = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'G_xt')
-    # -- Use grouped covariates (1=True, 0=False) --
-    bUseGrouped_a = param_choose(popedInput, False, 0, param, kwargs, 'design_space', 'bUseGrouped_a')
-    # -- Matrix defining the grouping of covariates --
-    G_a = param_choose(popedInput, None, 0, param, kwargs, 'design_space', 'G_a')
-    # -- Use grouped discrete design variables (1=True, 0=False) --
-    bUseGrouped_x = param_choose(popedInput, False, 0, param, kwargs, 'design_space', 'bUseGrouped_x')
-    # -- Matrix defining the grouping of discrete design variables --
-    G_x = param_choose(popedInput, None, 0, param, kwargs, 'design_space', "G_x")
+    # Model parameters
+    nbpop = param_set(ds_index, pypkpdInput, "parameters", "nbpop")
+    NumRanEff = param_set(NumRanEff, pypkpdInput, "parameters", "NumRanEff")
+    NumDocc = param_set(NumDocc, pypkpdInput, "parameters", "NumDocc")
+    NumOcc = param_set(NumOcc, pypkpdInput, "parameters", "NumOcc")
+    bpop = param_choose(bpop, pypkpdInput, Exception("bpop must be defined"), "parameters", "bpop")
+    d = param_choose(d, pypkpdInput, None, "parameters", "d")
+    covd = param_set(covd, pypkpdInput, "parameters", "covd")
+    sigma = param_set(sigma, pypkpdInput, "parameters", "sigma")
+    docc = param_choose(docc, pypkpdInput, Matrix(np.array([0, 0, 3])), "parameters", "docc")
+    covdocc = param_choose(covdocc, pypkpdInput, np.zeros([1, docc.get_shape()[1]*(docc.get_shape()[1]-1)/2]), "parameters", "covdocc")
 
-    # --------------------------
-    # ---- FIM calculation
-    # --------------------------
+    # Model parameters fixed or not
+    notfixed_bpop = param_set(notfixed_bpop, pypkpdInput, "parameters", "notfixed_bpop")
+    notfixed_d = param_set(notfixed_d, pypkpdInput, "parameters", "notfixed_d")
+    notfixed_covd = param_set(notfixed_covd, pypkpdInput, "parameters", "notfixed_covd")
+    notfixed_docc = param_set(notfixed_docc, pypkpdInput, "parameters", "notfixed_docc")
+    notfixed_covdocc = param_choose(notfixed_covdocc, pypkpdInput, Matrix(np.zeros([1, covdocc.get_size()])), "parameters", "notfixed_covdocc")
+    notfixed_sigma = param_choose(notfixed_sigma, pypkpdInput, Matrix([1]*sigma.get_shape()[1]), "parameters", "notfixed_sigma")
+    notfixed_covsigma = param_choose(notfixed_covsigma, pypkpdInput, Matrix(np.zeros([1, notfixed_sigma.get_size()*(notfixed_sigma.get_size()-1)/2])), "parameters", "notfixed_covsigma")
 
-    # -- Fisher Information Matrix type
-    # (0=Full FIM,
-    # 1=Reduced FIM,
-    # 2=weighted models,
-    # 3=Loc models,
-    # 4=reduced FIM with derivative of SD of sigma as pfim,
-    # 5=FULL FIM parameterized with A,B,C matrices & derivative of variance,
-    # 6=Calculate one model switch at a time, good for large matrices,
-    # 7=Reduced FIM parameterized with A,B,C matrices & derivative of variance) --
-    iFIMCalculationType = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'iFIMCalculationType')
-    # -- Approximation method for model, 0=FO, 1=FOCE, 2=FOCEI, 3=FOI --
-    iApproximationMethod = param_choose(popedInput, 0, 0, param, kwargs, 'settings', 'iApproximationMethod')
-    # -- Num individuals in each step of FOCE --
-    iFOCENumInd = param_choose(popedInput, 1000, 0, param, kwargs, 'settings', 'iFOCENumInd')
-    # -- The prior FIM (added to calculated FIM) --
-    prior_fim = param_choose(popedInput, Matrix(np.array([0])), 0, param, kwargs, 'settings', 'prior_fim')
-    # -- Filname and path for the Autocorrelation function, empty string means no autocorrelation --
-    strAutoCorrelationFile = param_choose(popedInput, "", 0, param, kwargs, "model", 'auto_pointer')
+    # Optimization algorithm choices
+    bUseRandomSearch = param_choose(bUseRandomSearch, pypkpdInput, True, "settings", "bUseRandomSearch")
+    bUseStochasticGradient = param_choose(bUseStochasticGradient, pypkpdInput, True, "settings", "bUseStochasticGradient")
+    bUseLineSearch = param_choose(bUseLineSearch, pypkpdInput, True, "settings", "bUseLineSearch")
+    bUseExchangeAlgorithm = param_choose(bUseExchangeAlgorithm, pypkpdInput, False, "settings", "bUseExchangeAlgorithm")
+    bUseBFGSMinimizer = param_choose(bUseBFGSMinimizer, pypkpdInput, False, "settings", "bUseBFGSMinimizer")
+    EACriteria = param_choose(EACriteria, pypkpdInput, 1, "settings", "EACriteria")
+    strRunFile = param_choose(strRunFile, pypkpdInput, "", "settings", "run_file_pointer")
 
-    # --------------------------
-    # ---- Criterion specification
-    # --------------------------
+    # Labeling and file names
+    pypkpd_version = param_choose(pypkpd_version, pypkpdInput, pypkpd.__version__, "settings", "pypkpd_version")
+    modtit = param_choose(modtit, pypkpdInput, "pypkpd model", "settings", "modtit")
+    output_file = param_choose(output_file, pypkpdInput, "pypkpd_output_summary", "settings", "output_file")
+    output_function_file = param_choose(output_function_file, pypkpdInput, "pypkpd_output", "settings", "output_function_file")
+    strIterationFileName = param_choose(strIterationFileName, pypkpdInput, "pypkpd_current.py", "settings", "strIterationFileName")
+    
+    # Misc options
 
-    # -- D-family design (1) or ED-family design (0) (with or without parameter uncertainty) --
-    d_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'd_switch')
-    # -- OFV calculation type for FIM (1=Determinant of FIM,4=log determinant of FIM,6=determinant of interesting part of FIM (Ds)) --
-    ofv_calc_type = param_choose(popedInput, 4, 0, param, kwargs, 'settings', 'ofv_calc_type')
-    # -- Ds_index, set index to 1 if a parameter is uninteresting, otherwise 0.
-    # size=(1,num unfixed parameters). First unfixed bpop, then unfixed d, then unfixed docc and last unfixed sigma --
-    # default is the fixed effects being important
-    ds_index = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'ds_index')
-    # -- Penalty function, empty string means no penalty.  User defined criterion --
-    strEDPenaltyFile = param_choose(popedInput, "", 0, param, kwargs, 'settings', 'strEDPenaltyFile')
-    ofv_fun = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'ofv_fun')
+    # Parallel options for pypkpd
 
-    # --------------------------
-    # ---- E-family Criterion options
-    # --------------------------
-    # -- ED Integral Calculation, 0=Monte-Carlo-Integration, 1=Laplace Approximation, 2=BFGS Laplace Approximation  -- --
-    iEDCalculationType = param_choose(popedInput, 0, 0, param, kwargs, 'settings', 'iEDCalculationType')
-    # -- Sample size for E-family sampling --
-    ED_samp_size = param_choose(popedInput, 45, 0, param, kwargs, 'settings', 'ED_samp_size')
-    # -- How to sample from distributions in E-family calculations. 0=Random Sampling, 1=LatinHyperCube --
-    bLHS = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'bLHS')
-    # -- Filname and path for user defined distributions for E-family designs --
-    strUserDistributionFile = param_choose(popedInput, "", 0, param, kwargs, "model", 'user_distribution_pointer')
-
-    # --------------------------
-    # ---- Model parameters
-    # --------------------------
-
-    # -- Number of typical values --
-    nbpop = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'nbpop')
-    # -- Number of IIV parameters --
-    NumRanEff = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'NumRanEff')
-    # -- Number of IOV variance parameters --
-    NumDocc = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'NumDocc')
-    # -- Number of occassions --
-    NumOcc = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'NumOcc')
-    # -- The length of the g parameter vector --
-    # ng=popedInput["parameters"]ng,
-
-    # -- Matrix defining the fixed effects, per row (row number = parameter_number),
-    # the type of the distribution for E-family designs (0 = Fixed, 1 = Normal, 2 = Uniform,
-    # 3 = User Defined Distribution, 4 = lognormal and 5 = truncated normal).
-    # The second column defines the mean.
-    # The third column defines the variance of the distribution.
-    # can also just supply the parameter values as a c()
-
-    bpop = param_choose(popedInput, 'bpop must be defined', 1, param, kwargs, 'parameters', 'bpop')
-    # -- Matrix defining the diagonals of the IIV (same logic as for the fixed effects) --
-    # can also just supply the parameter values as a c()
-    # -- vector defining the row major lower triangle of the covariances of the IIV variances --
-    d = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'd')
-    # set to zero if not defined
-    covd = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'covd')
-    # -- Matrix defining the variances of the residual variability terms --
-    # REQUIRED! No defaults given.
-    # can also just supply the diagonal values as a c()
-    sigma = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'sigma')
-    # -- Matrix defining the IOV, the IOV variances and the IOV distribution --
-    docc = param_choose(popedInput, Matrix(np.array([np.nan, np.nan, np.nan])), 0, param, kwargs, 'parameters', 'docc')
-    # -- Matrix defining the covariance of the IOV --
-    if np.array_equal(docc.get_all_data(), np.array([np.nan, np.nan, np.nan]), equal_nan=True):
-        tmp = 0
-    else:
-        tmp = len(docc.get_all_data()[:,1])
-    covdocc = param_choose(popedInput, zeros(1, tmp*(tmp-1)/2), 0, param, kwargs, 'parameters', 'covdocc')
-
-    # --------------------------
-    # ---- Model parameters fixed or not
-    # --------------------------
-    # -- Vector defining if a typical value is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_bpop = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_bpop')
-    # -- Vector defining if a IIV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_d = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_d')
-    # -- Vector defining if a covariance IIV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_covd = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_covd')
-    # -- Vector defining if an IOV variance is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_docc = param_choose(popedInput, None, 0, param, kwargs, 'parameters', 'notfixed_docc')
-    # -- Vector row major order for lower triangular Matrix defining if a covariance IOV is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_covdocc = param_choose(popedInput, zeros(1, covdocc.get_size()), 0, param, kwargs, 'parameters', 'notfixed_covdocc')
-    # -- Vector defining if a residual error parameter is fixed or not (1=not fixed, 0=fixed) --
-    notfixed_sigma = param_choose(popedInput, Matrix(np.ones(size(sigma)[1])), 0, param, kwargs, 'parameters', 'notfixed_sigma')
-    # -- Vector defining if a covariance residual error parameter is fixed or not (1=not fixed, 0=fixed) --
-    ## default is fixed
-    notfixed_covsigma = param_choose(popedInput, zeros(1, (notfixed_sigma.get_size())*((notfixed_sigma.get_size())-1)/2), 0, param, kwargs, 'parameters', 'notfixed_covsigma')
-
-    # --------------------------
-    # ---- Optimization algorithm choices
-    # --------------------------
-
-    # -- Use random search (1=True, 0=False) --
-    bUseRandomSearch = param_choose(popedInput, True, 0, param, kwargs, 'settings', 'bUseRandomSearch')
-    # -- Use Stochastic Gradient search (1=True, 0=False) --
-    bUseStochasticGradient = param_choose(popedInput, True, 0, param, kwargs, 'settings', 'bUseStochasticGradient')
-    # -- Use Line search (1=True, 0=False) --
-    bUseLineSearch = param_choose(popedInput, True, 0, param, kwargs, 'settings', 'bUseLineSearch')
-    # -- Use Exchange algorithm (1=True, 0=False) --
-    bUseExchangeAlgorithm = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bUseExchangeAlgorithm')
-    # -- Use BFGS Minimizer (1=True, 0=False) --
-    bUseBFGSMinimizer = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bUseBFGSMinimizer')
-    # -- Exchange Algorithm Criteria, 1 = Modified, 2 = Fedorov --
-    EACriteria = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'EACriteria')
-    # -- Filename and path for a run file that is used instead of the regular PopED call --
-    strRunFile = param_choose(popedInput, "", 0, param, kwargs, 'settings', 'run_file_pointer')
-
-    # --------------------------
-    # ---- Labeling and file names
-    # --------------------------
-
-    # -- The current PopED version --
-# ！！！没写 packageVersion("PopED")
-    poped_version = param_choose(popedInput, "0.0.2", 0, param, kwargs, 'settings', 'poped_version')
-    # -- The model title --
-    modtit = param_choose(popedInput, 'PopED model', 0, param, kwargs, 'settings', 'modtit')
-    # -- Filname and path of the output file during search --
-    output_file = param_choose(popedInput, "PopED_output_summary", 0, param, kwargs, 'settings', 'output_file')
-    # -- Filname suffix of the result function file --
-    output_function_file = param_choose(popedInput, "PopED_output_", 0, param, kwargs, 'settings', 'output_function_file')
-    # -- Filename and path for storage of current optimal design --
-    strIterationFileName = param_choose(popedInput, "PopED_current.R", 0, param, kwargs, 'settings', 'strIterationFileName')
-
-    # --------------------------
-    # ---- Misc options
-    # --------------------------
-    # -- User defined data structure that, for example could be used to send in data to the model --
-    user_data = param_choose(popedInput, cell(0, 0), 0, param, kwargs, 'settings', 'user_data')
-    # -- Value to interpret as zero in design --
-    ourzero = param_choose(popedInput, 1e-5, 0, param, kwargs, 'settings', 'ourzero')
-    # ourzero=param_choose(popedInput$ourzero,0),
-    # -- The seed number used for optimization and sampling -- integer or -1 which creates a random seed
-    dSeed = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'dSeed')
-    # -- Vector for line search on continuous design variables (1=True,0=False) --
-    line_opta = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'line_opta')
-    # -- Vector for line search on discrete design variables (1=True,0=False) --
-    line_optx = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'line_optx')  # Matrix(0,0,1)
-    # -- Use graph output during search --
-    bShowGraphs = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bShowGraphs')
-    # -- If a log file should be used (0=False, 1=True) --
-    use_logfile = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'use_logfile')
-    # -- Method used to calculate M1
-    # (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    m1_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'm1_switch')
-    # -- Method used to calculate M2
-    # (0=Central difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    m2_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'm2_switch')
-    # -- Method used to calculate linearization of residual error
-    # (0=Complex difference, 1=Central difference, 30=Automatic differentiation) --
-    hle_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'hle_switch')
-    # -- Method used to calculate the gradient of the model
-    # (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    gradff_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'gradff_switch')
-    # -- Method used to calculate the gradient of the parameter vector g
-    # (0=Complex difference, 1=Central difference, 20=Analytic derivative, 30=Automatic differentiation) --
-    gradfg_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'gradfg_switch')
-    # -- Method used to calculate all the gradients
-    # (0=Complex difference, 1=Central difference) --
-    grad_all_switch = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'grad_all_switch')
-    # -- Number of iterations in random search between screen output --
-    rsit_output = param_choose(popedInput, 5, 0, param, kwargs, 'settings', 'rsit_output')
-    # -- Number of iterations in stochastic gradient search between screen output --
-    sgit_output = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'sgit_output')
-    # -- Step length of derivative of linearized model w.r.t. typical values --
-    hm1 = param_choose(popedInput, 0.00001, 0, param, kwargs, 'settings', 'hm1')
-    # -- Step length of derivative of model w.r.t. g --
-    hlf = param_choose(popedInput, 0.00001, 0, param, kwargs, 'settings', 'hlf')
-    # -- Step length of derivative of g w.r.t. b --
-    hlg = param_choose(popedInput, 0.00001, 0, param, kwargs, 'settings', 'hlg')
-    # -- Step length of derivative of variance w.r.t. typical values --
-    hm2 = param_choose(popedInput, 0.00001, 0, param, kwargs, 'settings', 'hm2')
-    # -- Step length of derivative of OFV w.r.t. time --
-    hgd = param_choose(popedInput, 0.00001, 0, param, kwargs, 'settings', 'hgd')
-    # -- Step length of derivative of model w.r.t. sigma --
-    hle = param_choose(popedInput, 0.00001, 0, param, kwargs, 'settings', 'hle')
-    # -- The absolute tolerance for the diff equation solver --
-    AbsTol = param_choose(popedInput, 0.000001, 0, param, kwargs, 'settings', 'AbsTol')
-    # -- The relative tolerance for the diff equation solver --
-    RelTol = param_choose(popedInput, 0.000001, 0, param, kwargs, 'settings', 'RelTol')
-    # -- The diff equation solver method, 0, no other option --
-    iDiffSolverMethod = param_choose(popedInput, None, 0, param, kwargs, 'settings', 'iDiffSolverMethod')
-    # -- If the differential equation results should be stored in memory (1) or not (0) --
-    bUseMemorySolver = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bUseMemorySolver')
-    # -- Number of Random search iterations --
-    rsit = param_choose(popedInput, 300, 0, param, kwargs, 'settings', 'rsit')
-    # -- Number of Stochastic gradient search iterations --
-    sgit = param_choose(popedInput, 150, 0, param, kwargs, 'settings', 'sgit')
-    # -- Number of Random search iterations with discrete optimization --
-    intrsit = param_choose(popedInput, 250, 0, param, kwargs, 'settings', 'intrsit')
-    # -- Number of Stochastic Gradient search iterations with discrete optimization --
-    intsgit = param_choose(popedInput, 50, 0, param, kwargs, 'settings', 'intsgit')
-    # -- Iterations until adaptive narrowing in random search --
-    maxrsnullit = param_choose(popedInput, 50, 0, param, kwargs, 'settings', 'maxrsnullit')
-    # -- Stoachstic Gradient convergence value,
-    # (difference in OFV for D-optimal, difference in gradient for ED-optimal) --
-    convergence_eps = param_choose(popedInput, 1e-08, 0, param, kwargs, 'settings', 'convergence_eps')
-    # -- Random search locality factor for sample times --
-    rslxt = param_choose(popedInput, 10, 0, param, kwargs, 'settings', 'rslxt')
-    # -- Random search locality factor for covariates --
-    rsla = param_choose(popedInput, 10, 0, param, kwargs, 'settings', 'rsla')
-    # -- Stochastic Gradient search first step factor for sample times --
-    cfaxt = param_choose(popedInput, 0.001, 0, param, kwargs, 'settings', 'cfaxt')
-    # -- Stochastic Gradient search first step factor for covariates --
-    cfaa = param_choose(popedInput, 0.001, 0, param, kwargs, 'settings', 'cfaa')
-    # -- Use greedy algorithm for group assignment optimization --
-    bGreedyGroupOpt = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bGreedyGroupOpt')
-    # -- Exchange Algorithm StepSize --
-    EAStepSize = param_choose(popedInput, 0.01, 0, param, kwargs, 'settings', 'EAStepSize')
-    # -- Exchange Algorithm NumPoints --
-    EANumPoints = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'EANumPoints')
-    # -- Exchange Algorithm Convergence Limit/Criteria --
-    EAConvergenceCriteria = param_choose(popedInput, 1e-20, 0, param, kwargs, 'settings', 'EAConvergenceCriteria')
-    # -- Avoid replicate samples when using Exchange Algorithm --
-    bEANoReplicates = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'bEANoReplicates')
-    # -- BFGS Minimizer Convergence Criteria Minimum Step --
-    BFGSConvergenceCriteriaMinStep = None,
-    # param_choose(popedInput["settings"]BFGSConvergenceCriteriaMinStep,1e-08),
-    # -- BFGS Minimizer Convergence Criteria Normalized Projected Gradient Tolerance --
-    BFGSProjectedGradientTol = param_choose(popedInput, 0.0001, 0, param, kwargs, 'settings', 'BFGSProjectedGradientTol')
-    # -- BFGS Minimizer Line Search Tolerance f --
-    BFGSTolerancef = param_choose(popedInput, 0.001, 0, param, kwargs, 'settings', 'BFGSTolerancef')
-    # -- BFGS Minimizer Line Search Tolerance g --
-    BFGSToleranceg = param_choose(popedInput, 0.9, 0, param, kwargs, 'settings', 'BFGSToleranceg')
-    # -- BFGS Minimizer Line Search Tolerance x --
-    BFGSTolerancex = param_choose(popedInput, 0.1, 0, param, kwargs, 'settings', 'BFGSTolerancex')
-    # -- Number of iterations in ED-optimal design to calculate convergence criteria --
-    ED_diff_it = param_choose(popedInput, 30, 0, param, kwargs, 'settings', 'ED_diff_it')
-    # -- ED-optimal design convergence criteria in percent --
-    ED_diff_percent = param_choose(popedInput, 10, 0, param, kwargs, 'settings', 'ED_diff_percent')
-    # -- Number of grid points in the line search --
-    line_search_it = param_choose(popedInput, 50, 0, param, kwargs, 'settings', 'ls_step_size')
-    # -- Number of iterations of full Random search and full Stochastic Gradient if line search is not used --
-    Doptim_iter = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'iNumSearchIterationsIfNotLineSearch')
-
-    # --------------------------
-    # -- Parallel options for PopED -- --
-    # --------------------------
-    #     ## -- Compile option for PopED
-    #     ## -1 = No compilation,
-    #     ## 0 or 3 = Full compilation,
-    #     ## 1 or 4 = Only using MCC (shared lib),
-    #     ## 2 or 5 = Only MPI,
-    #     ## Option 0,1,2 runs PopED and option 3,4,5 stops after compilation --
-    iCompileOption = param_choose(popedInput, -1, 0, param, kwargs, 'settings', 'parallel', 'iCompileOption')
-    # -- Parallel method to use (0 = Matlab PCT, 1 = MPI) --
-    iUseParallelMethod = param_choose(popedInput, 1, 0, param, kwargs, 'settings', 'parallel', 'iUseParallelMethod')
-    # -- Additional dependencies used in MCC compilation (mat-files), if several space separated --
-    MCC_Dep = None,
-    # param_choose(popedInput["settings"]parallel$strAdditionalMCCCompilerDependencies, ''),
-    # -- Compilation output executable name --
-    strExecuteName = param_choose(popedInput, 'calc_fim.exe', 0, param, kwargs, 'settings', 'parallel', 'strExecuteName')
-    # -- Number of processes to use when running in parallel (e.g. 3 = 2 workers, 1 job manager) --
-    iNumProcesses = param_choose(popedInput, 2, 0, param, kwargs, 'settings', 'parallel', 'iNumProcesses')
-    # -- Number of design evaluations that should be evaluated in each process before getting new work from job manager --
-    iNumChunkDesignEvals = param_choose(popedInput, -2, 0, param, kwargs, 'settings', 'parallel', 'iNumChunkDesignEvals')
-    # -- The prefix of the input mat file to communicate with the executable --
-    # strMatFileInputPrefix = param_choose(
-    #   popedInput["settings"]parallel$strMatFileInputPrefix,
-    #   'parallel_input'),
-    # -- The prefix of the output mat file to communicate with the executable --
-    Mat_Out_Pre = param_choose(popedInput, 'parallel_output', 0, param, kwargs, 'settings', 'parallel', 'strMatFileOutputPrefix')
-    # -- Extra options send to e$g. the MPI executable or a batch script, see execute_parallel$m for more information and options --
-    strExtraRunOptions = param_choose(popedInput, '', 0, param, kwargs, 'settings', 'parallel', 'strExtraRunOptions')
-    # -- Polling time to check if the parallel execution is finished --
-    dPollResultTime = param_choose(popedInput, 0.1, 0, param, kwargs, 'settings', 'parallel', 'dPollResultTime')
-    # -- The file containing the popedInput structure that should be used to evaluate the designs --
-    strFunctionInputName = param_choose(popedInput, 'function_input', 0, param, kwargs, 'settings', 'parallel', 'strFunctionInputName')
-    # -- If the random search is going to be executed in parallel --
-    bParallelRS = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'parallel', 'bParallelRS')
-    # -- If the stochastic gradient search is going to be executed in parallel --
-    bParallelSG = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'parallel', 'bParallelSG')
-    # -- If the modified exchange algorithm is going to be executed in parallel --
-    bParallelMFEA = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'parallel', 'bParallelMFEA')
-    # -- If the line search is going to be executed in parallel --
-    bParallelLS = param_choose(popedInput, False, 0, param, kwargs, 'settings', 'parallel', 'bParallelLS')
 
 #####-------------- main part --------------#####
-    poped_db = {}
-# five main headings for database
-#     poped_db = list(design=None,
-#                      design_space=None,
-#                      models=None,
-#                      parameters=None,
-#                      settings=None)
+    pypkpd_db = {}
 
-#     # update popedInput with options supplied in function
-#     called_args = match.call()
-#     default_args = formals()
-#     for(i in names(called_args)[-1]){
-#       if(length(grep("^popedInput$",capture.output(default_args[i])))==1) {
-#         eval(parse(text=paste(capture.output(default_args[i]),"=",called_args[i])))
-#       }
-#     }
+    pypkpd_db["settings"] = {}
+    pypkpd_db["settings"]["pypkpd_version"] = pypkpd_version
 
-# modifyList(settings, list()$settings)
+    # if BFGSConvergenceCriteriaMinStep is None:
+    #     BFGSConvergenceCriteriaMinStep = param_choose(pypkpdInput, 1e-08, 0, "settings", "BFGSConvergenceCriteriaMinStep")
 
-# compare to a default input function.
-#   ## -- Filname and path of the model file --
-#   popedInput$ff_file='ff'
-#   ## -- Filname and path of the parameter file --
-#   popedInput$fg_file='sfg'
-#   ## -- Filname and path of the residual error model file --
-#   popedInput$fError_file='feps.add.prop'
-#   ## -- The model title --
-#   popedInput$modtit='Sigmoidal Emax model'
+    # if MCC_Dep is None:
+    #     MCC_Dep = param_choose(pypkpdInput, "", 0, "settings", "parallel", "strAdditionalMCCCompilerDependencies")
 
-    poped_db["settings"] = {}
-    poped_db["settings"]["poped_version"] = poped_version
+    pypkpd_db["model"] = {}
+    pypkpd_db["model"]["user_distribution_pointer"] = ""
 
-    if BFGSConvergenceCriteriaMinStep is None:
-        BFGSConvergenceCriteriaMinStep = param_choose(popedInput, 1e-08, 0, "settings", "BFGSConvergenceCriteriaMinStep")
-
-    if MCC_Dep is None:
-        MCC_Dep = param_choose(popedInput, "", 0, "settings", "parallel", "strAdditionalMCCCompilerDependencies")
-
-    poped_db["model"] = {}
-    poped_db["model"]["user_distribution_pointer"] = ""
-
-    if str(strUserDistributionFile) != "" and strUserDistributionFile is not None:
-        if strUserDistributionFile is not None:
-            poped_db["model"]["user_distribution_pointer"] = strUserDistributionFile
-        else:
-            exec(open(strUserDistributionFile).read())
-            returnArgs = fileparts(strUserDistributionFile)
-            strUserDistFilePath = list(returnArgs.values())[0]
-            strUserDistFilename = list(returnArgs.values())[1]
-            poped_db["model"]["user_distribution_pointer"] = strUserDistFilename
+    if strUserDistributionFile is not None:
+        if str(strUserDistributionFile) != "":
+            pypkpd_db["model"]["user_distribution_pointer"] = strUserDistributionFile
+    else:
+        exec(open(strUserDistributionFile).read())
+        returnArgs = fileparts(strUserDistributionFile)
+        strUserDistFilePath = list(returnArgs.values())[0]
+        strUserDistFilename = list(returnArgs.values())[1]
+        pypkpd_db["model"]["user_distribution_pointer"] = strUserDistFilename
 
     # should be removed
-    if (np.array(size(x)) == 0).any():
+    if (np.array(x.get_shape()) == 0).any():
         x = None
         G_x = None
         discrete_x = None
 
     # should be removed
-    if (np.array(size(a)) == 0).any():
+    if (np.array(a.get_shape()) == 0).any():
         a = None
         G_a = None
         mina = None
@@ -670,164 +328,158 @@ def create_poped_database(pypkpdInput={},
                                        grouped_x=G_x,
                                        our_zero=ourzero)
 
-    design = design_space["design"]
-    design_space = design_space["design_space"]
+    # design_space["design"] = design
+    # design_space["design_space"] = design_space
 
     # all of this should be replaced with using the names used in create_design_space as function arguments
     if is_not_none(design_space, "use_grouped_a"):
         design_space["bUseGrouped_a"] = design_space["use_grouped_a"]
-    design_space["use_grouped_a"] = None
+        design_space["use_grouped_a"] = None
 
     if is_not_none(design_space, "use_grouped_x"):
         design_space["bUseGrouped_x"] = design_space["use_grouped_x"]
-    design_space["use_grouped_x"] = None
+        design_space["use_grouped_x"] = None
 
     if is_not_none(design_space, "use_grouped_xt"):
         design_space["bUseGrouped_xt"] = design_space["use_grouped_xt"]
-    design_space["use_grouped_xt"] = None
+        design_space["use_grouped_xt"] = None
 
     if is_not_none(design_space, "grouped_a"):
         design_space["G_a"] = design_space["grouped_a"]
-    design_space["grouped_a"] = None
+        design_space["grouped_a"] = None
 
     if is_not_none(design_space, "grouped_x"):
         design_space["G_x"] = design_space["grouped_x"]
-    design_space["grouped_x"] = None
+        design_space["grouped_x"] = None
 
     if is_not_none(design_space, "grouped_xt"):
         design_space["G_xt"] = design_space["grouped_xt"]
-    design_space["grouped_xt"] = None
+        design_space["grouped_xt"] = None
 
     if is_not_none(design_space, "x_space"):
         design_space["discrete_x"] = design_space["x_space"]
-    design_space["x_space"] = None
-
-# design_space$maxni = max(design_space$maxni)
-# design_space$minni = min(design_space$minni)
+        design_space["x_space"] = None
 
     # should be removed
     if ~is_not_none(design, "x"):
-        design["x"] = zeros(design["m"], 0)
+        design["x"] = Matrix(np.zeros([design["m"].get_value(), 0]))
         design_space["G_x"] = design["x"]
         design_space["bUseGrouped_x"] = False
-        design_space["discrete_x"] = cell(design["m"], 0)
+        design_space["discrete_x"] = cell([design["m"].get_value(), 0])
 
     # should be removed
     if ~is_not_none(design, "a"):
-        design["a"] = zeros(design["m"], 0)
+        design["a"] = Matrix(np.zeros([design["m"].get_value(), 0]))
         design_space["G_a"] = design["a"]
         design_space["bUseGrouped_a"] = False
         design_space["mina"] = design["a"]
         design_space["maxa"] = design["a"]
 
-    poped_db["design"] = design
-    poped_db["design_space"] = design_space
+    pypkpd_db["design"] = design
+    pypkpd_db["design_space"] = design_space
 
-    # poped_db$m = poped_db["design"]m  # should be removed only in design
-# poped_db$nx = param_choose(nx,size(design$x,2)) # should be removed, not needed or in design
-# poped_db$na = param_choose(na,size(design$a,2)) # should be removed, not needed or in design
-    poped_db["settings"] = {}
-    poped_db["settings"]["bLHS"] = bLHS
+    pypkpd_db["settings"] = {}
+    pypkpd_db["settings"]["bLHS"] = bLHS
 
-# poped_db$discrete_x = design_space$discrete_x # should be removed only in design_space
+# pypkpd_db$discrete_x = design_space$discrete_x # should be removed only in design_space
 
-# poped_db$maxni=max(design_space$maxni) # should be only in design_space and called maxmaxni if needed
-# poped_db$minni=min(design_space$minni) # should be only in design_space and called minminni if needed
+# pypkpd_db$maxni=max(design_space$maxni) # should be only in design_space and called maxmaxni if needed
+# pypkpd_db$minni=min(design_space$minni) # should be only in design_space and called minminni if needed
 
-# poped_db$bUseGrouped_xt = design_space$bUseGrouped_xt # should be only in design_space
-# poped_db$bUseGrouped_a  = design_space$bUseGrouped_a # should be only in design_space
-# poped_db$bUseGrouped_x  = design_space$bUseGrouped_x # should be only in design_space
+# pypkpd_db$bUseGrouped_xt = design_space$bUseGrouped_xt # should be only in design_space
+# pypkpd_db$bUseGrouped_a  = design_space$bUseGrouped_a # should be only in design_space
+# pypkpd_db$bUseGrouped_x  = design_space$bUseGrouped_x # should be only in design_space
 
-    poped_db["settings"]["d_switch"] = d_switch
-    poped_db["settings"]["iApproximationMethod"] = iApproximationMethod
+    pypkpd_db["settings"]["d_switch"] = d_switch
+    pypkpd_db["settings"]["iApproximationMethod"] = iApproximationMethod
 
-    poped_db["settings"]["iFOCENumInd"] = iFOCENumInd
-    poped_db["settings"]["bUseRandomSearch"] = bUseRandomSearch
-    poped_db["settings"]["bUseStochasticGradient"] = bUseStochasticGradient
-    poped_db["settings"]["bUseLineSearch"] = bUseLineSearch
-    poped_db["settings"]["bUseExchangeAlgorithm"] = bUseExchangeAlgorithm
-    poped_db["settings"]["bUseBFGSMinimizer"] = bUseBFGSMinimizer
+    pypkpd_db["settings"]["iFOCENumInd"] = iFOCENumInd
+    pypkpd_db["settings"]["bUseRandomSearch"] = bUseRandomSearch
+    pypkpd_db["settings"]["bUseStochasticGradient"] = bUseStochasticGradient
+    pypkpd_db["settings"]["bUseLineSearch"] = bUseLineSearch
+    pypkpd_db["settings"]["bUseExchangeAlgorithm"] = bUseExchangeAlgorithm
+    pypkpd_db["settings"]["bUseBFGSMinimizer"] = bUseBFGSMinimizer
 
-    poped_db["settings"]["iEDCalculationType"] = iEDCalculationType
+    pypkpd_db["settings"]["iEDCalculationType"] = iEDCalculationType
 
-    poped_db["settings"]["BFGSConvergenceCriteriaMinStep"] = BFGSConvergenceCriteriaMinStep
-    poped_db["settings"]["BFGSProjectedGradientTol"] = BFGSProjectedGradientTol
-    poped_db["settings"]["BFGSTolerancef"] = BFGSTolerancef
-    poped_db["settings"]["BFGSToleranceg"] = BFGSToleranceg
-    poped_db["settings"]["BFGSTolerancex"] = BFGSTolerancex
+    pypkpd_db["settings"]["BFGSConvergenceCriteriaMinStep"] = BFGSConvergenceCriteriaMinStep
+    pypkpd_db["settings"]["BFGSProjectedGradientTol"] = BFGSProjectedGradientTol
+    pypkpd_db["settings"]["BFGSTolerancef"] = BFGSTolerancef
+    pypkpd_db["settings"]["BFGSToleranceg"] = BFGSToleranceg
+    pypkpd_db["settings"]["BFGSTolerancex"] = BFGSTolerancex
 
-    poped_db["parameters"] = {}
-    poped_db["parameters"]["covdocc"] = covdocc
-    poped_db["parameters"]["notfixed_covdocc"] = notfixed_covdocc
-    poped_db["parameters"]["notfixed_covsigma"] = notfixed_covsigma
+    pypkpd_db["parameters"] = {}
+    pypkpd_db["parameters"]["covdocc"] = covdocc
+    pypkpd_db["parameters"]["notfixed_covdocc"] = notfixed_covdocc
+    pypkpd_db["parameters"]["notfixed_covsigma"] = notfixed_covsigma
 
-    poped_db["settings"]["parallel"] = {}
-    poped_db["settings"]["parallel"]["iCompileOption"] = iCompileOption
-    poped_db["settings"]["parallel"]["strAdditionalMCCCompilerDependencies"] = MCC_Dep
-    poped_db["settings"]["parallel"]["iUseParallelMethod"] = iUseParallelMethod
-    poped_db["settings"]["parallel"]["strExecuteName"] = strExecuteName
-    poped_db["settings"]["parallel"]["iNumProcesses"] = iNumProcesses
-    poped_db["settings"]["parallel"]["iNumChunkDesignEvals"] = iNumChunkDesignEvals
-    #poped_db["settings"]["parallel"]["strMatFileInputPrefix"] = strMatFileInputPrefix
-    poped_db["settings"]["parallel"]["strMatFileOutputPrefix"] = Mat_Out_Pre
-    poped_db["settings"]["parallel"]["strExtraRunOptions"] = strExtraRunOptions
-    poped_db["settings"]["parallel"]["dPollResultTime"] = dPollResultTime
-    poped_db["settings"]["parallel"]["strFunctionInputName"] = strFunctionInputName
-    poped_db["settings"]["parallel"]["bParallelRS"] = bParallelRS
-    poped_db["settings"]["parallel"]["bParallelSG"] = bParallelSG
-    poped_db["settings"]["parallel"]["bParallelLS"] = bParallelLS
-    poped_db["settings"]["parallel"]["bParallelMFEA"] = bParallelMFEA
+    pypkpd_db["settings"]["parallel"] = {}
+    pypkpd_db["settings"]["parallel"]["iCompileOption"] = iCompileOption
+    pypkpd_db["settings"]["parallel"]["strAdditionalMCCCompilerDependencies"] = MCC_Dep
+    pypkpd_db["settings"]["parallel"]["iUseParallelMethod"] = iUseParallelMethod
+    pypkpd_db["settings"]["parallel"]["strExecuteName"] = strExecuteName
+    pypkpd_db["settings"]["parallel"]["iNumProcesses"] = iNumProcesses
+    pypkpd_db["settings"]["parallel"]["iNumChunkDesignEvals"] = iNumChunkDesignEvals
+    #pypkpd_db["settings"]["parallel"]["strMatFileInputPrefix"] = strMatFileInputPrefix
+    pypkpd_db["settings"]["parallel"]["strMatFileOutputPrefix"] = Mat_Out_Pre
+    pypkpd_db["settings"]["parallel"]["strExtraRunOptions"] = strExtraRunOptions
+    pypkpd_db["settings"]["parallel"]["dPollResultTime"] = dPollResultTime
+    pypkpd_db["settings"]["parallel"]["strFunctionInputName"] = strFunctionInputName
+    pypkpd_db["settings"]["parallel"]["bParallelRS"] = bParallelRS
+    pypkpd_db["settings"]["parallel"]["bParallelSG"] = bParallelSG
+    pypkpd_db["settings"]["parallel"]["bParallelLS"] = bParallelLS
+    pypkpd_db["settings"]["parallel"]["bParallelMFEA"] = bParallelMFEA
 
-    poped_db["settings"]["hm1"] = hm1
-    poped_db["settings"]["hlf"] = hlf
-    poped_db["settings"]["hlg"] = hlg
-    poped_db["settings"]["hm2"] = hm2
-    poped_db["settings"]["hgd"] = hgd
-    poped_db["settings"]["hle"] = hle
+    pypkpd_db["settings"]["hm1"] = hm1
+    pypkpd_db["settings"]["hlf"] = hlf
+    pypkpd_db["settings"]["hlg"] = hlg
+    pypkpd_db["settings"]["hm2"] = hm2
+    pypkpd_db["settings"]["hgd"] = hgd
+    pypkpd_db["settings"]["hle"] = hle
 
-    poped_db["settings"]["AbsTol"] = AbsTol
-    poped_db["settings"]["RelTol"] = RelTol
-    poped_db["settings"]["iDiffSolverMethod"] = iDiffSolverMethod
+    pypkpd_db["settings"]["AbsTol"] = AbsTol
+    pypkpd_db["settings"]["RelTol"] = RelTol
+    pypkpd_db["settings"]["iDiffSolverMethod"] = iDiffSolverMethod
     # Temp thing for memory solvers
-    poped_db["settings"]["bUseMemorySolver"] = bUseMemorySolver
-    poped_db["settings"]["solved_solutions"] = cell(0, 0)
-    poped_db["settings"]["maxtime"] = str(max(max(poped_db["design_space"]["maxxt"].get_all_data()))) + str(poped_db["settings"]["hgd"])
+    pypkpd_db["settings"]["bUseMemorySolver"] = bUseMemorySolver
+    pypkpd_db["settings"]["solved_solutions"] = cell(0, 0)
+    pypkpd_db["settings"]["maxtime"] = str(max(max(pypkpd_db["design_space"]["maxxt"].get_all_data()))) + str(pypkpd_db["settings"]["hgd"])
 
-    poped_db["settings"]["iFIMCalculationType"] = iFIMCalculationType
-    poped_db["settings"]["rsit"] = rsit
-    poped_db["settings"]["sgit"] = sgit
-    poped_db["settings"]["intrsit"] = intrsit
-    poped_db["settings"]["intsgit"] = intsgit
-    poped_db["settings"]["maxrsnullit"] = maxrsnullit
-    poped_db["settings"]["convergence_eps"] = convergence_eps
-    poped_db["settings"]["rslxt"] = rslxt
-    poped_db["settings"]["rsla"] = rsla
-    poped_db["settings"]["cfaxt"] = cfaxt
-    poped_db["settings"]["cfaa"] = cfaa
+    pypkpd_db["settings"]["iFIMCalculationType"] = iFIMCalculationType
+    pypkpd_db["settings"]["rsit"] = rsit
+    pypkpd_db["settings"]["sgit"] = sgit
+    pypkpd_db["settings"]["intrsit"] = intrsit
+    pypkpd_db["settings"]["intsgit"] = intsgit
+    pypkpd_db["settings"]["maxrsnullit"] = maxrsnullit
+    pypkpd_db["settings"]["convergence_eps"] = convergence_eps
+    pypkpd_db["settings"]["rslxt"] = rslxt
+    pypkpd_db["settings"]["rsla"] = rsla
+    pypkpd_db["settings"]["cfaxt"] = cfaxt
+    pypkpd_db["settings"]["cfaa"] = cfaa
 
-    poped_db["settings"]["EACriteria"] = EACriteria
-    poped_db["settings"]["EAStepSize"] = EAStepSize
-    poped_db["settings"]["EANumPoints"] = EANumPoints
-    poped_db["settings"]["EAConvergenceCriteria"] = EAConvergenceCriteria
+    pypkpd_db["settings"]["EACriteria"] = EACriteria
+    pypkpd_db["settings"]["EAStepSize"] = EAStepSize
+    pypkpd_db["settings"]["EANumPoints"] = EANumPoints
+    pypkpd_db["settings"]["EAConvergenceCriteria"] = EAConvergenceCriteria
 
-    poped_db["settings"]["ED_samp_size"] = ED_samp_size
-    poped_db["settings"]["ED_diff_it"] = ED_diff_it
-    poped_db["settings"]["ED_diff_percent"] = ED_diff_percent
-    poped_db["settings"]["ls_step_size"] = line_search_it
+    pypkpd_db["settings"]["ED_samp_size"] = ED_samp_size
+    pypkpd_db["settings"]["ED_diff_it"] = ED_diff_it
+    pypkpd_db["settings"]["ED_diff_percent"] = ED_diff_percent
+    pypkpd_db["settings"]["ls_step_size"] = line_search_it
 
-    poped_db["settings"]["ofv_calc_type"] = ofv_calc_type
+    pypkpd_db["settings"]["ofv_calc_type"] = ofv_calc_type
 
-    poped_db["settings"]["iNumSearchIterationsIfNotLineSearch"] = Doptim_iter
+    pypkpd_db["settings"]["iNumSearchIterationsIfNotLineSearch"] = Doptim_iter
 
-    poped_db["settings"]["ourzero"] = ourzero
-    poped_db["settings"]["rsit_output"] = rsit_output
-    poped_db["settings"]["sgit_output"] = sgit_output
+    pypkpd_db["settings"]["ourzero"] = ourzero
+    pypkpd_db["settings"]["rsit_output"] = rsit_output
+    pypkpd_db["settings"]["sgit_output"] = sgit_output
 
     if callable(fg_fun):
-        poped_db["model"]["fg_pointer"] = fg_fun
+        pypkpd_db["model"]["fg_pointer"] = fg_fun
     elif type(fg_fun) is str:
         if fg_fun is not None:
-            poped_db["model"]["fg_pointer"] = fg_fun
+            pypkpd_db["model"]["fg_pointer"] = fg_fun
     else:
         try:
             fg_file
@@ -839,45 +491,45 @@ def create_poped_database(pypkpdInput={},
             # if (~strcmp(strfgModelFilePath,''))
             # cd(strfgModelFilePath);
             # end
-            poped_db["model"]["fg_pointer"] = strfgModelFilename
+            pypkpd_db["model"]["fg_pointer"] = strfgModelFilename
         else:
-            poped_db["model"]["fg_pointer"] = fg_file
+            pypkpd_db["model"]["fg_pointer"] = fg_file
 
-    poped_db["settings"]["ed_penalty_pointer"] = zeros(1, 0)
+    pypkpd_db["settings"]["ed_penalty_pointer"] = zeros(1, 0)
     if str(strEDPenaltyFile) != "":
         if strEDPenaltyFile is not None:
-            poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFile
+            pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFile
         else:
-            exec(open(popedInput["strEDPenaltyFile"]).read())
-            returnArgs = fileparts(popedInput["strEDPenaltyFile"])
+            exec(open(pypkpdInput["strEDPenaltyFile"]).read())
+            returnArgs = fileparts(pypkpdInput["strEDPenaltyFile"])
             strEDPenaltyFilePath = list(returnArgs.values())[0]
             strEDPenaltyFilename = list(returnArgs.values())[1]
     # if (~strcmp(strEDPenaltyFilePath,''))
     # cd(strEDPenaltyFilePath);
     # end
-            poped_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
+            pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
 
     # if(is.null(ofv_fun) or is.function(ofv_fun)){
-#   poped_db["settings"]ofv_fun = ofv_fun
+#   pypkpd_db["settings"]ofv_fun = ofv_fun
 # } else {
 #   stop("ofv_fun must be a function or None")
 # }
 
     if ofv_fun is None or callable(ofv_fun):
-        poped_db["settings"]["ofv_fun"] = ofv_fun
+        pypkpd_db["settings"]["ofv_fun"] = ofv_fun
     else:
         # source explicit file
         # here I assume that function in file has same name as filename minus .txt and pathnames
         if ofv_fun is not None:
             exec(open(str(ofv_fun)).read())
-            poped_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)["filename"]')
+            pypkpd_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)["filename"]')
         else:
             raise Exception("ofv_fun is not a function or None, and no file with that name was found")
 
     # if(is.function(ofv_fun)){
-#   poped_db["settings"]ofv_fun = ofv_fun
+#   pypkpd_db["settings"]ofv_fun = ofv_fun
 # } else if(exists(ofv_fun)){
-#   poped_db["settings"]ofv_fun = ofv_fun
+#   pypkpd_db["settings"]ofv_fun = ofv_fun
 # } else {
 #   source(ofv_fun)
 #   returnArgs =  fileparts(ofv_fun)
@@ -886,30 +538,30 @@ def create_poped_database(pypkpdInput={},
 #   ## if (~strcmp(strffModelFilePath,''))
 #   ##    cd(strffModelFilePath);
 #   ## end
-#   poped_db["settings"]ofv_fun = strffModelFilename
+#   pypkpd_db["settings"]ofv_fun = strffModelFilename
 # }
 
-    poped_db["model"]["auto_pointer"] = zeros(1, 0)
-    #poped_db["model"]["auto_pointer"] = ''
+    pypkpd_db["model"]["auto_pointer"] = zeros(1, 0)
+    #pypkpd_db["model"]["auto_pointer"] = ''
     if strAutoCorrelationFile != "":
         if str(strAutoCorrelationFile) != "":
             if strAutoCorrelationFile is not None:
-                poped_db["model"]["auto_pointer"] = strAutoCorrelationFile
+                pypkpd_db["model"]["auto_pointer"] = strAutoCorrelationFile
             else:
-                exec(open(popedInput["strAutoCorrelationFile"]).read())
-                returnArgs = fileparts(popedInput["strAutoCorrelationFile"])
+                exec(open(pypkpdInput["strAutoCorrelationFile"]).read())
+                returnArgs = fileparts(pypkpdInput["strAutoCorrelationFile"])
                 strAutoCorrelationFilePath = list(returnArgs.values())[0]
                 strAutoCorrelationFilename = list(returnArgs.values())[1]
             # if (~strcmp(strAutoCorrelationFilePath,''))
             # cd(strAutoCorrelationFilePath);
             # end
-                poped_db["model"]["auto_pointer"] = strAutoCorrelationFilename
+                pypkpd_db["model"]["auto_pointer"] = strAutoCorrelationFilename
 
     if callable(ff_fun):
-        poped_db["model"]["ff_pointer"] = ff_fun
+        pypkpd_db["model"]["ff_pointer"] = ff_fun
     elif type(ff_fun) is str:
         if ff_fun is not None:
-            poped_db["model"]["ff_pointer"] = ff_fun
+            pypkpd_db["model"]["ff_pointer"] = ff_fun
     else:
         try:
             ff_file
@@ -921,32 +573,32 @@ def create_poped_database(pypkpdInput={},
             # if (~strcmp(strffModelFilePath,''))
             # cd(strffModelFilePath);
             # end
-            poped_db["model"]["ff_pointer"] = strffModelFilename
+            pypkpd_db["model"]["ff_pointer"] = strffModelFilename
         else:
-            poped_db["model"]["ff_pointer"] = ff_file
+            pypkpd_db["model"]["ff_pointer"] = ff_file
 
     # Check if there is any sub models defined
-    for key in popedInput:
-        if "SubModels" in popedInput.keys():
+    for key in pypkpdInput:
+        if "SubModels" in pypkpdInput.keys():
             i = 1
-            for elem_key in popedInput["SubModels"]:
+            for elem_key in pypkpdInput["SubModels"]:
                 if elem_key == ("ff_file%d" % i):
                     # ok<np.nanSGU>
-                    exec(eval('popedInput["SubModels"]["ff_file"]%d' % i))
-                    returnArgs = fileparts(eval('popedInput["SubModels"]["ff_file"]%d' % i))  # ok<np.nanSGU>
+                    exec(eval('pypkpdInput["SubModels"]["ff_file"]%d' % i))
+                    returnArgs = fileparts(eval('pypkpdInput["SubModels"]["ff_file"]%d' % i))  # ok<np.nanSGU>
                     strffModelFilePath = list(returnArgs.values())[0]
                     strffModelFilename = list(returnArgs.values())[1]
                     # if (~strcmp(strffModelFilePath,''))
                     # cd(strffModelFilePath);
                     # end
-                    poped_db["model"]["subffPointers"]["".join(["ff_pointer", str(i)])] = strffModelFilename
+                    pypkpd_db["model"]["subffPointers"]["".join(["ff_pointer", str(i)])] = strffModelFilename
                     i = i + 1
 
     if callable(fError_fun):
-        poped_db["model"]["ferror_pointer"] = fError_fun
+        pypkpd_db["model"]["ferror_pointer"] = fError_fun
     elif type(fError_fun) is str:
         if fError_fun is not None:
-            poped_db["model"]["ferror_pointer"] = fError_fun
+            pypkpd_db["model"]["ferror_pointer"] = fError_fun
     else:
         try:
             fError_file
@@ -958,17 +610,17 @@ def create_poped_database(pypkpdInput={},
             # if (~strcmp(strErrorModelFilePath,''))
             # cd(strErrorModelFilePath);
             # end
-            poped_db["model"]["ferror_pointer"] = strErrorModelFilename
+            pypkpd_db["model"]["ferror_pointer"] = strErrorModelFilename
         else:
-            poped_db["model"]["ferror_pointer"] = fError_file
+            pypkpd_db["model"]["ferror_pointer"] = fError_file
 
     # %Set the model file string path
-# poped_db$model_file = ff_file
-##   model_file = eval('functions(poped_db.ff_pointer)');
+# pypkpd_db$model_file = ff_file
+##   model_file = eval('functions(pypkpd_db.ff_pointer)');
 # if (~strcmp(model_file.file,''))
-##       poped_db.model_file = eval('char(model_file.file)');
+##       pypkpd_db.model_file = eval('char(model_file.file)');
 # else
-##       poped_db.model_file = eval('char(model_file.function)');
+##       pypkpd_db.model_file = eval('char(model_file.function)');
 # end
 
 # ==================================
@@ -976,39 +628,39 @@ def create_poped_database(pypkpdInput={},
 # ==================================
     if dSeed is not None:
         if dSeed == -1:
-            poped_db["settings"]["dSeed"] = datetime.datetime.now()
+            pypkpd_db["settings"]["dSeed"] = datetime.datetime.now()
         else:
-            poped_db["settings"]["dSeed"] = dSeed
-        random.seed(poped_db["settings"]["dSeed"])
+            pypkpd_db["settings"]["dSeed"] = dSeed
+        random.seed(pypkpd_db["settings"]["dSeed"])
 
-    poped_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(poped_db["model"]["fg_pointer"], "bpop"), 0)
-    poped_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(poped_db["model"]["fg_pointer"], "b"), 0)
-    poped_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
-    poped_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(poped_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
+    pypkpd_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bpop"), 0)
+    pypkpd_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(pypkpd_db["model"]["fg_pointer"], "b"), 0)
+    pypkpd_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
+    pypkpd_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
     
-    poped_db["parameters"]["ng"] = eval(str(poped_db["model"]["fg_pointer"]) + "(num(0), num(0), num(0), num(0)," + str(zeros(poped_db["parameters"]["NumDocc"], poped_db["parameters"]["NumOcc"])) + ")").get_size()
+    pypkpd_db["parameters"]["ng"] = eval(str(pypkpd_db["model"]["fg_pointer"]) + "(num(0), num(0), num(0), num(0)," + str(zeros(pypkpd_db["parameters"]["NumDocc"], pypkpd_db["parameters"]["NumOcc"])) + ")").get_size()
     
     docc_arr = np.array([1])
     d_arr = np.array([1])
     bpop_arr = np.array([1])
-    poped_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, 
-        Matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc")])), 0)
-    poped_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, 
-        Matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "NumRanEff")])), 0)
-    poped_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, 
-        Matrix(np.ones([1, param_choose(poped_db, 0, 0, None, None, "parameters", "nbpop")])), 0)
+    pypkpd_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, 
+        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc")])), 0)
+    pypkpd_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, 
+        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumRanEff")])), 0)
+    pypkpd_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, 
+        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "nbpop")])), 0)
 
 
 # reorder named values
-    fg_names = eval(poped_db["model"]["fg_pointer"] + "(num(1), num(1), num(1), num(1)," + str(ones(param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"), param_choose(poped_db, 0, 0, None, None, "parameters", "NumDocc"))) + ")").get_datanam()
+    fg_names = eval(pypkpd_db["model"]["fg_pointer"] + "(num(1), num(1), num(1), num(1)," + str(ones(param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc"), param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc"))) + ")").get_datanam()
     
-    poped_db["parameters"]["notfixed_bpop"] = reorder_vec(poped_db["parameters"]["notfixed_bpop"], fg_names)
+    pypkpd_db["parameters"]["notfixed_bpop"] = reorder_vec(pypkpd_db["parameters"]["notfixed_bpop"], fg_names)
 
-    poped_db["parameters"]["notfixed_d"] = reorder_vec(poped_db["parameters"]["notfixed_d"], fg_names)
+    pypkpd_db["parameters"]["notfixed_d"] = reorder_vec(pypkpd_db["parameters"]["notfixed_d"], fg_names)
 
     # we have just the parameter values not the uncertainty
-    if size(d)[0] == 1 and size(d)[1] == poped_db["parameters"]["NumRanEff"]:
-        d_descr = zeros(poped_db["parameters"]["NumRanEff"], 3)
+    if size(d)[0] == 1 and size(d)[1] == pypkpd_db["parameters"]["NumRanEff"]:
+        d_descr = zeros(pypkpd_db["parameters"]["NumRanEff"], 3)
 
         # reorder named values
         d = reorder_vec(d, fg_names)
@@ -1024,8 +676,8 @@ def create_poped_database(pypkpdInput={},
         d = d_descr
 
     # we have just the parameter values not the uncertainty
-    if size(bpop)[0] == 1 and size(bpop)[1] == poped_db["parameters"]["nbpop"]:
-        bpop_descr = zeros(poped_db["parameters"]["nbpop"], 3)
+    if size(bpop)[0] == 1 and size(bpop)[1] == pypkpd_db["parameters"]["nbpop"]:
+        bpop_descr = zeros(pypkpd_db["parameters"]["nbpop"], 3)
 
         # reorder named values
         bpop = reorder_vec(bpop, fg_names)
@@ -1049,8 +701,8 @@ def create_poped_database(pypkpdInput={},
         sigma = sigma_tmp
 
     covd = poped_choose(covd, zeros(
-        1, poped_db["parameters"]["NumRanEff"])*(poped_db["parameters"]["NumRanEff"]-1)/2, 0)
-    poped_db["parameters"]["covd"] = covd
+        1, pypkpd_db["parameters"]["NumRanEff"])*(pypkpd_db["parameters"]["NumRanEff"]-1)/2, 0)
+    pypkpd_db["parameters"]["covd"] = covd
 
     tmp = ones(1, len(covd))
     if tmp is not None:
@@ -1058,163 +710,163 @@ def create_poped_database(pypkpdInput={},
             if covd[i] == 0:
                 tmp[i] = 0
     #tmp[covd==0] = 0
-    poped_db["parameters"]["notfixed_covd"] = poped_choose(notfixed_covd, tmp, 0)
+    pypkpd_db["parameters"]["notfixed_covd"] = poped_choose(notfixed_covd, tmp, 0)
 
     # ==================================
     # Sample the individual eta's for FOCE and FOCEI
     # ==================================
-    if poped_db["settings"]["iApproximationMethod"] != 0 and poped_db["settings"]["iApproximationMethod"] != 3:
+    if pypkpd_db["settings"]["iApproximationMethod"] != 0 and pypkpd_db["settings"]["iApproximationMethod"] != 3:
 
         iMaxCorrIndNeeded = 100
-        bzeros = zeros(poped_db["parameters"]["NumRanEff"], 1)
-        bones = Matrix(np.ones(int(poped_db["parameters"]["NumRanEff"])), (int(poped_db["parameters"]["NumRanEff"]), 1))
-        bocczeros = zeros(poped_db["parameters"]["NumDocc"], 1)
-        boccones = Matrix(np.ones(int(poped_db["parameters"]["NumDocc"])), (int(poped_db["parameters"]["NumDocc"]), 1))
+        bzeros = zeros(pypkpd_db["parameters"]["NumRanEff"], 1)
+        bones = Matrix(np.ones(int(pypkpd_db["parameters"]["NumRanEff"])), (int(pypkpd_db["parameters"]["NumRanEff"]), 1))
+        bocczeros = zeros(pypkpd_db["parameters"]["NumDocc"], 1)
+        boccones = Matrix(np.ones(int(pypkpd_db["parameters"]["NumDocc"])), (int(pypkpd_db["parameters"]["NumDocc"]), 1))
 
-        poped_db["parameters"]["b_global"] = zeros(poped_db["parameters"]["NumRanEff"], max(
-            poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded))
+        pypkpd_db["parameters"]["b_global"] = zeros(pypkpd_db["parameters"]["NumRanEff"], max(
+            pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded))
 
-        fulld = getfulld(Matrix(d.get_all_data()[:,1]), poped_db["parameters"]["covd"])
-        fulldocc = getfulld(Matrix(docc.get_all_data()[:,1]), poped_db["parameters"]["covdocc"])
+        fulld = getfulld(Matrix(d.get_all_data()[:,1]), pypkpd_db["parameters"]["covd"])
+        fulldocc = getfulld(Matrix(docc.get_all_data()[:,1]), pypkpd_db["parameters"]["covdocc"])
 
-        poped_db["parameters"]["bocc_global"] = cell(
-            poped_db["settings"]["iFOCENumInd"], 1)
+        pypkpd_db["parameters"]["bocc_global"] = cell(
+            pypkpd_db["settings"]["iFOCENumInd"], 1)
 
-        if poped_db["settings"]["d_switch"] is True:
-            poped_db["parameters"]["b_global"] = Matrix(np.transpose(np.random.multivariate_normal(
-                max(poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), sigma=fulld)))
-            for i in range(0, poped_db["settings"]["iFOCENumInd"]):
-                poped_db["parameters"]["bocc_global"][i] = zeros(
-                    size(docc)[0], poped_db["parameters"]["NumOcc"])
-                if poped_db["parameters"]["NumOcc"] != 0:
-                    poped_db["parameters"]["bocc_global"][i] = Matrix(np.transpose(np.random.multivariate_normal(
-                        poped_db["parameters"]["NumOcc"], sigma=fulldocc)))
+        if pypkpd_db["settings"]["d_switch"] is True:
+            pypkpd_db["parameters"]["b_global"] = Matrix(np.transpose(np.random.multivariate_normal(
+                max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), sigma=fulld)))
+            for i in range(0, pypkpd_db["settings"]["iFOCENumInd"]):
+                pypkpd_db["parameters"]["bocc_global"][i] = zeros(
+                    size(docc)[0], pypkpd_db["parameters"]["NumOcc"])
+                if pypkpd_db["parameters"]["NumOcc"] != 0:
+                    pypkpd_db["parameters"]["bocc_global"][i] = Matrix(np.transpose(np.random.multivariate_normal(
+                        pypkpd_db["parameters"]["NumOcc"], sigma=fulldocc)))
 
         else:
-            d_dist = pargen(d, poped_db["model"]["user_distribution_pointer"], max(
-                poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), poped_db["settings"]["bLHS"], zeros(1, 0), poped_db)
-            docc_dist = pargen(docc, poped_db["model"]["user_distribution_pointer"], poped_db["settings"]
-                               ["iFOCENumInd"], poped_db["settings"]["bLHS"], zeros(1, 0), poped_db)
+            d_dist = pargen(d, pypkpd_db["model"]["user_distribution_pointer"], max(
+                pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), pypkpd_db["settings"]["bLHS"], zeros(1, 0), pypkpd_db)
+            docc_dist = pargen(docc, pypkpd_db["model"]["user_distribution_pointer"], pypkpd_db["settings"]
+                               ["iFOCENumInd"], pypkpd_db["settings"]["bLHS"], zeros(1, 0), pypkpd_db)
 
             ## set one data with type of Matrix
             if len(d_dist) != 0:
-                for i in range(0, max(poped_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)):
-                    for j in range(0, poped_db["parameters"]["b_global"].get_shape[0]):
-                        poped_db["parameters"]["b_global"].set_one_data(Matrix(np.transpose(
+                for i in range(0, max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)):
+                    for j in range(0, pypkpd_db["parameters"]["b_global"].get_shape[0]):
+                        pypkpd_db["parameters"]["b_global"].set_one_data(Matrix(np.transpose(
                             np.random.multivariate_normal(
-                                1, sigma=getfulld(d_dist[i,:], poped_db["parameters"]["covd"])))), None, [j,i])                        
+                                1, sigma=getfulld(d_dist[i,:], pypkpd_db["parameters"]["covd"])))), None, [j,i])                        
 
             if len(docc_dist) != 0:
-                for i in range(0, poped_db["settings"]["iFOCENumInd"]):
-                    poped_db["parameters"]["bocc_global"].set_one__data(Matrix(np.transpose(
+                for i in range(0, pypkpd_db["settings"]["iFOCENumInd"]):
+                    pypkpd_db["parameters"]["bocc_global"].set_one__data(Matrix(np.transpose(
                         np.random.multivariate_normal(
-                        poped_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], poped_db["parameters"]["covdocc"])))), None, [0,i])
+                        pypkpd_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], pypkpd_db["parameters"]["covdocc"])))), None, [0,i])
     else:
-        poped_db["parameters"]["bocc_global"] = zeros(poped_db["parameters"]["NumRanEff"], 1)
-        poped_db["parameters"]["bocc_global"] = cell(1, 1)
-        poped_db["parameters"]["bocc_global"].set_one_data(zeros(size(docc)[0], poped_db["parameters"]["NumOcc"]), None, [0,1])
+        pypkpd_db["parameters"]["bocc_global"] = zeros(pypkpd_db["parameters"]["NumRanEff"], 1)
+        pypkpd_db["parameters"]["bocc_global"] = cell(1, 1)
+        pypkpd_db["parameters"]["bocc_global"].set_one_data(zeros(size(docc)[0], pypkpd_db["parameters"]["NumOcc"]), None, [0,1])
         
-        poped_db["settings"]["iFOCENumInd"] = 1
+        pypkpd_db["settings"]["iFOCENumInd"] = 1
 
-    poped_db["settings"]["modtit"] = modtit
-    poped_db["settings"]["exptit"] = ('%s_exp["mat"]', modtit)  # experiment settings title
-    poped_db["settings"]["opttit"] = ('%s_opt["mat"]', modtit)  # optimization settings title
-    poped_db["settings"]["bShowGraphs"] = bShowGraphs
+    pypkpd_db["settings"]["modtit"] = modtit
+    pypkpd_db["settings"]["exptit"] = ('%s_exp["mat"]', modtit)  # experiment settings title
+    pypkpd_db["settings"]["opttit"] = ('%s_opt["mat"]', modtit)  # optimization settings title
+    pypkpd_db["settings"]["bShowGraphs"] = bShowGraphs
 
-    poped_db["settings"]["use_logfile"] = use_logfile
-    poped_db["settings"]["output_file"] = output_file
-    poped_db["settings"]["output_function_file"] = output_function_file
+    pypkpd_db["settings"]["use_logfile"] = use_logfile
+    pypkpd_db["settings"]["output_file"] = output_file
+    pypkpd_db["settings"]["output_function_file"] = output_function_file
 
-    poped_db["settings"]["optsw"] = optsw
+    pypkpd_db["settings"]["optsw"] = optsw
 
-    line_opta = poped_choose(line_opta, np.ones([1, size(poped_db["design"]["a"])[1]]), 0)
-    if test_mat_size(np.array([1, size(poped_db["design"]["a"])[0]]), np.array(line_opta), "line_opta"):
-        poped_db["settings"]["line_opta"] = line_opta
+    line_opta = poped_choose(line_opta, np.ones([1, size(pypkpd_db["design"]["a"])[1]]), 0)
+    if test_mat_size(np.array([1, size(pypkpd_db["design"]["a"])[0]]), np.array(line_opta), "line_opta"):
+        pypkpd_db["settings"]["line_opta"] = line_opta
 
-    line_optx = poped_choose(line_optx, np.ones([1, size(poped_db["design"]["x"])[1]]), 0)
-    if test_mat_size(np.array([1, size(poped_db["design"]["x"])[0]]), np.array(line_opta), "line_optx"):
-        poped_db["settings"]["line_optx"] = line_optx
+    line_optx = poped_choose(line_optx, np.ones([1, size(pypkpd_db["design"]["x"])[1]]), 0)
+    if test_mat_size(np.array([1, size(pypkpd_db["design"]["x"])[0]]), np.array(line_opta), "line_optx"):
+        pypkpd_db["settings"]["line_optx"] = line_optx
 
 
-# poped_db$design = popedInput$design
-    poped_db["parameters"]["bpop"] = bpop
-    poped_db["parameters"]["d"] = d
-    poped_db["parameters"]["covd"] = covd
-    poped_db["parameters"]["sigma"] = sigma
-    poped_db["parameters"]["docc"] = docc
-    poped_db["parameters"]["covdocc"] = covdocc
+# pypkpd_db$design = pypkpdInput$design
+    pypkpd_db["parameters"]["bpop"] = bpop
+    pypkpd_db["parameters"]["d"] = d
+    pypkpd_db["parameters"]["covd"] = covd
+    pypkpd_db["parameters"]["sigma"] = sigma
+    pypkpd_db["parameters"]["docc"] = docc
+    pypkpd_db["parameters"]["covdocc"] = covdocc
 
-# poped_db["design"]G = design_space$G_xt ## should only be in design_space
-# poped_db["design"]Ga = design_space$G_a ## should only be in design_space
-# poped_db["design"]Gx = design_space$G_x ## should only be in design_space
+# pypkpd_db["design"]G = design_space$G_xt ## should only be in design_space
+# pypkpd_db["design"]Ga = design_space$G_a ## should only be in design_space
+# pypkpd_db["design"]Gx = design_space$G_x ## should only be in design_space
 
-# poped_db["design"]maxgroupsize = design_space$maxgroupsize ## should only be in design_space
-# poped_db["design"]mingroupsize = design_space$mingroupsize ## should only be in design_space
-# poped_db["design"]maxtotgroupsize = design_space$maxtotgroupsize ## should only be in design_space
-# poped_db["design"]mintotgroupsize = design_space$mintotgroupsize ## should only be in design_space
-# poped_db["design"]maxxt = design_space$maxxt ## should only be in design_space
-# poped_db["design"]minxt = design_space$minxt ## should only be in design_space
-# poped_db["design"]discrete_x = design_space$discrete_x ## should only be in design_space
-# poped_db["design"]maxa = design_space$maxa ## should only be in design_space
-# poped_db["design"]mina = design_space$mina ## should only be in design_space
+# pypkpd_db["design"]maxgroupsize = design_space$maxgroupsize ## should only be in design_space
+# pypkpd_db["design"]mingroupsize = design_space$mingroupsize ## should only be in design_space
+# pypkpd_db["design"]maxtotgroupsize = design_space$maxtotgroupsize ## should only be in design_space
+# pypkpd_db["design"]mintotgroupsize = design_space$mintotgroupsize ## should only be in design_space
+# pypkpd_db["design"]maxxt = design_space$maxxt ## should only be in design_space
+# pypkpd_db["design"]minxt = design_space$minxt ## should only be in design_space
+# pypkpd_db["design"]discrete_x = design_space$discrete_x ## should only be in design_space
+# pypkpd_db["design"]maxa = design_space$maxa ## should only be in design_space
+# pypkpd_db["design"]mina = design_space$mina ## should only be in design_space
 
-    poped_db["settings"]["m1_switch"] = m1_switch
-    poped_db["settings"]["m2_switch"] = m2_switch
-    poped_db["settings"]["hle_switch"] = hle_switch
-    poped_db["settings"]["gradff_switch"] = gradff_switch
-    poped_db["settings"]["gradfg_switch"] = gradfg_switch
-    poped_db["settings"]["grad_all_switch"] = grad_all_switch
+    pypkpd_db["settings"]["m1_switch"] = m1_switch
+    pypkpd_db["settings"]["m2_switch"] = m2_switch
+    pypkpd_db["settings"]["hle_switch"] = hle_switch
+    pypkpd_db["settings"]["gradff_switch"] = gradff_switch
+    pypkpd_db["settings"]["gradfg_switch"] = gradfg_switch
+    pypkpd_db["settings"]["grad_all_switch"] = grad_all_switch
 
-    poped_db["settings"]["prior_fim"] = prior_fim
+    pypkpd_db["settings"]["prior_fim"] = prior_fim
 
-    poped_db["parameters"]["notfixed_sigma"] = notfixed_sigma
-    # poped_db["parameters"]sigma = sigma
-    # poped_db["parameters"]docc = docc
+    pypkpd_db["parameters"]["notfixed_sigma"] = notfixed_sigma
+    # pypkpd_db["parameters"]sigma = sigma
+    # pypkpd_db["parameters"]docc = docc
 
-    poped_db["parameters"]["ds_index"] = ds_index
+    pypkpd_db["parameters"]["ds_index"] = ds_index
 
     # create ds_index if not already done
-    if poped_db["parameters"]["ds_index"] is not None:
-        unfixed_params = get_unfixed_params(poped_db)
-        poped_db["parameters"]["ds_index"] = Matrix(np.transpose(
+    if pypkpd_db["parameters"]["ds_index"] is not None:
+        unfixed_params = get_unfixed_params(pypkpd_db)
+        pypkpd_db["parameters"]["ds_index"] = Matrix(np.transpose(
             np.repeat(0, unfixed_params["all"])))
-        poped_db["parameters"]["ds_index"][(
-            unfixed_params["bpop"].get_size()+1):poped_db["parameters"]["ds_index"].get_size()] = 1
+        pypkpd_db["parameters"]["ds_index"][(
+            unfixed_params["bpop"].get_size()+1):pypkpd_db["parameters"]["ds_index"].get_size()] = 1
     else:
-        if type(poped_db["parameters"]["ds_index"]) is not Matrix:
-            poped_db["parameters"]["ds_index"] = Matrix(np.array(
-                [poped_db["parameters"]["ds_index"], 1, len(poped_db["parameters"]["ds_index"])]))
+        if type(pypkpd_db["parameters"]["ds_index"]) is not Matrix:
+            pypkpd_db["parameters"]["ds_index"] = Matrix(np.array(
+                [pypkpd_db["parameters"]["ds_index"], 1, len(pypkpd_db["parameters"]["ds_index"])]))
 
-    poped_db["settings"]["strIterationFileName"] = strIterationFileName
-    poped_db["settings"]["user_data"] = user_data
-    poped_db["settings"]["bUseSecondOrder"] = False
-    poped_db["settings"]["bCalculateEBE"] = False
-    poped_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
-    poped_db["settings"]["bEANoReplicates"] = bEANoReplicates
+    pypkpd_db["settings"]["strIterationFileName"] = strIterationFileName
+    pypkpd_db["settings"]["user_data"] = user_data
+    pypkpd_db["settings"]["bUseSecondOrder"] = False
+    pypkpd_db["settings"]["bCalculateEBE"] = False
+    pypkpd_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
+    pypkpd_db["settings"]["bEANoReplicates"] = bEANoReplicates
 
     if len(strRunFile) != 0:
         if strRunFile == " ":
-            poped_db["settings"]["run_file_pointer"] = zeros(1, 0)
+            pypkpd_db["settings"]["run_file_pointer"] = zeros(1, 0)
         else:
             if strRunFile is not None:
-                poped_db["settings"]["run_file_pointer"] = strRunFile
+                pypkpd_db["settings"]["run_file_pointer"] = strRunFile
             else:
-                exec(open(popedInput["strRunFile"]).read())
-                returnArgs = fileparts(popedInput["strRunFile"])
+                exec(open(pypkpdInput["strRunFile"]).read())
+                returnArgs = fileparts(pypkpdInput["strRunFile"])
                 strRunFilePath = list(returnArgs.values())[0]
                 strRunFilename = list(returnArgs.values())[1]
                 # if (~strcmp(strErrorModelFilePath,''))
                 # cd(strErrorModelFilePath);
                 # end
-                poped_db["settings"]["run_file_pointer"] = strRunFilename
+                pypkpd_db["settings"]["run_file_pointer"] = strRunFilename
 
-#poped_db = convert_popedInput(popedInput,...)
+#pypkpd_db = convert_pypkpdInput(pypkpdInput,...)
 
-    poped_db["settings"]["Engine"] = {"Type": 1, "Version": poped_version["version"]}
+    pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": poped_version["version"]}
 
-    poped_db = convert_variables(poped_db)  # need to transform here
+    pypkpd_db = convert_variables(pypkpd_db)  # need to transform here
 
-    param_val = get_all_params(poped_db)
+    param_val = get_all_params(pypkpd_db)
     tmp_names = param_val.keys()
     eval('%s.val = param.val["%s"]' % (tmp_names, tmp_names))
     """ 
@@ -1226,15 +878,15 @@ def create_poped_database(pypkpdInput={},
 	bpop_val = bpop_val
 	d_full = getfulld(d_val,covd_val)
 	docc_full = getfulld(docc_val,covdocc_val)
-	sigma_full = poped_db["parameters"]["sigma"]
+	sigma_full = pypkpd_db["parameters"]["sigma"]
 	
-	poped_db["parameters"]["param_pt_val"]["bpop"] = bpop_val
-	poped_db["parameters"]["param_pt_val"]["d"] = d_full
-	poped_db["parameters"]["param_pt_val"]["docc"] = docc_full
-	poped_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
+	pypkpd_db["parameters"]["param_pt_val"]["bpop"] = bpop_val
+	pypkpd_db["parameters"]["param_pt_val"]["d"] = d_full
+	pypkpd_db["parameters"]["param_pt_val"]["docc"] = docc_full
+	pypkpd_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
     
 	"""
-    #     downsize.list = downsizing_general_design(poped_db)
+    #     downsize.list = downsizing_general_design(pypkpd_db)
     #     tmp.names = names(downsize.list)
     #     model_switch = c()
     #     ni = c()
@@ -1242,20 +894,19 @@ def create_poped_database(pypkpdInput={},
     #     x = c()
     #     a = c()
     #     eval(parse(text=paste(tmp.names,"=","downsize.list$",tmp.names,sep="")))
-    #     poped_db$downsized.design$model_switch = model_switch
-    #     poped_db$downsized.design$ni = ni
-    #     poped_db$downsized.design$xt = xt
-    #     poped_db$downsized.design$x = x
-    #     poped_db$downsized.design$a = a
-    #     poped_db$downsized.design$groupsize = poped_db["design"]groupsize
+    #     pypkpd_db$downsized.design$model_switch = model_switch
+    #     pypkpd_db$downsized.design$ni = ni
+    #     pypkpd_db$downsized.design$xt = xt
+    #     pypkpd_db$downsized.design$x = x
+    #     pypkpd_db$downsized.design$a = a
+    #     pypkpd_db$downsized.design$groupsize = pypkpd_db["design"]groupsize
 
-    retargs = fileparts(poped_db["settings"]["output_file"])
-    poped_db["settings"]["strOutputFilePath"] = list(retargs.values())[0]
-    poped_db["settings"]["strOutputFileName"] = list(retargs.values())[1]
-    poped_db["settings"]["strOutputFileExtension"] = list(retargs.values())[2]
+    retargs = fileparts(pypkpd_db["settings"]["output_file"])
+    pypkpd_db["settings"]["strOutputFilePath"] = list(retargs.values())[0]
+    pypkpd_db["settings"]["strOutputFileName"] = list(retargs.values())[1]
+    pypkpd_db["settings"]["strOutputFileExtension"] = list(retargs.values())[2]
 
-    return poped_db
+    return pypkpd_db
 
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
-

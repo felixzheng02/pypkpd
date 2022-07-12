@@ -1,11 +1,4 @@
-"""
-For parameter choose in create_poped_database()
-
-Author: Caiya Zhang, Yuchen Zheng
-"""
-
-
-def param_choose(param, pypkpdInput, replace, key_1, key_2=None, key_3=None):
+def param_set(param, pypkpdInput, key_1, key_2=None, key_3=None):
     if param is not None:
         return param
     if pypkpdInput is not None:
@@ -16,11 +9,9 @@ def param_choose(param, pypkpdInput, replace, key_1, key_2=None, key_3=None):
                         if key_3 is not None:
                             if key_3 in pypkpdInput[key_1][key_2].keys():
                                 return pypkpdInput[key_1][key_2][key_3]
-                            else: return replace
+                            else: raise Exception("key_3 not in the dict keys.")
                         else: return pypkpdInput[key_1][key_2]
-                    else: return replace
+                    else: raise Exception("key_2 not in the dict keys.")
                 else: return pypkpdInput[key_1]
-            else: return replace
-        else:
-            return Exception("Must provide at least one key.")
+            else: raise Exception("key_1 not in the dict keys.")
     raise Exception("Must provide pypkpdInput dict.")

@@ -41,7 +41,7 @@ class Matrix:
 		self.shape = select(shape, data.shape)
 		if len(self.shape) == 1:
 			self.shape = [1, self.shape[0]]
-		self.data = data.reshape(self.shape)
+		self.data = data.reshape(tuple(self.shape))
 		self.size = self.get_data().size
 		self.datanam = datanam
 		if self.datanam is not None:
@@ -56,6 +56,8 @@ class Matrix:
 		if len(self.shape) == 1:
 			return [1, self.shape[0]]
 		return list(self.shape)
+
+	# def get_
 
 	def get_size(self) -> int:
 		"""
@@ -126,7 +128,6 @@ class Matrix:
 			self.datanam = None
 		if not axisnam:
 			self.axisnam = None
-
 
 	def set_shape(self, shape: list, axisnam: list = None):
 		"""

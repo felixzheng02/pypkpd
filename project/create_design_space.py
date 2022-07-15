@@ -448,22 +448,19 @@ def create_design_space(design_,
 		x_space = Matrix(x.get_data())
 	if x_space is not None:
 		if x_space.get_shape()[0] == 1 and m != 1:
-			x_space.repeat([1, m], [m, x_space.get_size()])
-		if len(x_space.get_shape()) != 2:
-			tmp_shape = x_space.get_shape()[:2]
-		else:
-			tmp_shape = x_space.get_shape()
-		if test_mat_size(x.get_shape(), tmp_shape, "x_space") == 1:
+			x_space.repeat([1, m, 1], [m]+x_space.get_shape()[1:])
+		if test_mat_size(x.get_shape(), x_space.get_shape(), "x_space") == 1:
 			x_space.set_axisnam([["grp_"+str(i+1) for i in range(0, m)],
 									x.get_axisnam()[1]])
 		design_space["x_space"] = x_space
 
 		for i in range(0, x.get_shape()[0]):
 			for j in range(0, x.get_shape()[1]):
-				if type(x_space.get_one_data(index=[i, j])) is Matrix:
-					tmp = x_space.get_one_data(index=[i, j])
-				else:
+				if type(x_space.get_one_data(index=[i, j])) is int or type(x_space.get_one_data(index=[i, j])) is float or type(x_space.get_one_data(index=[i, j])) is np.int32 or type(x_space.get_one_data(index=[i, j])) is np.int64 or type(x_space.get_one_data(index=[i, j])) is np.float32 or type(x_space.get_one_data(index=[i, j])) is np.float64:
+				# 	tmp = x_space.get_one_data(index=[i, j])
 					tmp = [x_space.get_one_data(index=[i, j])]
+				else:
+					tmp = list(x_space.get_one_data(index=[i, j]))
 				if x.get_one_data(index=[i, j]) not in tmp:
 					raise Exception("x value for group " + str(i+1) + " (column " + str(j+1) + ") is not in the design space")
 	

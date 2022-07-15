@@ -17,7 +17,8 @@ import numpy as np
 
 
 def test_mat_size(correct_size: list, input_size: list, name: str):
-	if correct_size == input_size:
+	test_size = input_size[:len(correct_size)]
+	if correct_size == test_size:
 		return 1
 	else:
 		tmp1 = '*'.join(str(i) for i in input_size)

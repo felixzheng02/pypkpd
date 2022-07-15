@@ -93,7 +93,7 @@ def create_design(
 			x.repeat([1, m.get_value()], [m.get_value(), x.get_size()], datanam=True)
 		if x.get_shape()[0] != m.get_value():
 			raise Exception("The number of rows in x (" + str(x.get_shape()[0]) + "is not the same as the number of groups m (" + str(m.get_value()) + ")")
-		x.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], x.get_axisnam()[1]])
+		x.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], x.get_axisnam(1)])
 		design["x"] = x
 
 

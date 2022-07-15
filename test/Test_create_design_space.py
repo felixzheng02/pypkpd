@@ -546,7 +546,7 @@ class TestCreateDesign(unittest.TestCase):
         self.assertTrue(np.array_equal(ds_7["design_space"]["mina"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
         self.assertListEqual(ds_7["design_space"]["mina"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
         
-        self.assertTrue(np.array_equal(ds_7["design_space"]["x_space"].get_data(), np.array([[2, 16], [2, 16]]), equal_nan=True))
+        self.assertTrue(np.array_equal(ds_7["design_space"]["x_space"].get_data()[0, 1, :], np.array(list(range(100, 420, 20))), equal_nan=True))
         self.assertListEqual(ds_7["design_space"]["x_space"].get_axisnam(), [["grp_1", "grp_2"], ["SEX", "DOSE_discrete"]])
         
         self.assertTrue(np.array_equal(ds_7["design_space"]["grouped_a"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
@@ -555,7 +555,7 @@ class TestCreateDesign(unittest.TestCase):
         self.assertFalse(ds_7["design_space"]["use_grouped_a"])
 
         self.assertTrue(np.array_equal(ds_7["design_space"]["grouped_x"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
-        self.assertListEqual(ds_7["design_space"]["grouped_x"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE_discrete"]])
+        self.assertListEqual(ds_7["design_space"]["grouped_x"].get_axisnam(), [["grp_1", "grp_2"], ["SEX", "DOSE_discrete"]])
 
         self.assertFalse(ds_7["design_space"]["use_grouped_x"])
 
@@ -597,7 +597,7 @@ class TestCreateDesign(unittest.TestCase):
         ############################################ checked
 
         ds_8 = create_design_space(design_2,
-                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], 
+                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], shape=[1, 2, 16], 
                                 axisnam=[["SEX", "DOSE_discrete"], None]),
                                 grouped_xt=np.array([1, 2, 3, 4, 5]))
 
@@ -629,7 +629,7 @@ class TestCreateDesign(unittest.TestCase):
         self.assertTrue(np.array_equal(ds_8["design_space"]["mina"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
         self.assertListEqual(ds_8["design_space"]["mina"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
         
-        self.assertTrue(np.array_equal(ds_8["design_space"]["x_space"].get_data(), np.array([[2, 16], [2, 16]]), equal_nan=True))
+        self.assertTrue(np.array_equal(ds_8["design_space"]["x_space"].get_data()[0, 1, :], np.array(list(range(100, 420, 20))), equal_nan=True))
         self.assertListEqual(ds_8["design_space"]["x_space"].get_axisnam(), [["grp_1", "grp_2"], ["SEX", "DOSE_discrete"]])
         
         self.assertTrue(np.array_equal(ds_8["design_space"]["grouped_a"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
@@ -638,7 +638,7 @@ class TestCreateDesign(unittest.TestCase):
         self.assertFalse(ds_8["design_space"]["use_grouped_a"])
 
         self.assertTrue(np.array_equal(ds_8["design_space"]["grouped_x"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
-        self.assertListEqual(ds_8["design_space"]["grouped_x"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE_discrete"]])
+        self.assertListEqual(ds_8["design_space"]["grouped_x"].get_axisnam(), [["grp_1", "grp_2"], ["SEX", "DOSE_discrete"]])
 
         self.assertFalse(ds_8["design_space"]["use_grouped_x"])
 
@@ -680,7 +680,7 @@ class TestCreateDesign(unittest.TestCase):
         ############################################ checked
 
         ds_9 = create_design_space(design_2,
-                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], 
+                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], shape=[1, 2, 16], 
                                 axisnam=[["SEX", "DOSE_discrete"], None]),
                                 use_grouped_xt=True)
 
@@ -712,7 +712,7 @@ class TestCreateDesign(unittest.TestCase):
         self.assertTrue(np.array_equal(ds_9["design_space"]["mina"].get_data(), np.array([[70, 1000], [35, 1000]]), equal_nan=True))
         self.assertListEqual(ds_9["design_space"]["mina"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE"]])
         
-        self.assertTrue(np.array_equal(ds_9["design_space"]["x_space"].get_data(), np.array([[2, 16], [2, 16]]), equal_nan=True))
+        self.assertTrue(np.array_equal(ds_9["design_space"]["x_space"].get_data()[0, 1, :], np.array(list(range(100, 420, 20))), equal_nan=True))
         self.assertListEqual(ds_9["design_space"]["x_space"].get_axisnam(), [["grp_1", "grp_2"], ["SEX", "DOSE_discrete"]])
         
         self.assertTrue(np.array_equal(ds_9["design_space"]["grouped_a"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
@@ -721,7 +721,7 @@ class TestCreateDesign(unittest.TestCase):
         self.assertFalse(ds_9["design_space"]["use_grouped_a"])
 
         self.assertTrue(np.array_equal(ds_9["design_space"]["grouped_x"].get_data(), np.array([[1, 2], [3, 4]]), equal_nan=True))
-        self.assertListEqual(ds_9["design_space"]["grouped_x"].get_axisnam(), [["grp_1", "grp_2"], ["WT", "DOSE_discrete"]])
+        self.assertListEqual(ds_9["design_space"]["grouped_x"].get_axisnam(), [["grp_1", "grp_2"], ["SEX", "DOSE_discrete"]])
 
         self.assertFalse(ds_9["design_space"]["use_grouped_x"])
 
@@ -768,7 +768,7 @@ class TestCreateDesign(unittest.TestCase):
                          x=Matrix([1, 100], axisnam=[None, ["SEX", "DOSE_discrete"]]))
         
         ds_10 = create_design_space(design_3,
-                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], 
+                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], shape=[1, 2, 16], 
                                 axisnam=[["SEX", "DOSE_discrete"], None]),
                                 use_grouped_a=True)
 
@@ -851,7 +851,7 @@ class TestCreateDesign(unittest.TestCase):
         ############################################
 
         ds_11 = create_design_space(design_2,
-                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], 
+                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], shape=[1, 2, 16], 
                                 axisnam=[["SEX", "DOSE_discrete"], None]),
                                 grouped_a=np.array([1, 2], [3, 2]))
 
@@ -935,7 +935,7 @@ class TestCreateDesign(unittest.TestCase):
         ############################################ checked
 
         ds_12 = create_design_space(design_3,
-                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], 
+                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], shape=[1, 2, 16], 
                                 axisnam=[["SEX", "DOSE_discrete"], None]),
                                 use_grouped_a=True)
 
@@ -1019,7 +1019,7 @@ class TestCreateDesign(unittest.TestCase):
         ############################################ checked
 
         ds_13 = create_design_space(design_3,
-                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], 
+                                x_space=Matrix([[1, 2], list(range(100, 420, 20))], shape=[1, 2, 16], 
                                 axisnam=[["SEX", "DOSE_discrete"], None]),
                                 grouped_x=np.array([1, 2], [3, 2]))
 

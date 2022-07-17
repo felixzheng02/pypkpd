@@ -433,10 +433,6 @@ def create_design_space(design_,
 		mina = ret["min_val"]
 
 	# check ni given max and min
-	if "a" in design.keys():
-		a = design["a"]
-	else:
-		a = None
 	if mina is not None and maxa is not None and a is not None:
 		if (np.greater(mina.get_data(), a.get_data())).any():
 			raise Exception("a is less than mina")

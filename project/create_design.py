@@ -90,7 +90,7 @@ def create_design(
 	if type(x) is Matrix:
 		# use datanam to create axisnam (deleted)
 		if x.get_shape()[0] == 1 and m.get_value() != 1:
-			x.repeat([1, m.get_value()], [m.get_value(), x.get_size()], datanam=True)
+			x.repeat([1, m.get_value()], [m.get_value(), x.get_size()], datanam=True, axisnam=True)
 		if x.get_shape()[0] != m.get_value():
 			raise Exception("The number of rows in x (" + str(x.get_shape()[0]) + "is not the same as the number of groups m (" + str(m.get_value()) + ")")
 		x.set_axisnam([["grp_"+str(i) for i in range(1, m.get_value()+1)], x.get_axisnam(1)])

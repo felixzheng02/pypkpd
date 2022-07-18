@@ -33,7 +33,8 @@ from project.ed_mftot import ed_mftot
 from project.ed_laplace_ofv import ed_laplace_ofv
 from project.downsizing_general_design import downsizing_general_design
 
-def evaluate_e_ofv_fim(poped_db,*argv):
+def evaluate_e_ofv_fim(poped_db, *kwargs):
+    
     fim_calc_type = None
     bpop = poped_db["parameters"]["bpop"]
     d = poped_db["parameters"]["d"]

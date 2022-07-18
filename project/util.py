@@ -23,6 +23,8 @@ Makes some calculations and returns an int based on a poped database input.
 Author: Caiya Zhang, Yuchen Zheng
 """
 
+from re import A
+from typing import Dict
 import numpy as np
 import scipy as sp
 
@@ -155,3 +157,18 @@ def default_if_none(input, default):
 	if input is None:
 		return default
 	return input
+
+def get_dict_value(input_dict: dict, *argv):
+	"""get dict value based on keys, return None if key does not exist"""
+	cur_dict = input_dict
+	for index in range (0, len(list(argv))):
+		cur_key = argv[index]
+		if cur_key in cur_dict.keys():
+			if type(cur_dict[cur_key]) is dict:
+				cur_dict = cur_dict[cur_key]
+			elif index == len(list(argv)) - 1:
+				return cur_dict[cur_key]
+			else:
+				raise Exception("'dict chain' breaks")
+		else:
+			raise Exception("a key is not in a dict")

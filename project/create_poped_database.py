@@ -21,8 +21,6 @@ from project.util import is_not_none
 from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
-from project.param_choose import param_choose
-from project.param_set import param_set
 from project.test_mat_size import test_mat_size
 from project.create_design import create_design
 from project.create_design_space import create_design_space
@@ -263,12 +261,9 @@ def create_poped_database(pypkpdInput={},
 
     pypkpd_db["settings"] = {}
     pypkpd_db["settings"]["pypkpd_version"] = pypkpd_version
-
-    # if BFGSConvergenceCriteriaMinStep is None:
-    #     BFGSConvergenceCriteriaMinStep = param_choose(pypkpdInput, 1e-08, 0, "settings", "BFGSConvergenceCriteriaMinStep")
-
-    # if MCC_Dep is None:
-    #     MCC_Dep = param_choose(pypkpdInput, "", 0, "settings", "parallel", "strAdditionalMCCCompilerDependencies")
+    
+    BFGSConvergenceCriteriaMinStep = param_choose(BFGSConvergenceCriteriaMinStep, pypkpdInput, 1e-08, "settings", "BFGSConvergenceCriteriaMinStep")
+    MCC_Dep = param_choose(MCC_Dep, pypkpdInput, "", "settings", "parallel", "strAdditionalMCCCompilerDependencies")
 
     pypkpd_db["model"] = {}
     pypkpd_db["model"]["user_distribution_pointer"] = ""
@@ -381,15 +376,6 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["settings"] = {}
     pypkpd_db["settings"]["bLHS"] = bLHS
 
-# pypkpd_db$discrete_x = design_space$discrete_x # should be removed only in design_space
-
-# pypkpd_db$maxni=max(design_space$maxni) # should be only in design_space and called maxmaxni if needed
-# pypkpd_db$minni=min(design_space$minni) # should be only in design_space and called minminni if needed
-
-# pypkpd_db$bUseGrouped_xt = design_space$bUseGrouped_xt # should be only in design_space
-# pypkpd_db$bUseGrouped_a  = design_space$bUseGrouped_a # should be only in design_space
-# pypkpd_db$bUseGrouped_x  = design_space$bUseGrouped_x # should be only in design_space
-
     pypkpd_db["settings"]["d_switch"] = d_switch
     pypkpd_db["settings"]["iApproximationMethod"] = iApproximationMethod
 
@@ -420,7 +406,6 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["settings"]["parallel"]["strExecuteName"] = strExecuteName
     pypkpd_db["settings"]["parallel"]["iNumProcesses"] = iNumProcesses
     pypkpd_db["settings"]["parallel"]["iNumChunkDesignEvals"] = iNumChunkDesignEvals
-    #pypkpd_db["settings"]["parallel"]["strMatFileInputPrefix"] = strMatFileInputPrefix
     pypkpd_db["settings"]["parallel"]["strMatFileOutputPrefix"] = Mat_Out_Pre
     pypkpd_db["settings"]["parallel"]["strExtraRunOptions"] = strExtraRunOptions
     pypkpd_db["settings"]["parallel"]["dPollResultTime"] = dPollResultTime
@@ -442,7 +427,7 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["settings"]["iDiffSolverMethod"] = iDiffSolverMethod
     # Temp thing for memory solvers
     pypkpd_db["settings"]["bUseMemorySolver"] = bUseMemorySolver
-    pypkpd_db["settings"]["solved_solutions"] = cell(0, 0)
+    pypkpd_db["settings"]["solved_solutions"] = cell([0, 0])
     pypkpd_db["settings"]["maxtime"] = str(max(max(pypkpd_db["design_space"]["maxxt"].get_all_data()))) + str(pypkpd_db["settings"]["hgd"])
 
     pypkpd_db["settings"]["iFIMCalculationType"] = iFIMCalculationType
@@ -478,8 +463,7 @@ def create_poped_database(pypkpdInput={},
     if callable(fg_fun):
         pypkpd_db["model"]["fg_pointer"] = fg_fun
     elif type(fg_fun) is str:
-        if fg_fun is not None:
-            pypkpd_db["model"]["fg_pointer"] = fg_fun
+        pypkpd_db["model"]["fg_pointer"] = fg_fun
     else:
         try:
             fg_file
@@ -495,19 +479,17 @@ def create_poped_database(pypkpdInput={},
         else:
             pypkpd_db["model"]["fg_pointer"] = fg_file
 
-    pypkpd_db["settings"]["ed_penalty_pointer"] = zeros(1, 0)
-    if str(strEDPenaltyFile) != "":
-        if strEDPenaltyFile is not None:
+    pypkpd_db["settings"]["ed_penalty_pointer"] = np.zeros([1, 0])
+    
+    if strEDPenaltyFile is not None:
+        if str(strEDPenaltyFile) != "":
             pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFile
-        else:
-            exec(open(pypkpdInput["strEDPenaltyFile"]).read())
-            returnArgs = fileparts(pypkpdInput["strEDPenaltyFile"])
-            strEDPenaltyFilePath = list(returnArgs.values())[0]
-            strEDPenaltyFilename = list(returnArgs.values())[1]
-    # if (~strcmp(strEDPenaltyFilePath,''))
-    # cd(strEDPenaltyFilePath);
-    # end
-            pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
+    else:
+        exec(open(pypkpdInput["strEDPenaltyFile"]).read())
+        returnArgs = fileparts(pypkpdInput["strEDPenaltyFile"])
+        strEDPenaltyFilePath = list(returnArgs.values())[0]
+        strEDPenaltyFilename = list(returnArgs.values())[1]
+        pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
 
     # if(is.null(ofv_fun) or is.function(ofv_fun)){
 #   pypkpd_db["settings"]ofv_fun = ofv_fun
@@ -520,28 +502,13 @@ def create_poped_database(pypkpdInput={},
     else:
         # source explicit file
         # here I assume that function in file has same name as filename minus .txt and pathnames
-        if ofv_fun is not None:
+        try:
             exec(open(str(ofv_fun)).read())
             pypkpd_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)["filename"]')
-        else:
+        except:
             raise Exception("ofv_fun is not a function or None, and no file with that name was found")
 
-    # if(is.function(ofv_fun)){
-#   pypkpd_db["settings"]ofv_fun = ofv_fun
-# } else if(exists(ofv_fun)){
-#   pypkpd_db["settings"]ofv_fun = ofv_fun
-# } else {
-#   source(ofv_fun)
-#   returnArgs =  fileparts(ofv_fun)
-#   strffModelFilePath = returnArgs[1]
-#   strffModelFilename  = returnArgs[1]
-#   ## if (~strcmp(strffModelFilePath,''))
-#   ##    cd(strffModelFilePath);
-#   ## end
-#   pypkpd_db["settings"]ofv_fun = strffModelFilename
-# }
-
-    pypkpd_db["model"]["auto_pointer"] = zeros(1, 0)
+    pypkpd_db["model"]["auto_pointer"] = np.zeros([1, 0])
     #pypkpd_db["model"]["auto_pointer"] = ''
     if strAutoCorrelationFile != "":
         if str(strAutoCorrelationFile) != "":
@@ -910,3 +877,41 @@ def create_poped_database(pypkpdInput={},
 
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
+
+def param_choose(param, pypkpdInput, replace, key_1, key_2=None, key_3=None):
+    if param is not None:
+        return param
+    if pypkpdInput is not None:
+        if key_1 is not None:
+            if key_1 in pypkpdInput.keys():
+                if key_2 is not None:
+                    if key_2 in pypkpdInput[key_1].keys():
+                        if key_3 is not None:
+                            if key_3 in pypkpdInput[key_1][key_2].keys():
+                                return pypkpdInput[key_1][key_2][key_3]
+                            else: return replace
+                        else: return pypkpdInput[key_1][key_2]
+                    else: return replace
+                else: return pypkpdInput[key_1]
+            else: return replace
+        else:
+            return Exception("Must provide at least one key.")
+    raise Exception("Must provide pypkpdInput dict.")
+
+def param_set(param, pypkpdInput, key_1, key_2=None, key_3=None):
+    if param is not None:
+        return param
+    if pypkpdInput is not None:
+        if key_1 is not None:
+            if key_1 in pypkpdInput.keys():
+                if key_2 is not None:
+                    if key_2 in pypkpdInput[key_1].keys():
+                        if key_3 is not None:
+                            if key_3 in pypkpdInput[key_1][key_2].keys():
+                                return pypkpdInput[key_1][key_2][key_3]
+                            else: raise Exception("key_3 not in the dict keys.")
+                        else: return pypkpdInput[key_1][key_2]
+                    else: raise Exception("key_2 not in the dict keys.")
+                else: return pypkpdInput[key_1]
+            else: raise Exception("key_1 not in the dict keys.")
+    raise Exception("Must provide pypkpdInput dict.")

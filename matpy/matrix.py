@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from project.poped_choose import poped_choose
 from project.cell import cell
+from project.util import default_if_none
 
 
 class Matrix:
@@ -106,6 +107,26 @@ class Matrix:
 		return all the data as np.ndarray
 		"""
 		return self.data
+
+	def get_partial_matrix(self, index: list, axisnam: bool = True):
+		"""
+		only works for 2-d matrix as for now
+		index: [[row_start, row_end], [col_start, col_end]]
+		"""
+		row_start = default_if_none(index[0][0], 0)
+		row_end = default_if_none(index[0][1], self.get_shape(0))
+		col_start = default_if_none(index[1][0], 0)
+		col_end = default_if_none(index[1][1], self.get_shape(1))
+		if self.get_axisnam(0) is None:
+			rownam = None	
+		else:
+			rownam = self.get_axisnam(0)[row_start:row_end]
+		if self.get_axisnam(1) is None:
+			colnam = None	
+		else:
+			colnam = self.get_axisnam(1)[col_start:col_end]
+		return Matrix(self.get_data()[row_start:row_end, col_start:col_end],
+						axisnam=[rownam, colnam])
 
 	def set_data(self, data, shape: list = None, datanam: bool = False, axisnam: bool = False):
 		"""

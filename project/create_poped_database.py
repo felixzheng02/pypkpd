@@ -17,7 +17,7 @@ from matpy.matrix import Matrix
 from project.zeros import zeros
 from project.feval import feval
 from project.pargen import pargen
-from project.util import is_not_none
+from project.util import get_dict_value, is_not_none
 from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
@@ -878,40 +878,19 @@ def create_poped_database(pypkpdInput={},
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
 
-def param_choose(param, pypkpdInput, replace, key_1, key_2=None, key_3=None):
+def param_choose(param, pypkpdInput, replace, *argv):
     if param is not None:
         return param
     if pypkpdInput is not None:
-        if key_1 is not None:
-            if key_1 in pypkpdInput.keys():
-                if key_2 is not None:
-                    if key_2 in pypkpdInput[key_1].keys():
-                        if key_3 is not None:
-                            if key_3 in pypkpdInput[key_1][key_2].keys():
-                                return pypkpdInput[key_1][key_2][key_3]
-                            else: return replace
-                        else: return pypkpdInput[key_1][key_2]
-                    else: return replace
-                else: return pypkpdInput[key_1]
-            else: return replace
-        else:
-            return Exception("Must provide at least one key.")
+        output = get_dict_value(pypkpdInput, argv)
+        if output is None:
+            return replace
+        return output
     raise Exception("Must provide pypkpdInput dict.")
 
-def param_set(param, pypkpdInput, key_1, key_2=None, key_3=None):
+def param_set(param, pypkpdInput, *argv): # may be replaced by param_choose
     if param is not None:
         return param
     if pypkpdInput is not None:
-        if key_1 is not None:
-            if key_1 in pypkpdInput.keys():
-                if key_2 is not None:
-                    if key_2 in pypkpdInput[key_1].keys():
-                        if key_3 is not None:
-                            if key_3 in pypkpdInput[key_1][key_2].keys():
-                                return pypkpdInput[key_1][key_2][key_3]
-                            else: raise Exception("key_3 not in the dict keys.")
-                        else: return pypkpdInput[key_1][key_2]
-                    else: raise Exception("key_2 not in the dict keys.")
-                else: return pypkpdInput[key_1]
-            else: raise Exception("key_1 not in the dict keys.")
+        return get_dict_value(pypkpdInput, argv)
     raise Exception("Must provide pypkpdInput dict.")

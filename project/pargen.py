@@ -19,7 +19,7 @@
 ## @param sample_size The number of random samples per parameter to generate
 ## @param bLHS Logical, indicating if Latin Hypercube Sampling should be used.
 ## @param sample_number The sample number to extract from a user distribution.
-## @param poped_db A PopED database.
+## @param pypkpd_db A PopED database.
 ##   
 ## @return A Matrix of random samples of size (sample_size x number_of_parameters)
 ## @example test/Test_pargen.py
@@ -32,7 +32,7 @@
 
 from scipy import stats
 from scipy.stats import norm
-import numpy
+import numpy as np
 # from scipy.linalg import norm
 from project.size import size
 from matpy.matrix import Matrix
@@ -41,13 +41,15 @@ from project.feval import feval
 from project.getTruncatedNormal import getTruncatedNormal
 
 
-def pargen (par:Matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db):
+def pargen (par: Matrix,
+            user_dist_pointer,
+            sample_size,
+            bLHS,
+            sample_number,
+            pypkpd_db):
     
-    #par: type Matrix to ndarray
-    par = par.get_all_data()
-    nvar = par.get_size()[0]
-    #ret: type Matrix to ndarray
-    ret = zeros(sample_size, nvar).get_all_data()
+    nvar = par.get_shape(1)
+    ret = Matrix(np.zeros(sample_size, nvar))
     
     # for log-normal distributions
     # mu=log(par[,2]^2/sqrt(par[,3]+par[,2]^2))
@@ -71,7 +73,7 @@ def pargen (par:Matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db
     #                   sample_size=1000,
     #                   bLHS=1,
     #                   sample_number=None,
-    #                   poped_db)
+    #                   pypkpd_db)
     # sample_size=1000
     # data = apply(bpop_vals_ed_ln,1,
     #               function(par) rlnorm(sample_size,log(par[2]^2/sqrt(par[3]+par[2]^2)),
@@ -82,66 +84,59 @@ def pargen (par:Matrix,user_dist_pointer,sample_size,bLHS,sample_number,poped_db
     
     if bLHS == 0: #Random Sampling
         for k in range(0, sample_size):
-            np = size(par)[0]
+            np = par.get_shape(0)
             if np != 0:
-                n = numpy.random.randn(np, 1) # normal mean=0 and sd=1
-                u = numpy.random.rand(np, 1)*2-1 # uniform from -1 to 1
-                t = par[:,0] # type of distribution
-                c2 = par[:,2] # variance or range of distribution
+                n = np.random.randn(np, 1) # normal mean=0 and sd=1
+                u = np.random.rand(np, 1) * 2 - 1 # uniform from -1 to 1
+                t = par.get_partial_matrix([[None, None], [0, 1]]) # type of distribution
+                c2 = par.get_partial_matrix([[None, None], [2, 3]]) # variance or range of distribution
                 
-                bUserSpecifiedDistribution = sum(t == 3) >= 1 #If at least one user specified distribution
-                ret[k,:] = (t==0)*par[:,1] + (t==2)*(par[:,1] + u*c2/2) + (t==1)*(par[:,1]+n*c2^(1/2)) + (t==4)*numpy.exp((
-                    numpy.log(par[:,1]^2/numpy.sqrt(par[:,2]+par[:,1]^2))) + n*(numpy.sqrt(numpy.log(par[:,2]/par[:,1]^2+1))))
+                bUserSpecifiedDistribution: bool = sum(t.get_data() == 3) >= 1 #If at least one user specified distribution, sum(t == 3) counts number of 3 in t
+                ret.data[k, :] = (t.get_data() == 0) * par.get_data()[:, 1] + (t.get_data() == 2) * (par.get_data()[:, 1] 
+                + u * c2.get_data()/2) + (t.get_data() == 1) * (par.get_data()[:, 1] + n * c2.get_data()^(1/2))
+                + (t.get_data() == 4) * np.exp((np.log(par.get_data()[:, 1]^2 / np.sqrt(par.get_data()[:, 2] 
+                + par.get_data()[:, 1]^2))) + n * (np.sqrt(np.log(par.get_data()[:, 2]/par.get_data()[:, 1]^2+1))))
                 #(t==4)*par[,2,drop=F]*exp(n*c2^(1/2))
                 if sum(t == 5) > 0: #Truncated normal
-                    for i in range(0, size(par)[0]):
-                        if t(i) == 5:
-                            ret[k,i] = getTruncatedNormal(par[i,2], c2[i])
+                    for i in range(0, par.get_shape(0)):
+                        if t.get_one_data([i, 0]) == 5:
+                            ret.data[k, i] = getTruncatedNormal(par.get_data()[i, 2], c2.get_data()[i, 0])
                 
                 if bUserSpecifiedDistribution:
                     if len(sample_number) == 0:
-                        ret[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],t,k,poped_db) + ")")
+                        ret.data[k, :] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],t,k,pypkpd_db) + ")")
                     else:
-                        ret[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],t,sample_number,poped_db) + ")")
+                        ret.data[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],t,sample_number,pypkpd_db) + ")")
 
     elif nvar != 0: #LHS
-        ran = numpy.random.rand(sample_size, nvar)
+        ran = np.random.rand(sample_size, nvar)
         # method of Stein
         for j in range(0, nvar):
-            idx = numpy.random.random_sample(sample_size)
+            idx = np.random.random_sample(sample_size)
             P = (idx - ran[:,j])/sample_size 
                   # probability of the cdf
-            returnArgs_list = [par[j,1],  #point
-                                par[j,1] + norm.ppf(P)*numpy.sqrt(par[j,3]), # normal
-                                par[j,1] - par[j,3]/2 + P*par[j,3], #uniform
-                                ret[:,j], #Do nothing
-                                numpy.exp((numpy.log(par[j,2]^2/numpy.sqrt(par[j,3]+par[j,2]^2)))+norm.ppf(P)*(numpy.sqrt(numpy.log(par[j,3]/par[j,2]^2+1))))] #log-normal 
+            returnArgs_list = [par.get_one_data([j,1]),  #point
+                                par.get_one_data([j,1]) + norm.ppf(P)*np.sqrt(par.get_one_data([j,3])), # normal
+                                par.get_one_data([j,1]) - par.get_one_data([j,3])/2 + P*par.get_one_data([j,3]), #uniform
+                                ret.get_data()[:,j], #Do nothing
+                                np.exp((np.log(par.get_one_data([j,2])^2/np.sqrt(par.get_one_data([j,3])+par.get_one_data([j,2])^2)))+norm.ppf(P)*(np.sqrt(np.log(par.get_one_data([j,3])/par.get_one_data([j,2])^2+1))))] #log-normal 
                                 #par[j,2]*exp(qnorm(P)*sqrt(par[j,3])) #log-normal
-            returnArgs = returnArgs_list[par[j,0]+1]
+            returnArgs = returnArgs_list[par.get_one_data([j,0]) + 1]
             
         
         if returnArgs is None:
             raise Exception("Unknown distribution for the inverse probability function used in Latin Hypercube Sampling")
         
-        ret[:,j] = returnArgs
+        ret.data[:,j] = returnArgs
         
-        bUserSpecifiedDistribution = sum(par[:,0] == 3) >= 1 #If at least one user specified distribution
+        bUserSpecifiedDistribution = sum(par.get_data()[:,0] == 3) >= 1 #If at least one user specified distribution
         
         if bUserSpecifiedDistribution is True:
             for k in range(0, sample_size):
                 if len(sample_number) == 0:
-                    ret[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],par[:,0],k,poped_db) + ")")
+                    ret.data[k,:] = eval(str(user_dist_pointer) + "(" + str(ret.get_data()[k,:],par.get_data()[:,0],k,pypkpd_db) + ")")
                 else:
-                    ret[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],par[:,0],sample_number,poped_db) + ")")
+                    ret.data[k,:] = eval(str(user_dist_pointer) + "(" + str(ret.get_data()[k,:],par.get_data()[:,0],sample_number,pypkpd_db) + ")")
     
     #return type: Matrix
-    return Matrix(ret, ret.shape)
-
-
-
-#sign.2 = function(x){
-#  s = x/abs(x)*(x!=0)
-#return( s) 
-#}
-
-
+    return ret

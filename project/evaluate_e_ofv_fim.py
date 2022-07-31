@@ -67,18 +67,18 @@ def evaluate_e_ofv_fim(pypkpd_db, **kwargs):
     
     downsize_list = downsizing_general_design(pypkpd_db)
     if ni is None: 
-        ni = downsize_list["ni"]
+        ni = get_dict_value(downsize_list, "ni")
     if xt is None: 
-        xt = downsize_list["xt"]
+        xt = get_dict_value(downsize_list, "xt")
     if model_switch is None:
-        model_switch = downsize_list["model_switch"]
+        model_switch = get_dict_value(downsize_list, "model_switch")
     if x is None:
-        x = downsize_list["x"]
+        x = get_dict_value(downsize_list, "x")
     if a is None:
-        a = downsize_list["a"]    
+        a = get_dict_value(downsize_list, "a")  
     
     if groupsize is None:
-        groupsize = pypkpd_db["design"]["groupsize"]
+        groupsize = get_dict_value(pypkpd_db, "design", "groupsize")
     
     if fim_calc_type is not None: 
         pypkpd_db["settings"]["iFIMCalculationType"] = fim_calc_type

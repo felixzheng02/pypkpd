@@ -16,10 +16,9 @@
 
 import numpy as np
 
-def getTruncatedNormal(mean,variance):
+def getTruncatedNormal(mean, variance):
     while True:
-        n = mean + np.random.randn(1,1)*np.sqrt(variance)
-        if np.sign(n) == np.sign(mean):
+        n = mean + np.random.randn(1, 1) * np.sqrt(variance)
+        if np.sign(n) == np.sign(mean): # n is 1*1, only 1 element
             break
-      
     return n

@@ -5,22 +5,15 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-def param_choose(param, pypkpdInput, replace, key_1, key_2=None, key_3=None):
+from project.util import get_dict_value
+
+
+def param_choose(param, pypkpdInput, replace, *argv):
     if param is not None:
         return param
     if pypkpdInput is not None:
-        if key_1 is not None:
-            if key_1 in pypkpdInput.keys():
-                if key_2 is not None:
-                    if key_2 in pypkpdInput[key_1].keys():
-                        if key_3 is not None:
-                            if key_3 in pypkpdInput[key_1][key_2].keys():
-                                return pypkpdInput[key_1][key_2][key_3]
-                            else: return replace
-                        else: return pypkpdInput[key_1][key_2]
-                    else: return replace
-                else: return pypkpdInput[key_1]
-            else: return replace
-        else:
-            return Exception("Must provide at least one key.")
+        output = get_dict_value(pypkpdInput, argv)
+        if output is None:
+            return replace
+        return output
     raise Exception("Must provide pypkpdInput dict.")

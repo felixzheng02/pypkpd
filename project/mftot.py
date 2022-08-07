@@ -3,7 +3,7 @@
 ## 
 ## Compute the FIM given specific model(s), parameters, design and methods. 
 ## 
-## @param poped_db A PopED database.
+## @param pypkpd_db A PopED database.
 ## @param bpop The fixed effects parameter values.  Supplied as a vector.
 ## @param d A between subject variability Matrix (OMEGA in NONMEM).
 ## @param docc A between occasion variability Matrix.
@@ -17,7 +17,7 @@
 ## 
 ## @return As a list:
 ## \item{ret}{The FIM}
-## \item{poped_db}{A PopED database}
+## \item{pypkpd_db}{A PopED database}
 ## 
 ## @seealso For an easier function to use, please see \code{\link{evaluate.fim}}.  
 ## @family FIM
@@ -35,40 +35,51 @@
 
 import numpy as np
 from project.size import size
-from project.zeros import zeros
 from project.mf_all import mf_all
 from project.mf_all_loq import mf_all_loq
 
-def mftot(model_switch,groupsize,ni,xt,x,a,bpop,d,sigma,docc,poped_db,*argv):
-    m = size(ni)[0]
+def mftot(model_switch,
+            groupsize,
+            ni,
+            xt,
+            x,
+            a,
+            bpop,
+            d,
+            sigma,
+            docc,
+            pypkpd_db,
+            **kwargs):
+
+    m = ni.get_shape(0)
     s = 0
-    for i in range(0,m):
-        if ni[i]!=0 and groupsize[i]!=0:
-            if len(x) != 0:
-                x_i = np.transpose(x[i,:])      
+    for i in range(0, m):
+        if ni.get_data()[0, i] != 0 and groupsize.get_data()[0, i] != 0:
+            if x.get_size() != 0:
+                x_i = np.transpose(x.get_data()[i, :])      
             else:
-                x_i =  zeros(0,1)
+                x_i =  np.zeros([0, 1])
             
-            if len(a) != 0:
-                a_i = np.transpose(a[i,:])
+            if a.get_size() != 0:
+                a_i = np.transpose(a[i, :])
             else:
-                a_i =  zeros(0,1)
+                a_i =  np.zeros([0, 1])
             
-        # mf_all = function(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db){
-        extra_args = [args]
-        if extra_args["loq"] is None and extra_args["uloq"] is None: # no loq
-            returnArgs = mf_all(np.transpose(model_switch[i,1:ni[i]]),
-                                np.transpose(xt[i,1:ni[i]]),
-                                x_i,a_i,bpop,d,sigma,docc,poped_db) 
+        # mf_all = function(model_switch,xt,x,a,bpop,d,sigma,docc,pypkpd_db){
+        extra_args = kwargs
+        if "log" not in extra_args.keys() and "ulog" not in extra_args.keys(): # no loq
+            returnArgs = mf_all(np.transpose(model_switch.get_data()[i, 0:ni.get_data()[0, i]]),
+                                np.transpose(xt.get_data()[i, 0:ni.get_data()[0, i]]),
+                                x_i, a_i, bpop, d, sigma, docc, pypkpd_db) 
         else:  # handle LOQ 
-            returnArgs = mf_all_loq(np.transpose(model_switch[i,1:ni[i]]),
-                                np.transposet(xt[i,1:ni[i]]),
-                                x_i,a_i,bpop,d,sigma,docc,poped_db,...) 
+            returnArgs = mf_all_loq(np.transpose(model_switch.get_data()[i, 0:ni.get_data()[0, i]]),
+                                np.transpose(xt.get_data()[i, 0:ni.get_data()[0, i]]),
+                                x_i, a_i, bpop, d, sigma, docc, pypkpd_db, kwargs) 
         
         if returnArgs is None:
             raise Exception("Unknown FIM-calculation type")
         mf_tmp = returnArgs[0]
-        poped_db = returnArgs[1]
-        s = s+groupsize[i]*mf_tmp
+        pypkpd_db = returnArgs[1]
+        s = s + groupsize.get_data()[0, i] * mf_tmp
 
-    return {"s": s, "poped_db": poped_db}
+    return {"ret": s, "pypkpd_db": pypkpd_db}

@@ -40,54 +40,73 @@ from project.mc_mean import mc_mean
 from project.getfulld import getfulld
 from project.evaluate_fim import evaluate_fim
 from project.evaluate_e_ofv_fim import evaluate_e_ofv_fim
+from project.param_set import param_set
+from project.util import default_if_none
+from project.util import get_dict_value
 
 
-def calc_ofv_and_fim(poped_db, *argv):
+def calc_ofv_and_fim(pypkpd_db,
+                        ofv = 0,
+                        fim = 0, 
+                        d_switch = None,  
+                        bpopdescr = None, 
+                        ddescr = None,
+                        bpop = None, 
+                        d = None, 
+                        docc_full = None, 
+                        model_switch = None, 
+                        ni = None, 
+                        xt = None, 
+                        x = None, 
+                        a = None, 
+                        fim_calc_type = None, 
+                        use_laplace = None, 
+                        laplace_fim = False, 
+                        ofv_fun = None,
+                        evaluate_FIM = True,
+                        **kwargs):
   
-    ofv = 0,
-    fim = 0, 
-    d_switch = poped_db["settings"]["d_switch"],  
-    bpopdescr = poped_db["parameters"]["bpop"], 
-    ddescr = poped_db["parameters"]["d"],
-    bpop = bpopdescr.get_all_data()[:,1], 
-    d = getfulld(ddescr[:,1],poped_db["parameters"]["covd"]), 
-    docc_full = getfulld(poped_db["parameters"]["docc"][:,1],poped_db["parameters"]["covdocc"]), 
-    model_switch = poped_db["design"]["model_switch"], 
-    ni = poped_db["design"]["ni"], 
-    xt = poped_db["design"]["xt"], 
-    x = poped_db["design"]["x"], 
-    a = poped_db["design"]["a"], 
-    fim_calc_type = poped_db["settings"]["iFIMCalculationType"], 
-    use_laplace = poped_db["settings"]["iEDCalculationType"], 
-    laplace_fim = False, 
-    ofv_fun = poped_db["settings"]["ofv_fun"],
-    evaluate_FIM = True,
+    d_switch = param_set(d_switch, pypkpd_db, "settings", "d_switch")  
+    bpopdescr = param_set(bpopdescr, pypkpd_db, "parameters", "bpop") 
+    ddescr = param_set(ddescr, pypkpd_db, "parameters", "d")
+    bpop = default_if_none(bpop, bpopdescr.get_partial_matrix([[None, None], [1, 1]]))
+    d = default_if_none(d, getfulld(ddescr.get_data()[:,1],pypkpd_db["parameters"]["covd"]))
+    docc_full = default_if_none(docc_full, getfulld(pypkpd_db["parameters"]["docc"].get_data()[:,1], pypkpd_db["parameters"]["covdocc"]))
+    model_switch = param_set(model_switch, pypkpd_db, "design", "model_switch")
+    ni = param_set(ni, pypkpd_db, "design", "ni")
+    xt = param_set(xt, pypkpd_db, "design", "xt")
+    x = param_set(x, pypkpd_db, "design", "x")
+    a = param_set(a, pypkpd_db, "design", "a")
+    fim_calc_type = param_set(fim_calc_type, pypkpd_db, "settings", "iFIMCalculationType")
+    use_laplace = param_set(use_laplace, pypkpd_db, "settings", "iEDCalculationType")
+    ofv_fun = param_set(ofv_fun, pypkpd_db, "settings", "ofv_fun")
 
     ## compute the OFV
     if ofv == 0:
         if d_switch: 
-            if ofv_fun is not None:
-                if type(fim) is Matrix: 
-                    fmf = evaluate_fim(poped_db, *argv)
-                    bpop_val = bpop
-                    d_full = d
-                    docc_full = docc_full
-                    sigma_full = poped_db["parameters"]["sigma"]
-                    model_switch = model_switch
-                    ni = ni
-                    xt = xt
-                    x = x
-                    a = a
-                    groupsize = poped_db["design"]["groupsize"]
-                    fim_calc_type = fim_calc_type
+            if ofv_fun is None:
+                if type(fim) is not Matrix: 
+                    fmf = evaluate_fim(pypkpd_db,
+                                        bpop_val=bpop,
+                                        d_full=d,
+                                        docc_full=docc_full,
+                                        sigma_full=get_dict_value(pypkpd_db, "parameters", "sigma"),
+                                        model_switch=model_switch,
+                                        ni=ni,
+                                        xt=xt,
+                                        x=x,
+                                        a=a,
+                                        groupsize=get_dict_value(pypkpd_db, "design", "groupsize"),
+                                        fim_calc_type=fim_calc_type,
+                                        **kwargs)
                 
-                #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
+                #     returnArgs =  mftot(model_switch,pypkpd_db["design"]groupsize,ni,xt,x,a,bpop,d,pypkpd_db["parameters"]sigma,docc_full,pypkpd_db) 
                 #     fmf = returnArgs[1]
-                #     poped_db = returnArgs[[2]]
+                #     pypkpd_db = returnArgs[[2]]
                 
-                dmf = ofv_fim(fmf, poped_db, *argv)
+                dmf = ofv_fim(fmf, pypkpd_db, **kwargs)
             else:
-                ## update poped_db with options supplied in function
+                ## update pypkpd_db with options supplied in function
                 called_args = match_call()
                 default_args = formals()
                 for i in called_args.keys()[-1]:
@@ -95,7 +114,7 @@ def calc_ofv_and_fim(poped_db, *argv):
                         #eval(parse(text=paste(capture.output(default_args[[i]]),"=",called_args[[i]])))
                         if eval(i) is not None:
                             eval(inspect.getsource(default_args[i]) + "=" + i)
-                out_tmp = eval(str(ofv_fun) + str(poped_db) + str(*argv))
+                out_tmp = eval(str(ofv_fun) + str(pypkpd_db) + str(*argv))
                 dmf = out_tmp[0]
                 fmf = None
                 if len(out_tmp) > 1:
@@ -103,26 +122,26 @@ def calc_ofv_and_fim(poped_db, *argv):
             
         else:   # e-family
             if ofv_fun is None:
-                output = evaluate_e_ofv_fim(poped_db,
+                output = evaluate_e_ofv_fim(pypkpd_db,
                                         fim_calc_type=fim_calc_type,
                                         bpop=bpopdescr,
                                         d=ddescr,
-                                        covd=poped_db["parameters"]["covd"],
-                                        docc=poped_db["parameters"]["docc"],
-                                        sigma=poped_db["parameters"]["sigma"],
+                                        covd=pypkpd_db["parameters"]["covd"],
+                                        docc=pypkpd_db["parameters"]["docc"],
+                                        sigma=pypkpd_db["parameters"]["sigma"],
                                         model_switch=model_switch,
                                         ni=ni,
                                         xt=xt,
                                         x=x,
                                         a=a,
-                                        groupsize=poped_db["design"]["groupsize"],
+                                        groupsize=pypkpd_db["design"]["groupsize"],
                                         use_laplace=use_laplace,
                                         laplace_fim=laplace_fim, 
                                         *argv)
                 dmf = output["E_ofv"]
                 fmf = output["E_fim"] 
             else:
-                ## update poped_db with options supplied in function
+                ## update pypkpd_db with options supplied in function
                 called_args = match_call()
                 default_args = formals()
                 for i in called_args.keys()[-1]:
@@ -132,7 +151,7 @@ def calc_ofv_and_fim(poped_db, *argv):
                             eval(inspect.getsource(default_args[i]) + "=" + i)
             
             
-                dmf = mc_mean(ofv_fun, poped_db, *argv)
+                dmf = mc_mean(ofv_fun, pypkpd_db, *argv)
                 fmf = None
     
         ofv = dmf
@@ -155,35 +174,35 @@ def calc_ofv_and_fim(poped_db, *argv):
     
     if calc_fim is True:
         if d_switch is True:
-            fmf = evaluate_fim(poped_db, *argv)
+            fmf = evaluate_fim(pypkpd_db, *argv)
             bpop_val = bpop
             d_full = d
             docc_full = docc_full
-            sigma_full = poped_db["parameters"]["sigma"]
+            sigma_full = pypkpd_db["parameters"]["sigma"]
             model_switch = model_switch
             ni = ni
             xt = xt
             x = x
             a = a
-            groupsize = poped_db["design"]["groupsize"]
+            groupsize = pypkpd_db["design"]["groupsize"]
             fim_calc_type = fim_calc_type
-        #     returnArgs =  mftot(model_switch,poped_db["design"]groupsize,ni,xt,x,a,bpop,d,poped_db["parameters"]sigma,docc_full,poped_db) 
+        #     returnArgs =  mftot(model_switch,pypkpd_db["design"]groupsize,ni,xt,x,a,bpop,d,pypkpd_db["parameters"]sigma,docc_full,pypkpd_db) 
         #     fmf = returnArgs[1]
-        #     poped_db = returnArgs[[2]]
+        #     pypkpd_db = returnArgs[[2]]
         else:
-            output = evaluate_e_ofv_fim(poped_db, *argv)  
+            output = evaluate_e_ofv_fim(pypkpd_db, *argv)  
             fim_calc_type = fim_calc_type
             bpop = bpopdescr
             d = ddescr
-            covd = poped_db["parameters"]["covd"]
-            docc = poped_db["parameters"]["docc"]
-            sigma = poped_db["parameters"]["sigma"]
+            covd = pypkpd_db["parameters"]["covd"]
+            docc = pypkpd_db["parameters"]["docc"]
+            sigma = pypkpd_db["parameters"]["sigma"]
             model_switch = model_switch
             ni = ni
             xt = xt
             x = x
             a = a
-            groupsize = poped_db["design"]["groupsize"]
+            groupsize = pypkpd_db["design"]["groupsize"]
             use_laplace = False
             fmf = output["E_fim"]
         fim = fmf

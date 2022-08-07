@@ -19,15 +19,18 @@
 """
 
 
+# test passed
+
+
 import numpy as np
 from matpy.matrix import Matrix
 
-def diag_matlab(mat:Matrix):
+def diag_matlab(mat: Matrix):
     dim_mat = mat.get_shape()
     if dim_mat is not None:
-        if  1 in dim_mat:
-            if all(dim_mat[i] == 1 for i in range(0, len(dim_mat))) is False:
-                return Matrix(np.diag(mat.get_all_data()))
-    return Matrix(np.diag(mat.get_all_data()))
-
-
+        if 1 in dim_mat:
+            if np.any((np.array(dim_mat) != 1)): # mat is 1*n
+                return Matrix(np.diag(mat.get_data().reshape(mat.get_size(),)))
+            else: # mat is 1*1
+                return Matrix(np.diag([1] * mat.get_data()[0, 0]))
+    return Matrix(np.diag(mat.get_data()))

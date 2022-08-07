@@ -21,6 +21,7 @@ from project.util import get_dict_value, is_not_none
 from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
+from project.param_choose import param_choose
 from project.test_mat_size import test_mat_size
 from project.create_design import create_design
 from project.create_design_space import create_design_space
@@ -877,16 +878,6 @@ def create_poped_database(pypkpdInput={},
 
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
-
-def param_choose(param, pypkpdInput, replace, *argv):
-    if param is not None:
-        return param
-    if pypkpdInput is not None:
-        output = get_dict_value(pypkpdInput, argv)
-        if output is None:
-            return replace
-        return output
-    raise Exception("Must provide pypkpdInput dict.")
 
 def param_set(param, pypkpdInput, *argv): # may be replaced by param_choose
     if param is not None:

@@ -6,7 +6,7 @@
 ## by default these arguments are \code{None} in the 
 ## function, if they are supplied then they are used instead of the arguments from the PopED database.
 ## 
-## @param poped_db A PopED database.
+## @param pypkpd_db A PopED database.
 ## @param fim.calc.type The method used for calculating the FIM. Potential values:
 ## \itemize{
 ## \item 0 = Full FIM.  No assumption that fixed and random effects are uncorrelated.  
@@ -58,8 +58,9 @@
 
 
 from project.mftot import mftot
+from project.param_set import param_set
 
-def evaluate_fim(poped_db,
+def evaluate_fim(pypkpd_db,
                 fim_calc_type=None,
                 approx_method=None, 
                 FOCE_num = None,
@@ -74,54 +75,44 @@ def evaluate_fim(poped_db,
                 a=None,
                 groupsize=None,
                 deriv_type = None,
-                *argv):
+                **kwargs):
   
   
-    if bpop_val is None:
-        bpop_val = poped_db["parameters"]["param_pt_val"]["bpop"]
-    if d_full is None: 
-        d_full = poped_db["parameters"]["param_pt_val"]["d"]
-    if docc_full is None: 
-        docc_full = poped_db["parameters"]["param_pt_val"]["docc"]
-    if sigma_full is None: 
-        sigma_full = poped_db["parameters"]["param_pt_val"]["sigma"]
+    bpop_val = param_set(bpop_val, pypkpd_db, "parameters", "param_pt_val", "bpop")
+    d_full = param_set(d_full, pypkpd_db, "parameters", "param_pt_val", "d")
+    docc_full = param_set(docc_full, pypkpd_db, "parameters", "param_pt_val", "docc")
+    sigma_full = param_set(sigma_full, pypkpd_db, "parameters", "param_pt_val", "sigma")
     
-    #   if(is.null(model_switch)) model_switch = poped_db$downsized.design$model_switch
-    #   if(is.null(ni)) ni = poped_db$downsized.design$ni
-    #   if(is.null(xt)) xt = poped_db$downsized.design$xt
-    #   if(is.null(x)) x = poped_db$downsized.design$x
-    #   if(is.null(a)) a = poped_db$downsized.design$a
-    #   if(is.null(groupsize)) groupsize = poped_db$downsized.design$groupsize
+    #   if(is.null(model_switch)) model_switch = pypkpd_db$downsized.design$model_switch
+    #   if(is.null(ni)) ni = pypkpd_db$downsized.design$ni
+    #   if(is.null(xt)) xt = pypkpd_db$downsized.design$xt
+    #   if(is.null(x)) x = pypkpd_db$downsized.design$x
+    #   if(is.null(a)) a = pypkpd_db$downsized.design$a
+    #   if(is.null(groupsize)) groupsize = pypkpd_db$downsized.design$groupsize
     #   
-    if model_switch is None:
-        model_switch = poped_db["design"]["model_switch"]
-    if ni is None:
-        ni = poped_db["design"]["ni"]
-    if xt is None: 
-        xt = poped_db["design"]["xt"]
-    if x is None: 
-        x = poped_db["design"]["x"]
-    if a is None: 
-        a = poped_db["design"]["a"]
-    if groupsize is None: 
-        groupsize = poped_db["design"]["groupsize"]
+    model_switch = param_set(model_switch, pypkpd_db, "design", "model_switch")
+    ni = param_set(ni, pypkpd_db, "design", "ni")
+    xt = param_set(xt, pypkpd_db, "design", "xt")
+    x = param_set(x, pypkpd_db, "design", "x")
+    a = param_set(a, pypkpd_db, "design", "a")
+    groupsize = param_set(groupsize, pypkpd_db, "design", "groupsize")
     
     if fim_calc_type is not None: 
-        poped_db["settings"]["iFIMCalculationType"] = fim_calc_type
+        pypkpd_db["settings"]["iFIMCalculationType"] = fim_calc_type
     if approx_method is not None: 
-        poped_db["settings"]["iApproximationMethod"] = approx_method
+        pypkpd_db["settings"]["iApproximationMethod"] = approx_method
     if FOCE_num is not None: 
-        poped_db["settings"]["iFOCENumInd"] = FOCE_num
+        pypkpd_db["settings"]["iFOCENumInd"] = FOCE_num
     
     if deriv_type is not None: 
-        poped_db["settings"]["m1_switch"] = deriv_type
-        poped_db["settings"]["m2_switch"] = deriv_type
-        poped_db["settings"]["hle_switch"] = deriv_type
-        poped_db["settings"]["gradff_switch"] = deriv_type
-        poped_db["settings"]["gradfg_switch"] = deriv_type
+        pypkpd_db["settings"]["m1_switch"] = deriv_type
+        pypkpd_db["settings"]["m2_switch"] = deriv_type
+        pypkpd_db["settings"]["hle_switch"] = deriv_type
+        pypkpd_db["settings"]["gradff_switch"] = deriv_type
+        pypkpd_db["settings"]["gradfg_switch"] = deriv_type
     
 
-    output = mftot(model_switch,groupsize,ni,xt,x,a,bpop_val,d_full,sigma_full,docc_full,poped_db,*argv)
+    output = mftot(model_switch,groupsize,ni,xt,x,a,bpop_val,d_full,sigma_full,docc_full,pypkpd_db,kwargs)
     FIM = output["ret"]
     
     return FIM

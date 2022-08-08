@@ -12,7 +12,7 @@ from os import name
 from project.sfg import sfg
 from project.cell import cell
 from project.size import size
-from matpy.num import num
+from matpy.num import Num
 from matpy.matrix import Matrix
 from project.zeros import zeros
 from project.feval import feval
@@ -672,7 +672,7 @@ def create_poped_database(pypkpdInput={},
         1, pypkpd_db["parameters"]["NumRanEff"])*(pypkpd_db["parameters"]["NumRanEff"]-1)/2, 0)
     pypkpd_db["parameters"]["covd"] = covd
 
-    tmp = ones(1, len(covd))
+    tmp = np.ones(1, len(covd))
     if tmp is not None:
         for i in range(0, len(covd)):
             if covd[i] == 0:
@@ -683,6 +683,7 @@ def create_poped_database(pypkpdInput={},
     # ==================================
     # Sample the individual eta's for FOCE and FOCEI
     # ==================================
+
     if pypkpd_db["settings"]["iApproximationMethod"] != 0 and pypkpd_db["settings"]["iApproximationMethod"] != 3:
 
         iMaxCorrIndNeeded = 100
@@ -830,13 +831,14 @@ def create_poped_database(pypkpdInput={},
 
 #pypkpd_db = convert_pypkpdInput(pypkpdInput,...)
 
-    pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": poped_version["version"]}
+    #pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": poped_version["version"]}
 
     pypkpd_db = convert_variables(pypkpd_db)  # need to transform here
 
     param_val = get_all_params(pypkpd_db)
-    tmp_names = param_val.keys()
+    tmp_names = param_val.get_datanam()
     eval('%s.val = param.val["%s"]' % (tmp_names, tmp_names))
+    
     """ 
 	#tools/spped_check.R
 	d_val = d_val # for package check

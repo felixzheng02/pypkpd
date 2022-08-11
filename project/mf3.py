@@ -11,7 +11,7 @@
 ## 
 ## @return As a list:
 ## \item{ret}{The FIM for one individual}
-## \item{poped_db}{A PopED database}
+## \item{pypkpd_db}{A PopED database}
 ## 
 ## @family FIM
 ## 
@@ -31,73 +31,71 @@ from project.m1 import m1
 from project.m2 import m2
 from project.m3 import m3
 from project.size import size
-from project.zeros import zeros
 from project.feval import feval
-from project.trace_Matrix import trace_Matrix
 from project.ind_estimates import ind_estimates
 
-def mf3(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db):
+def mf3(model_switch, xt, x, a, bpop, d, sigma, docc, pypkpd_db):
 
-    numnotfixed_bpop = sum(poped_db["parameters"]["notfixed_bpop"])
-    numnotfixed_d    = sum(poped_db["parameters"]["notfixed_d"])
-    numnotfixed_covd = sum(poped_db["parameters"]["notfixed_covd"])
-    numnotfixed_docc  = sum(poped_db["parameters"]["notfixed_docc"])
-    numnotfixed_covdocc  = sum(poped_db["parameters"]["notfixed_covdocc"])
-    numnotfixed_sigma  = sum(poped_db["parameters"]["notfixed_sigma"])
-    numnotfixed_covsigma  = sum(poped_db["parameters"]["notfixed_covsigma"])
+    numnotfixed_bpop = np.sum(pypkpd_db["parameters"]["notfixed_bpop"].get_data())
+    numnotfixed_d = np.sum(pypkpd_db["parameters"]["notfixed_d"].get_data())
+    numnotfixed_covd = np.sum(pypkpd_db["parameters"]["notfixed_covd"].get_data())
+    numnotfixed_docc = np.sum(pypkpd_db["parameters"]["notfixed_docc"].get_data())
+    numnotfixed_covdocc = np.sum(pypkpd_db["parameters"]["notfixed_covdocc"].get_data())
+    numnotfixed_sigma = np.sum(pypkpd_db["parameters"]["notfixed_sigma"].get_data())
+    numnotfixed_covsigma = np.sum(pypkpd_db["parameters"]["notfixed_covsigma"].get_data())
     
     n_fixed_eff = numnotfixed_bpop
-    n_rand_eff = numnotfixed_d+numnotfixed_covd+numnotfixed_docc+numnotfixed_covdocc+numnotfixed_sigma+numnotfixed_covsigma
+    n_rand_eff = numnotfixed_d + numnotfixed_covd + numnotfixed_docc + numnotfixed_covdocc + numnotfixed_sigma + numnotfixed_covsigma
 
-    n = size(xt)[0]
+    n = xt.get_shape(0)
     ret = 0
     
-    for i in range(0,poped_db["settings"]["iFOCENumInd"]):
-        b_ind = poped_db["parameters"]["b_global"][:,i]
-        bocc_ind = poped_db["parameters"]["bocc_global"][[i]]
+    for i in range(0, pypkpd_db["settings"]["iFOCENumInd"]):
+        b_ind = pypkpd_db["parameters"]["b_global"].get_data()[:,i]
+        bocc_ind = pypkpd_db["parameters"]["bocc_global"].get_data()[0, i]
         
-        if poped_db["settings"]["bCalculateEBE"] is True:   #Calculate an EBE
-            epsi0 = zeros(1, poped_db["parameters"]["notfixed_sigma"].size)
-            g = feval(poped_db["model"]["fg_pointer"], x, a,bpop,b_ind,bocc_ind)
-            returnArgs = feval(poped_db["model"]["ferror_pointer"],model_switch,xt,g,epsi0,poped_db) 
+        if pypkpd_db["settings"]["bCalculateEBE"]:   #Calculate an EBE
+            epsi0 = np.zeros(1, pypkpd_db["parameters"]["notfixed_sigma"].get_size())
+            g = feval(pypkpd_db["model"]["fg_pointer"], x, a, bpop, b_ind, bocc_ind)
+            returnArgs = feval(pypkpd_db["model"]["ferror_pointer"], model_switch, xt, g, epsi0, pypkpd_db) 
             mean_data = returnArgs[0]
-            poped_db = returnArgs[1]
+            pypkpd_db = returnArgs[1]
             start_bind = np.transpose(b_ind)
-            b_ind = ind_estimates(mean_data,bpop,d,sigma,start_bind,(poped_db["settings"]["iApproximationMethod"]==2),False,model_switch,xt,x,a,b_ind,bocc_ind,poped_db)
-            #        b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(b_ind),(poped_db["settings"]iApproximationMethod==2),False,model_switch,xt_ind,x,a,b_ind,bocc_ind,poped_db)
+            b_ind = ind_estimates(mean_data,bpop,d,sigma,start_bind,(pypkpd_db["settings"]["iApproximationMethod"]==2),False,model_switch,xt,x,a,b_ind,bocc_ind,pypkpd_db)
+            #        b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(b_ind),(pypkpd_db["settings"]iApproximationMethod==2),False,model_switch,xt_ind,x,a,b_ind,bocc_ind,pypkpd_db)
             
-            #b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(zeros(size(b_ind)[1],size(b_ind)[2])),!(poped_db["settings"]iApproximationMethod==2),False,model_switch,xt_ind,x,a,b_ind,bocc_ind,poped_db)
-            poped_db["mean_data"] = mean_data
+            #b_ind2 = ind_estimates(mean_data,bpop,d,sigma,t(zeros(size(b_ind)[1],size(b_ind)[2])),!(pypkpd_db["settings"]iApproximationMethod==2),False,model_switch,xt_ind,x,a,b_ind,bocc_ind,pypkpd_db)
+            pypkpd_db["mean_data"] = mean_data
         
         
         if n_fixed_eff != 0:
-            returnArgs = m1(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,poped_db)
+            returnArgs = m1(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,pypkpd_db)
             m1_tmp = returnArgs[0]
-            poped_db = returnArgs[1]
+            pypkpd_db = returnArgs[1]
         else:
             m1_tmp = 0
         
         if n_rand_eff != 0:
-            bUseVarSigmaDerivative = poped_db["settings"]["iFIMCalculationType"] != 4
-            returnArgs = m3(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,bUseVarSigmaDerivative,poped_db)
+            bUseVarSigmaDerivative = pypkpd_db["settings"]["iFIMCalculationType"] != 4
+            returnArgs = m3(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,bUseVarSigmaDerivative,pypkpd_db)
             m3_tmp = returnArgs[0]
-            poped_db = returnArgs[1]
+            pypkpd_db = returnArgs[1]
         else:
             m3_tmp = 0
         
-        if n_fixed_eff!=0 and n_rand_eff!=0 and poped_db["settings"]["iFIMCalculationType"] in np.array([0,5,6]):
-            returnArgs = m2(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db) 
+        if n_fixed_eff!=0 and n_rand_eff!=0 and pypkpd_db["settings"]["iFIMCalculationType"] in np.array([0,5,6]):
+            returnArgs = m2(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,pypkpd_db) 
             m2_tmp = returnArgs[0]
-            poped_db = returnArgs[1]
+            pypkpd_db = returnArgs[1]
         else:
             m2_tmp = 0
         
 
-        returnArgs =  v(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,poped_db) 
+        returnArgs =  v(model_switch,xt,x,a,bpop,b_ind,bocc_ind,d,sigma,docc,pypkpd_db) 
         v_tmp = returnArgs[0]
-        poped_db = returnArgs[1]
+        pypkpd_db = returnArgs[1]
 
-        if poped_db["settings"]["iFIMCalculationType"] not in np.array([5,7]):
+        if pypkpd_db["settings"]["iFIMCalculationType"] not in np.array([5,7]):
             f1 = zeros(n+n*n, n_fixed_eff+n_rand_eff)
             f1[1:n, 1:n_fixed_eff] = m1_tmp
             f1[(n+1):(n+n*n), 1:n_fixed_eff] = m2_tmp
@@ -144,7 +142,7 @@ def mf3(model_switch,xt,x,a,bpop,d,sigma,docc,poped_db):
 
             ret = ret+1/2*tmp_fim
 
-    ret = ret/poped_db["settings"]["iFOCENumInd"]
+    ret = ret/pypkpd_db["settings"]["iFOCENumInd"]
     
-    return {"ret": ret, "poped_db": poped_db}
+    return {"ret": ret, "pypkpd_db": pypkpd_db}
 

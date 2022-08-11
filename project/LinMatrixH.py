@@ -8,7 +8,6 @@
 """
 
 import numpy as np
-from project.zeros import zeros
 from project.feval import feval
 from project.grad_all import grad_all
 
@@ -33,24 +32,31 @@ from project.grad_all import grad_all
 ## Function translated automatically using 'matlab.to.r()'
 ## Author: Andrew Hooker
 
-def LinMatrixH (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
+def LinMatrixH(model_switch,
+                xt_ind,
+                x,
+                a,
+                bpop,
+                b_ind,
+                bocc_ind,
+                pypkpd_db):
   #----------Model linearization with respect to epsilon.
   #
   # size of return is (samples per individual x number of epsilons) 
   #
   # derivative of model w$r.t. eps eval at e=0
   #
-    if type(poped_db["parameters"]["sigma"]) is np.ndarray:
-        NumEPS = poped_db["parameters"]["sigma"].shape[0]
+    if type(pypkpd_db["parameters"]["sigma"]) is np.ndarray:
+        NumEPS = pypkpd_db["parameters"]["sigma"].shape[0]
         if NumEPS == 0:
             y = 0
         else:
-            returnArgs = gradf_eps(model_switch, xt_ind, x, a, bpop, b_ind, bocc_ind, NumEPS, poped_db) 
+            returnArgs = gradf_eps(model_switch, xt_ind, x, a, bpop, b_ind, bocc_ind, NumEPS, pypkpd_db) 
             y = returnArgs[0]
-            poped_db = returnArgs[1]
-        return {"y": y, "poped_db": poped_db}
+            pypkpd_db = returnArgs[1]
+        return {"y": y, "pypkpd_db": pypkpd_db}
     else:
-        raise Exception('type of poped_db["parameters"]["sigma"] should be np.ndarray')
+        raise Exception('type of pypkpd_db["parameters"]["sigma"] should be np.ndarray')
 
 ## Model linearization with respect to epsilon.
 ## 
@@ -73,7 +79,15 @@ def LinMatrixH (model_switch,xt_ind,x,a,bpop,b_ind,bocc_ind,poped_db):
 ## 
 
 
-def gradf_eps (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind:np.ndarray,bocc_ind:np.ndarray,num_eps,poped_db):
+def gradf_eps(model_switch,
+                xt_ind: np.ndarray,
+                x,
+                a,
+                bpop,
+                b_ind: np.ndarray,
+                bocc_ind: np.ndarray,
+                num_eps,
+                pypkpd_db):
   #----------Model linearization with respect to epsilon.
   #
   # size of return is (samples per individual x number of epsilons)
@@ -82,15 +96,15 @@ def gradf_eps (model_switch,xt_ind:np.ndarray,x,a,bpop,b_ind:np.ndarray,bocc_ind
   #
   #
   
-    if poped_db["settings"]["iApproximationMethod"] == 0 or poped_db["settings"]["iApproximationMethod"] == 1:#No interaction
-        fg0b = feval(poped_db["model"]["fg_pointer"], x, a, bpop, zeros(b_ind.shape[0], b_ind.shape[1]), zeros(bocc_ind.shape[0], bocc_ind.shape[1]))
+    if pypkpd_db["settings"]["iApproximationMethod"] == 0 or pypkpd_db["settings"]["iApproximationMethod"] == 1: #No interaction
+        fg0 = feval(pypkpd_db["model"]["fg_pointer"], x, a, bpop, np.zeros(b_ind.shape), np.zeros(bocc_ind.shape))
     
     else:
-        fg0 = feval(poped_db["model"]["fg_pointer"], x, a, bpop, b_ind, bocc_ind) #Interaction
+        fg0 = feval(pypkpd_db["model"]["fg_pointer"], x, a, bpop, b_ind, bocc_ind) #Interaction
   
-    e0 = zeros(1, num_eps)
-    dfeps_de0 = grad_all(poped_db["model"]["ferror_pointer"], 4, xt_ind.shape[0], model_switch, xt_ind, fg0, e0, poped_db)
+    e0 = np.zeros([1, num_eps])
+    dfeps_de0 = grad_all(pypkpd_db["model"]["ferror_pointer"], 4, xt_ind.shape[0], model_switch, xt_ind, fg0, e0, pypkpd_db)
   
-    return {"dfeps_de0": dfeps_de0, "poped_db": poped_db}
+    return {"dfeps_de0": dfeps_de0, "pypkpd_db": pypkpd_db}
 
 

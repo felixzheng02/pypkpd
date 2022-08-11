@@ -14,14 +14,14 @@ from project.cell import cell
 from project.size import size
 from matpy.num import Num
 from matpy.matrix import Matrix
-from project.zeros import zeros
 from project.feval import feval
 from project.pargen import pargen
-from project.util import get_dict_value, is_not_none
+from project.util import default_if_none, get_dict_value, is_not_none
 from project.getfulld import getfulld
 from project.fileparts import fileparts
 from project.poped_choose import poped_choose
 from project.param_choose import param_choose
+from project.param_set import param_set
 from project.test_mat_size import test_mat_size
 from project.create_design import create_design
 from project.create_design_space import create_design_space
@@ -269,28 +269,29 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["model"] = {}
     pypkpd_db["model"]["user_distribution_pointer"] = ""
 
-    if strUserDistributionFile is not None:
-        if str(strUserDistributionFile) != "":
-            pypkpd_db["model"]["user_distribution_pointer"] = strUserDistributionFile
-    else:
-        exec(open(strUserDistributionFile).read())
-        returnArgs = fileparts(strUserDistributionFile)
-        strUserDistFilePath = list(returnArgs.values())[0]
-        strUserDistFilename = list(returnArgs.values())[1]
-        pypkpd_db["model"]["user_distribution_pointer"] = strUserDistFilename
+    # if strUserDistributionFile is not None:
+    #     if str(strUserDistributionFile) != "":
+    #         pypkpd_db["model"]["user_distribution_pointer"] = strUserDistributionFile
+    # else:
+    #     exec(open(strUserDistributionFile).read())
+    #     returnArgs = fileparts(strUserDistributionFile)
+    #     strUserDistFilePath = list(returnArgs.values())[0]
+    #     strUserDistFilename = list(returnArgs.values())[1]
+    #     pypkpd_db["model"]["user_distribution_pointer"] = strUserDistFilename
 
-    # should be removed
-    if (np.array(x.get_shape()) == 0).any():
-        x = None
-        G_x = None
-        discrete_x = None
+    
+    if x is not None:
+        if np.any(np.array(x.get_shape()) == 0): # should be removed
+            x = None
+            G_x = None
+            discrete_x = None
 
-    # should be removed
-    if (np.array(a.get_shape()) == 0).any():
-        a = None
-        G_a = None
-        mina = None
-        maxa = None
+    if a is not None:
+        if (np.array(a.get_shape()) == 0).any(): # should be removed
+            a = None
+            G_a = None
+            mina = None
+            maxa = None
 
     design = create_design(xt=xt,
                            groupsize=groupsize,
@@ -324,47 +325,47 @@ def create_poped_database(pypkpdInput={},
                                        grouped_x=G_x,
                                        our_zero=ourzero)
 
-    # design_space["design"] = design
-    # design_space["design_space"] = design_space
+    design_space["design"] = design
+    design_space["design_space"] = design_space
 
     # all of this should be replaced with using the names used in create_design_space as function arguments
-    if is_not_none(design_space, "use_grouped_a"):
+    if get_dict_value(design_space, "use_grouped_a") is not None:
         design_space["bUseGrouped_a"] = design_space["use_grouped_a"]
         design_space["use_grouped_a"] = None
 
-    if is_not_none(design_space, "use_grouped_x"):
+    if get_dict_value(design_space, "use_grouped_x") is not None:
         design_space["bUseGrouped_x"] = design_space["use_grouped_x"]
         design_space["use_grouped_x"] = None
 
-    if is_not_none(design_space, "use_grouped_xt"):
+    if get_dict_value(design_space, "use_grouped_xt") is not None:
         design_space["bUseGrouped_xt"] = design_space["use_grouped_xt"]
         design_space["use_grouped_xt"] = None
 
-    if is_not_none(design_space, "grouped_a"):
+    if get_dict_value(design_space, "grouped_a") is not None:
         design_space["G_a"] = design_space["grouped_a"]
         design_space["grouped_a"] = None
 
-    if is_not_none(design_space, "grouped_x"):
+    if get_dict_value(design_space, "grouped_x") is not None:
         design_space["G_x"] = design_space["grouped_x"]
         design_space["grouped_x"] = None
 
-    if is_not_none(design_space, "grouped_xt"):
+    if get_dict_value(design_space, "grouped_xt") is not None:
         design_space["G_xt"] = design_space["grouped_xt"]
         design_space["grouped_xt"] = None
 
-    if is_not_none(design_space, "x_space"):
+    if get_dict_value(design_space, "x_space") is not None:
         design_space["discrete_x"] = design_space["x_space"]
         design_space["x_space"] = None
 
     # should be removed
-    if ~is_not_none(design, "x"):
+    if get_dict_value(design, "x") is None:
         design["x"] = Matrix(np.zeros([design["m"].get_value(), 0]))
         design_space["G_x"] = design["x"]
         design_space["bUseGrouped_x"] = False
         design_space["discrete_x"] = cell([design["m"].get_value(), 0])
 
     # should be removed
-    if ~is_not_none(design, "a"):
+    if get_dict_value(design, "a") is None:
         design["a"] = Matrix(np.zeros([design["m"].get_value(), 0]))
         design_space["G_a"] = design["a"]
         design_space["bUseGrouped_a"] = False
@@ -374,7 +375,6 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["design"] = design
     pypkpd_db["design_space"] = design_space
 
-    pypkpd_db["settings"] = {}
     pypkpd_db["settings"]["bLHS"] = bLHS
 
     pypkpd_db["settings"]["d_switch"] = d_switch
@@ -429,7 +429,7 @@ def create_poped_database(pypkpdInput={},
     # Temp thing for memory solvers
     pypkpd_db["settings"]["bUseMemorySolver"] = bUseMemorySolver
     pypkpd_db["settings"]["solved_solutions"] = cell([0, 0])
-    pypkpd_db["settings"]["maxtime"] = str(max(max(pypkpd_db["design_space"]["maxxt"].get_all_data()))) + str(pypkpd_db["settings"]["hgd"])
+    pypkpd_db["settings"]["maxtime"] = max(pypkpd_db["design_space"]["maxxt"].get_data()) + pypkpd_db["settings"]["hgd"]
 
     pypkpd_db["settings"]["iFIMCalculationType"] = iFIMCalculationType
     pypkpd_db["settings"]["rsit"] = rsit
@@ -465,131 +465,116 @@ def create_poped_database(pypkpdInput={},
         pypkpd_db["model"]["fg_pointer"] = fg_fun
     elif type(fg_fun) is str:
         pypkpd_db["model"]["fg_pointer"] = fg_fun
-    else:
-        try:
-            fg_file
-        except NameError:
-            # exec(open(fg_file).read())
-            returnArgs = fileparts(fg_file)
-            strfgModelFilePath = list(returnArgs.values())[0]
-            strfgModelFilename = list(returnArgs.values())[1]
-            # if (~strcmp(strfgModelFilePath,''))
-            # cd(strfgModelFilePath);
-            # end
-            pypkpd_db["model"]["fg_pointer"] = strfgModelFilename
-        else:
-            pypkpd_db["model"]["fg_pointer"] = fg_file
+    # else:
+    #     try:
+    #         fg_file
+    #     except NameError:
+    #         # exec(open(fg_file).read())
+    #         returnArgs = fileparts(fg_file)
+    #         strfgModelFilePath = list(returnArgs.values())[0]
+    #         strfgModelFilename = list(returnArgs.values())[1]
+    #         # if (~strcmp(strfgModelFilePath,''))
+    #         # cd(strfgModelFilePath);
+    #         # end
+    #         pypkpd_db["model"]["fg_pointer"] = strfgModelFilename
+    #     else:
+    #         pypkpd_db["model"]["fg_pointer"] = fg_file
 
     pypkpd_db["settings"]["ed_penalty_pointer"] = np.zeros([1, 0])
     
     if strEDPenaltyFile is not None:
         if str(strEDPenaltyFile) != "":
             pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFile
-    else:
-        exec(open(pypkpdInput["strEDPenaltyFile"]).read())
-        returnArgs = fileparts(pypkpdInput["strEDPenaltyFile"])
-        strEDPenaltyFilePath = list(returnArgs.values())[0]
-        strEDPenaltyFilename = list(returnArgs.values())[1]
-        pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
+    # else:
+    #     exec(open(pypkpdInput["strEDPenaltyFile"]).read())
+    #     returnArgs = fileparts(pypkpdInput["strEDPenaltyFile"])
+    #     strEDPenaltyFilePath = list(returnArgs.values())[0]
+    #     strEDPenaltyFilename = list(returnArgs.values())[1]
+    #     pypkpd_db["settings"]["ed_penalty_pointer"] = strEDPenaltyFilename
 
-    # if(is.null(ofv_fun) or is.function(ofv_fun)){
-#   pypkpd_db["settings"]ofv_fun = ofv_fun
-# } else {
-#   stop("ofv_fun must be a function or None")
-# }
-
-    if ofv_fun is None or callable(ofv_fun):
-        pypkpd_db["settings"]["ofv_fun"] = ofv_fun
-    else:
-        # source explicit file
-        # here I assume that function in file has same name as filename minus .txt and pathnames
-        try:
-            exec(open(str(ofv_fun)).read())
-            pypkpd_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)["filename"]')
-        except:
-            raise Exception("ofv_fun is not a function or None, and no file with that name was found")
+    # if ofv_fun is None or callable(ofv_fun):
+    #     pypkpd_db["settings"]["ofv_fun"] = ofv_fun
+    # else:
+    #     # source explicit file
+    #     # here I assume that function in file has same name as filename minus .txt and pathnames
+    #     try:
+    #         exec(open(str(ofv_fun)).read())
+    #         pypkpd_db["settings"]["ofv_fun"] = eval('text=fileparts(ofv_fun)["filename"]')
+    #     except:
+    #         raise Exception("ofv_fun is not a function or None, and no file with that name was found")
 
     pypkpd_db["model"]["auto_pointer"] = np.zeros([1, 0])
-    #pypkpd_db["model"]["auto_pointer"] = ''
-    if strAutoCorrelationFile != "":
-        if str(strAutoCorrelationFile) != "":
-            if strAutoCorrelationFile is not None:
-                pypkpd_db["model"]["auto_pointer"] = strAutoCorrelationFile
-            else:
-                exec(open(pypkpdInput["strAutoCorrelationFile"]).read())
-                returnArgs = fileparts(pypkpdInput["strAutoCorrelationFile"])
-                strAutoCorrelationFilePath = list(returnArgs.values())[0]
-                strAutoCorrelationFilename = list(returnArgs.values())[1]
-            # if (~strcmp(strAutoCorrelationFilePath,''))
-            # cd(strAutoCorrelationFilePath);
-            # end
-                pypkpd_db["model"]["auto_pointer"] = strAutoCorrelationFilename
+    
+    # if strAutoCorrelationFile != "":
+    #     if str(strAutoCorrelationFile) != "":
+    #         if strAutoCorrelationFile is not None:
+    #             pypkpd_db["model"]["auto_pointer"] = strAutoCorrelationFile
+    #         else:
+    #             exec(open(pypkpdInput["strAutoCorrelationFile"]).read())
+    #             returnArgs = fileparts(pypkpdInput["strAutoCorrelationFile"])
+    #             strAutoCorrelationFilePath = list(returnArgs.values())[0]
+    #             strAutoCorrelationFilename = list(returnArgs.values())[1]
+    #         # if (~strcmp(strAutoCorrelationFilePath,''))
+    #         # cd(strAutoCorrelationFilePath);
+    #         # end
+    #             pypkpd_db["model"]["auto_pointer"] = strAutoCorrelationFilename
 
     if callable(ff_fun):
         pypkpd_db["model"]["ff_pointer"] = ff_fun
     elif type(ff_fun) is str:
         if ff_fun is not None:
             pypkpd_db["model"]["ff_pointer"] = ff_fun
-    else:
-        try:
-            ff_file
-        except NameError:
-            # exec(open(ff_file).read())
-            returnArgs = fileparts(ff_file)
-            strffModelFilePath = list(returnArgs.values())[0]
-            strffModelFilename = list(returnArgs.values())[1]
-            # if (~strcmp(strffModelFilePath,''))
-            # cd(strffModelFilePath);
-            # end
-            pypkpd_db["model"]["ff_pointer"] = strffModelFilename
-        else:
-            pypkpd_db["model"]["ff_pointer"] = ff_file
+    # else:
+    #     try:
+    #         ff_file
+    #     except NameError:
+    #         # exec(open(ff_file).read())
+    #         returnArgs = fileparts(ff_file)
+    #         strffModelFilePath = list(returnArgs.values())[0]
+    #         strffModelFilename = list(returnArgs.values())[1]
+    #         # if (~strcmp(strffModelFilePath,''))
+    #         # cd(strffModelFilePath);
+    #         # end
+    #         pypkpd_db["model"]["ff_pointer"] = strffModelFilename
+    #     else:
+    #         pypkpd_db["model"]["ff_pointer"] = ff_file
 
     # Check if there is any sub models defined
-    for key in pypkpdInput:
-        if "SubModels" in pypkpdInput.keys():
-            i = 1
-            for elem_key in pypkpdInput["SubModels"]:
-                if elem_key == ("ff_file%d" % i):
-                    # ok<np.nanSGU>
-                    exec(eval('pypkpdInput["SubModels"]["ff_file"]%d' % i))
-                    returnArgs = fileparts(eval('pypkpdInput["SubModels"]["ff_file"]%d' % i))  # ok<np.nanSGU>
-                    strffModelFilePath = list(returnArgs.values())[0]
-                    strffModelFilename = list(returnArgs.values())[1]
-                    # if (~strcmp(strffModelFilePath,''))
-                    # cd(strffModelFilePath);
-                    # end
-                    pypkpd_db["model"]["subffPointers"]["".join(["ff_pointer", str(i)])] = strffModelFilename
-                    i = i + 1
+    # if "SubModels" in pypkpdInput.keys():
+    #     i = 1
+    #     for elem_key in pypkpdInput["SubModels"]:
+    #         if elem_key == ("ff_file%d" % i):
+    #             # ok<np.nanSGU>
+    #             exec(eval('pypkpdInput["SubModels"]["ff_file"]%d' % i))
+    #             returnArgs = fileparts(eval('pypkpdInput["SubModels"]["ff_file"]%d' % i))  # ok<np.nanSGU>
+    #             strffModelFilePath = list(returnArgs.values())[0]
+    #             strffModelFilename = list(returnArgs.values())[1]
+    #             # if (~strcmp(strffModelFilePath,''))
+    #             # cd(strffModelFilePath);
+    #             # end
+    #             pypkpd_db["model"]["subffPointers"]["".join(["ff_pointer", str(i)])] = strffModelFilename
+    #             i = i + 1
 
     if callable(fError_fun):
         pypkpd_db["model"]["ferror_pointer"] = fError_fun
     elif type(fError_fun) is str:
         if fError_fun is not None:
             pypkpd_db["model"]["ferror_pointer"] = fError_fun
-    else:
-        try:
-            fError_file
-        except NameError:
-            # exec(open(fError_file).read())
-            returnArgs = fileparts(fError_file)
-            strErrorModelFilePath = list(returnArgs.values())[0]
-            strErrorModelFilename = list(returnArgs.values())[1]
-            # if (~strcmp(strErrorModelFilePath,''))
-            # cd(strErrorModelFilePath);
-            # end
-            pypkpd_db["model"]["ferror_pointer"] = strErrorModelFilename
-        else:
-            pypkpd_db["model"]["ferror_pointer"] = fError_file
+    # else:
+    #     try:
+    #         fError_file
+    #     except NameError:
+    #         # exec(open(fError_file).read())
+    #         returnArgs = fileparts(fError_file)
+    #         strErrorModelFilePath = list(returnArgs.values())[0]
+    #         strErrorModelFilename = list(returnArgs.values())[1]
+    #         # if (~strcmp(strErrorModelFilePath,''))
+    #         # cd(strErrorModelFilePath);
+    #         # end
+    #         pypkpd_db["model"]["ferror_pointer"] = strErrorModelFilename
+    #     else:
+    #         pypkpd_db["model"]["ferror_pointer"] = fError_file
 
-    # %Set the model file string path
-# pypkpd_db$model_file = ff_file
-##   model_file = eval('functions(pypkpd_db.ff_pointer)');
-# if (~strcmp(model_file.file,''))
-##       pypkpd_db.model_file = eval('char(model_file.file)');
-# else
-##       pypkpd_db.model_file = eval('char(model_file.function)');
-# end
 
 # ==================================
 # Initialize the randomization
@@ -601,47 +586,39 @@ def create_poped_database(pypkpdInput={},
             pypkpd_db["settings"]["dSeed"] = dSeed
         random.seed(pypkpd_db["settings"]["dSeed"])
 
-    pypkpd_db["parameters"]["nbpop"] = poped_choose(nbpop, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bpop"), 0)
-    pypkpd_db["parameters"]["NumRanEff"] = poped_choose(NumRanEff, find_largest_index(pypkpd_db["model"]["fg_pointer"], "b"), 0)
-    pypkpd_db["parameters"]["NumDocc"] = poped_choose(NumDocc, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True), 0)
-    pypkpd_db["parameters"]["NumOcc"] = poped_choose(NumOcc, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False), 0)
+    pypkpd_db["parameters"]["nbpop"] = default_if_none(nbpop, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bpop"))
+    pypkpd_db["parameters"]["NumRanEff"] = default_if_none(NumRanEff, find_largest_index(pypkpd_db["model"]["fg_pointer"], "b"))
+    pypkpd_db["parameters"]["NumDocc"] = default_if_none(NumDocc, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=True))
+    pypkpd_db["parameters"]["NumOcc"] = default_if_none(NumOcc, find_largest_index(pypkpd_db["model"]["fg_pointer"], "bocc", mat=True, mat_row=False))
     
-    pypkpd_db["parameters"]["ng"] = eval(str(pypkpd_db["model"]["fg_pointer"]) + "(num(0), num(0), num(0), num(0)," + str(zeros(pypkpd_db["parameters"]["NumDocc"], pypkpd_db["parameters"]["NumOcc"])) + ")").get_size()
+    pypkpd_db["parameters"]["ng"] = eval(str(pypkpd_db["model"]["fg_pointer"]) + "(0, 0, 0, 0, np.zeros([pypkpd_db['parameters']['NumDocc'], pypkpd_db['parameters']['NumOcc']]))")
     
-    docc_arr = np.array([1])
-    d_arr = np.array([1])
-    bpop_arr = np.array([1])
-    pypkpd_db["parameters"]["notfixed_docc"] = poped_choose(notfixed_docc, 
-        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc")])), 0)
-    pypkpd_db["parameters"]["notfixed_d"] = poped_choose(notfixed_d, 
-        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumRanEff")])), 0)
-    pypkpd_db["parameters"]["notfixed_bpop"] = poped_choose(notfixed_bpop, 
-        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "nbpop")])), 0)
+    pypkpd_db["parameters"]["notfixed_docc"] = default_if_none(notfixed_docc, 
+        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc")])))
+    pypkpd_db["parameters"]["notfixed_d"] = default_if_none(notfixed_d, 
+        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumRanEff")])))
+    pypkpd_db["parameters"]["notfixed_bpop"] = default_if_none(notfixed_bpop, 
+        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "nbpop")])))
 
 
-# reorder named values
-    fg_names = eval(pypkpd_db["model"]["fg_pointer"] + "(num(1), num(1), num(1), num(1)," + str(ones(param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc"), param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc"))) + ")").get_datanam()
+    # reorder named values
+    fg_names = eval(str(pypkpd_db["model"]["fg_pointer"]) + "(0, 0, 0, 0, np.zeros([pypkpd_db['parameters']['NumDocc'], pypkpd_db['parameters']['NumOcc']]))").keys()
     
     pypkpd_db["parameters"]["notfixed_bpop"] = reorder_vec(pypkpd_db["parameters"]["notfixed_bpop"], fg_names)
 
     pypkpd_db["parameters"]["notfixed_d"] = reorder_vec(pypkpd_db["parameters"]["notfixed_d"], fg_names)
 
     # we have just the parameter values not the uncertainty
-    if size(d)[0] == 1 and size(d)[1] == pypkpd_db["parameters"]["NumRanEff"]:
-        d_descr = zeros(pypkpd_db["parameters"]["NumRanEff"], 3)
+    if d.get_shape(0) == 1 and d.get_shape(1) == pypkpd_db["parameters"]["NumRanEff"]:
+        d_descr = np.zeros([pypkpd_db["parameters"]["NumRanEff"], 3])
 
         # reorder named values
         d = reorder_vec(d, fg_names)
         
-        #set_data
-        #d_descr.set_data()[:,1] = d
-        for i in range(0, d.get_size()):
-            d_descr.set_one_data(d[i], [i,1], [i,1])
-        d_descr.set_multiple_data(0, [0,d_descr.get_shape[0]], [0,1])  # point values
-        d_descr.set_multiple_data(0, [0,d_descr.get_shape[0]], [2,3])  # variance
-        d_descr.set_colnam(d.get_datanam())
-        # d_descr.columns.values = d.keys()
-        d = d_descr
+        d_descr[:, 1] = d.get_data()
+        d_descr[:, 0] = np.zeros(d_descr.shape[0])
+        d_descr[:, 2] = np.zeros(d_descr.shape[0])
+        d.set_data(d_descr, axisnam=True)
 
     # we have just the parameter values not the uncertainty
     if size(bpop)[0] == 1 and size(bpop)[1] == pypkpd_db["parameters"]["nbpop"]:
@@ -880,10 +857,3 @@ def create_poped_database(pypkpdInput={},
 
 def somestring(**kwargs):
     return ", ".join(f"{key}={value}" for key, value in kwargs.items())
-
-def param_set(param, pypkpdInput, *argv): # may be replaced by param_choose
-    if param is not None:
-        return param
-    if pypkpdInput is not None:
-        return get_dict_value(pypkpdInput, argv)
-    raise Exception("Must provide pypkpdInput dict.")

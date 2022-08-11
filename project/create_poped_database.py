@@ -33,7 +33,7 @@ from project.get_unfixed_params import get_unfixed_params
 
 def reorder_vec(your_vec: Matrix, name_order):
     if your_vec.get_datanam() is not None:
-        if all(your_vec.get_datanam()) in name_order:
+        if all(your_vec.get_datanam() in name_order):
             your_vec = your_vec[name_order[name_order in your_vec.get_datanam()]]
 
     return your_vec
@@ -593,12 +593,9 @@ def create_poped_database(pypkpdInput={},
     
     pypkpd_db["parameters"]["ng"] = eval(str(pypkpd_db["model"]["fg_pointer"]) + "(0, 0, 0, 0, np.zeros([pypkpd_db['parameters']['NumDocc'], pypkpd_db['parameters']['NumOcc']]))")
     
-    pypkpd_db["parameters"]["notfixed_docc"] = default_if_none(notfixed_docc, 
-        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumDocc")])))
-    pypkpd_db["parameters"]["notfixed_d"] = default_if_none(notfixed_d, 
-        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "NumRanEff")])))
-    pypkpd_db["parameters"]["notfixed_bpop"] = default_if_none(notfixed_bpop, 
-        Matrix(np.ones([1, param_choose(pypkpd_db, 0, 0, None, None, "parameters", "nbpop")])))
+    pypkpd_db["parameters"]["notfixed_docc"] = default_if_none(notfixed_docc, Matrix(np.ones([1, get_dict_value(pypkpd_db, "parameters", "NumDocc")])))
+    pypkpd_db["parameters"]["notfixed_d"] = default_if_none(notfixed_d, Matrix(np.ones([1, get_dict_value(pypkpd_db, "parameters", "NumRanEff")])))
+    pypkpd_db["parameters"]["notfixed_bpop"] = default_if_none(notfixed_bpop, Matrix(np.ones([1, get_dict_value(pypkpd_db, "parameters", "nbpop")])))
 
 
     # reorder named values
@@ -621,41 +618,29 @@ def create_poped_database(pypkpdInput={},
         d.set_data(d_descr, axisnam=True)
 
     # we have just the parameter values not the uncertainty
-    if size(bpop)[0] == 1 and size(bpop)[1] == pypkpd_db["parameters"]["nbpop"]:
-        bpop_descr = zeros(pypkpd_db["parameters"]["nbpop"], 3)
+    if bpop.get_shape(0) == 1 and bpop.get_shape(1) == pypkpd_db["parameters"]["nbpop"]:
+        bpop_descr = np.zeros([pypkpd_db["parameters"]["nbpop"], 3])
 
         # reorder named values
         bpop = reorder_vec(bpop, fg_names)
-
-        
-        #set_data
-        #bpop_descr.set_data()[:,1] = bpop
-        for i in range(0, bpop.get_size()):
-            bpop_descr.set_one_data(bpop[i], [i,1], [i,1])
-        bpop_descr.set_multiple_data(0, [0,bpop_descr.get_shape[0]], [0,1])  # point values
-        bpop_descr.set_multiple_data(0, [0,bpop_descr.get_shape[0]], [2,3])  # variance
-        bpop_descr.set_colnam(bpop.get_datanam())
-        # bpop_descr.columns.values = bpop.keys()
+    
+        bpop_descr[:, 1] = bpop.get_data()
+        bpop_descr[:, 0] = np.zeros(bpop_descr.shape[0])
+        bpop_descr[:, 2] = np.zeros(bpop_descr.shape[0])
         bpop = bpop_descr
 
     # we have just the diagonal parameter values
-    if size(sigma)[0] == 1 and (type(sigma) is not np.ndarray or type(sigma) is not Matrix):
-        sigma_tmp = Matrix(np.diag(sigma, size(sigma)[1], size(sigma)[1]))
-        sigma_tmp.set_colnam(sigma.keys())
-        # sigma_tmp.columns.values = sigma.keys()
+    if type(sigma) is Matrix and sigma.get_shape(0) == 1:
+        sigma_tmp = Matrix(np.diag(sigma.get_data(), sigma.get_shape(1), sigma.get_shape(1)))
+        sigma_tmp.set_axisnam([[sigma.get_datanam()], None])
         sigma = sigma_tmp
 
-    covd = poped_choose(covd, zeros(
-        1, pypkpd_db["parameters"]["NumRanEff"])*(pypkpd_db["parameters"]["NumRanEff"]-1)/2, 0)
+    covd = default_if_none(covd, np.zeros([1, pypkpd_db["parameters"]["NumRanEff"]*(pypkpd_db["parameters"]["NumRanEff"]-1)/2]))
     pypkpd_db["parameters"]["covd"] = covd
 
-    tmp = np.ones(1, len(covd))
-    if tmp is not None:
-        for i in range(0, len(covd)):
-            if covd[i] == 0:
-                tmp[i] = 0
-    #tmp[covd==0] = 0
-    pypkpd_db["parameters"]["notfixed_covd"] = poped_choose(notfixed_covd, tmp, 0)
+    tmp = np.ones(1, covd.get_size())
+    tmp[covd.get_data() == 0] = np.zeros(np.sum(covd.get_data() == 0))
+    pypkpd_db["parameters"]["notfixed_covd"] = default_if_none(notfixed_covd, tmp)
 
     # ==================================
     # Sample the individual eta's for FOCE and FOCEI

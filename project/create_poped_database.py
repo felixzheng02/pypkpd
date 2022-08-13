@@ -7,19 +7,14 @@ import path
 import random
 import datetime
 import numpy as np
-import pandas as pd
-from os import name
-from project.sfg import sfg
 from project.cell import cell
 from project.size import size
 from matpy.num import Num
 from matpy.matrix import Matrix
-from project.feval import feval
 from project.pargen import pargen
-from project.util import default_if_none, get_dict_value, is_not_none
+from project.util import default_if_none, get_dict_value
 from project.getfulld import getfulld
 from project.fileparts import fileparts
-from project.poped_choose import poped_choose
 from project.param_choose import param_choose
 from project.param_set import param_set
 from project.test_mat_size import test_mat_size
@@ -649,53 +644,42 @@ def create_poped_database(pypkpdInput={},
     if pypkpd_db["settings"]["iApproximationMethod"] != 0 and pypkpd_db["settings"]["iApproximationMethod"] != 3:
 
         iMaxCorrIndNeeded = 100
-        bzeros = zeros(pypkpd_db["parameters"]["NumRanEff"], 1)
-        bones = Matrix(np.ones(int(pypkpd_db["parameters"]["NumRanEff"])), (int(pypkpd_db["parameters"]["NumRanEff"]), 1))
-        bocczeros = zeros(pypkpd_db["parameters"]["NumDocc"], 1)
-        boccones = Matrix(np.ones(int(pypkpd_db["parameters"]["NumDocc"])), (int(pypkpd_db["parameters"]["NumDocc"]), 1))
+        bzeros = np.zeros([pypkpd_db["parameters"]["NumRanEff"], 1])
+        bones = np.ones([pypkpd_db["parameters"]["NumRanEff"], 1])
+        bocczeros = np.zeros([pypkpd_db["parameters"]["NumDocc"], 1])
+        boccones = np.ones([pypkpd_db["parameters"]["NumDocc"], 1])
 
-        pypkpd_db["parameters"]["b_global"] = zeros(pypkpd_db["parameters"]["NumRanEff"], max(
-            pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded))
+        pypkpd_db["parameters"]["b_global"] = np.zeros([pypkpd_db["parameters"]["NumRanEff"], max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)])
 
-        fulld = getfulld(Matrix(d.get_all_data()[:,1]), pypkpd_db["parameters"]["covd"])
-        fulldocc = getfulld(Matrix(docc.get_all_data()[:,1]), pypkpd_db["parameters"]["covdocc"])
+        fulld = getfulld(d.get_partial_matrix([[None, None], [1, 1]]), pypkpd_db["parameters"]["covd"])
+        fulldocc = getfulld(Matrix(docc.get_partial_matrix([[None, None], [1, 1]])), pypkpd_db["parameters"]["covdocc"])
 
-        pypkpd_db["parameters"]["bocc_global"] = cell(
-            pypkpd_db["settings"]["iFOCENumInd"], 1)
+        pypkpd_db["parameters"]["bocc_global"] = cell([pypkpd_db["settings"]["iFOCENumInd"], 1], fill_value=0)
 
-        if pypkpd_db["settings"]["d_switch"] is True:
-            pypkpd_db["parameters"]["b_global"] = Matrix(np.transpose(np.random.multivariate_normal(
-                max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), sigma=fulld)))
+        if pypkpd_db["settings"]["d_switch"]:
+            pypkpd_db["parameters"]["b_global"] = Matrix(np.transpose(np.random.multivariate_normal(max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), sigma=fulld)))
             for i in range(0, pypkpd_db["settings"]["iFOCENumInd"]):
-                pypkpd_db["parameters"]["bocc_global"][i] = zeros(
-                    size(docc)[0], pypkpd_db["parameters"]["NumOcc"])
+                pypkpd_db["parameters"]["bocc_global"][i] = np.zeros([docc.get_shape(0), pypkpd_db["parameters"]["NumOcc"]])
                 if pypkpd_db["parameters"]["NumOcc"] != 0:
-                    pypkpd_db["parameters"]["bocc_global"][i] = Matrix(np.transpose(np.random.multivariate_normal(
-                        pypkpd_db["parameters"]["NumOcc"], sigma=fulldocc)))
+                    pypkpd_db["parameters"]["bocc_global"][i] = np.transpose(np.random.multivariate_normal(pypkpd_db["parameters"]["NumOcc"], sigma=fulldocc))
 
         else:
-            d_dist = pargen(d, pypkpd_db["model"]["user_distribution_pointer"], max(
-                pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), pypkpd_db["settings"]["bLHS"], zeros(1, 0), pypkpd_db)
-            docc_dist = pargen(docc, pypkpd_db["model"]["user_distribution_pointer"], pypkpd_db["settings"]
-                               ["iFOCENumInd"], pypkpd_db["settings"]["bLHS"], zeros(1, 0), pypkpd_db)
+            d_dist = pargen(d, pypkpd_db["model"]["user_distribution_pointer"], max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded), pypkpd_db["settings"]["bLHS"], np.zeros([1, 0]), pypkpd_db)
+            docc_dist = pargen(docc, pypkpd_db["model"]["user_distribution_pointer"], pypkpd_db["settings"]["iFOCENumInd"], pypkpd_db["settings"]["bLHS"], np.zeros([1, 0]), pypkpd_db)
 
             ## set one data with type of Matrix
-            if len(d_dist) != 0:
+            if d_dist.get_size() != 0:
                 for i in range(0, max(pypkpd_db["settings"]["iFOCENumInd"], iMaxCorrIndNeeded)):
-                    for j in range(0, pypkpd_db["parameters"]["b_global"].get_shape[0]):
-                        pypkpd_db["parameters"]["b_global"].set_one_data(Matrix(np.transpose(
-                            np.random.multivariate_normal(
-                                1, sigma=getfulld(d_dist[i,:], pypkpd_db["parameters"]["covd"])))), None, [j,i])                        
+                    for j in range(0, pypkpd_db["parameters"]["b_global"].get_shape(0)):
+                        pypkpd_db["parameters"]["b_global"].set_one_data(Matrix(np.transpose(np.random.multivariate_normal(1, sigma=getfulld(d_dist[i, :], pypkpd_db["parameters"]["covd"])))), index=[j, i])                        
 
-            if len(docc_dist) != 0:
+            if docc_dist.get_size() != 0:
                 for i in range(0, pypkpd_db["settings"]["iFOCENumInd"]):
-                    pypkpd_db["parameters"]["bocc_global"].set_one__data(Matrix(np.transpose(
-                        np.random.multivariate_normal(
-                        pypkpd_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i,:], pypkpd_db["parameters"]["covdocc"])))), None, [0,i])
+                    pypkpd_db["parameters"]["bocc_global"].set_one__data(Matrix(np.transpose(np.random.multivariate_normal(pypkpd_db["parameters"]["NumOcc"], sigma=getfulld(docc_dist[i, :], pypkpd_db["parameters"]["covdocc"])))), index=[0, i])
     else:
-        pypkpd_db["parameters"]["bocc_global"] = zeros(pypkpd_db["parameters"]["NumRanEff"], 1)
-        pypkpd_db["parameters"]["bocc_global"] = cell(1, 1)
-        pypkpd_db["parameters"]["bocc_global"].set_one_data(zeros(size(docc)[0], pypkpd_db["parameters"]["NumOcc"]), None, [0,1])
+        pypkpd_db["parameters"]["bocc_global"] = np.zeros([pypkpd_db["parameters"]["NumRanEff"], 1])
+        pypkpd_db["parameters"]["bocc_global"] = cell([1, 1], fill_value=1)
+        pypkpd_db["parameters"]["bocc_global"].set_one_data(np.zeros(size(docc)[0], pypkpd_db["parameters"]["NumOcc"]), index=[0,1])
         
         pypkpd_db["settings"]["iFOCENumInd"] = 1
 
@@ -710,36 +694,20 @@ def create_poped_database(pypkpdInput={},
 
     pypkpd_db["settings"]["optsw"] = optsw
 
-    line_opta = poped_choose(line_opta, np.ones([1, size(pypkpd_db["design"]["a"])[1]]), 0)
-    if test_mat_size(np.array([1, size(pypkpd_db["design"]["a"])[0]]), np.array(line_opta), "line_opta"):
-        pypkpd_db["settings"]["line_opta"] = line_opta
+    line_opta = default_if_none(line_opta, np.ones([1, get_dict_value(pypkpd_db, "design", "a").get_shape(1)]))
+    if test_mat_size(np.array([1, get_dict_value(pypkpd_db, "design", "a").get_shape(1)]), line_opta, "line_opta"):
+        pypkpd_db["settings"]["line_opta"] = Matrix(line_opta)
 
-    line_optx = poped_choose(line_optx, np.ones([1, size(pypkpd_db["design"]["x"])[1]]), 0)
-    if test_mat_size(np.array([1, size(pypkpd_db["design"]["x"])[0]]), np.array(line_opta), "line_optx"):
-        pypkpd_db["settings"]["line_optx"] = line_optx
+    line_optx = default_if_none(line_optx, np.ones([1, get_dict_value(pypkpd_db, "design", "x").get_shape(1)]))
+    if test_mat_size(np.array([1, get_dict_value(pypkpd_db, "design", "x").get_shape(1)]), line_optx, "line_optx"):
+        pypkpd_db["settings"]["line_optx"] = Matrix(line_optx)
 
-
-# pypkpd_db$design = pypkpdInput$design
     pypkpd_db["parameters"]["bpop"] = bpop
     pypkpd_db["parameters"]["d"] = d
     pypkpd_db["parameters"]["covd"] = covd
     pypkpd_db["parameters"]["sigma"] = sigma
     pypkpd_db["parameters"]["docc"] = docc
     pypkpd_db["parameters"]["covdocc"] = covdocc
-
-# pypkpd_db["design"]G = design_space$G_xt ## should only be in design_space
-# pypkpd_db["design"]Ga = design_space$G_a ## should only be in design_space
-# pypkpd_db["design"]Gx = design_space$G_x ## should only be in design_space
-
-# pypkpd_db["design"]maxgroupsize = design_space$maxgroupsize ## should only be in design_space
-# pypkpd_db["design"]mingroupsize = design_space$mingroupsize ## should only be in design_space
-# pypkpd_db["design"]maxtotgroupsize = design_space$maxtotgroupsize ## should only be in design_space
-# pypkpd_db["design"]mintotgroupsize = design_space$mintotgroupsize ## should only be in design_space
-# pypkpd_db["design"]maxxt = design_space$maxxt ## should only be in design_space
-# pypkpd_db["design"]minxt = design_space$minxt ## should only be in design_space
-# pypkpd_db["design"]discrete_x = design_space$discrete_x ## should only be in design_space
-# pypkpd_db["design"]maxa = design_space$maxa ## should only be in design_space
-# pypkpd_db["design"]mina = design_space$mina ## should only be in design_space
 
     pypkpd_db["settings"]["m1_switch"] = m1_switch
     pypkpd_db["settings"]["m2_switch"] = m2_switch
@@ -751,22 +719,17 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["settings"]["prior_fim"] = prior_fim
 
     pypkpd_db["parameters"]["notfixed_sigma"] = notfixed_sigma
-    # pypkpd_db["parameters"]sigma = sigma
-    # pypkpd_db["parameters"]docc = docc
 
     pypkpd_db["parameters"]["ds_index"] = ds_index
 
     # create ds_index if not already done
-    if pypkpd_db["parameters"]["ds_index"] is not None:
+    if pypkpd_db["parameters"]["ds_index"] is None:
         unfixed_params = get_unfixed_params(pypkpd_db)
-        pypkpd_db["parameters"]["ds_index"] = Matrix(np.transpose(
-            np.repeat(0, unfixed_params["all"])))
-        pypkpd_db["parameters"]["ds_index"][(
-            unfixed_params["bpop"].get_size()+1):pypkpd_db["parameters"]["ds_index"].get_size()] = 1
+        pypkpd_db["parameters"]["ds_index"] = Matrix(np.transpose(np.repeat([0], unfixed_params.get_one_data(name="all").size)))
+        pypkpd_db["parameters"]["ds_index"].data[(unfixed_params.get_one_data(name="bpop").size+1):pypkpd_db["parameters"]["ds_index"].get_size()] = 1
     else:
         if type(pypkpd_db["parameters"]["ds_index"]) is not Matrix:
-            pypkpd_db["parameters"]["ds_index"] = Matrix(np.array(
-                [pypkpd_db["parameters"]["ds_index"], 1, len(pypkpd_db["parameters"]["ds_index"])]))
+            pypkpd_db["parameters"]["ds_index"] = Matrix(pypkpd_db["parameters"]["ds_index"], shape=[1, pypkpd_db["parameters"]["ds_index"].size])
 
     pypkpd_db["settings"]["strIterationFileName"] = strIterationFileName
     pypkpd_db["settings"]["user_data"] = user_data
@@ -775,63 +738,40 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
     pypkpd_db["settings"]["bEANoReplicates"] = bEANoReplicates
 
-    if len(strRunFile) != 0:
-        if strRunFile == " ":
-            pypkpd_db["settings"]["run_file_pointer"] = zeros(1, 0)
-        else:
-            if strRunFile is not None:
-                pypkpd_db["settings"]["run_file_pointer"] = strRunFile
-            else:
-                exec(open(pypkpdInput["strRunFile"]).read())
-                returnArgs = fileparts(pypkpdInput["strRunFile"])
-                strRunFilePath = list(returnArgs.values())[0]
-                strRunFilename = list(returnArgs.values())[1]
-                # if (~strcmp(strErrorModelFilePath,''))
-                # cd(strErrorModelFilePath);
-                # end
-                pypkpd_db["settings"]["run_file_pointer"] = strRunFilename
+    # if len(strRunFile) != 0:
+    #     if strRunFile == " ":
+    #         pypkpd_db["settings"]["run_file_pointer"] = zeros(1, 0)
+    #     else:
+    #         if strRunFile is not None:
+    #             pypkpd_db["settings"]["run_file_pointer"] = strRunFile
+    #         else:
+    #             exec(open(pypkpdInput["strRunFile"]).read())
+    #             returnArgs = fileparts(pypkpdInput["strRunFile"])
+    #             strRunFilePath = list(returnArgs.values())[0]
+    #             strRunFilename = list(returnArgs.values())[1]
+    #             pypkpd_db["settings"]["run_file_pointer"] = strRunFilename
 
-#pypkpd_db = convert_pypkpdInput(pypkpdInput,...)
-
-    #pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": poped_version["version"]}
-
+    # pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": version["version.string"]}
+    
     pypkpd_db = convert_variables(pypkpd_db)  # need to transform here
 
     param_val = get_all_params(pypkpd_db)
     tmp_names = param_val.get_datanam()
     eval('%s.val = param.val["%s"]' % (tmp_names, tmp_names))
     
-    """ 
-	#tools/spped_check.R
-	d_val = d_val # for package check
-	covd_val = covd_val
-	docc_val = docc_val
-	covdocc_val = covdocc_val
-	bpop_val = bpop_val
-	d_full = getfulld(d_val,covd_val)
-	docc_full = getfulld(docc_val,covdocc_val)
-	sigma_full = pypkpd_db["parameters"]["sigma"]
-	
-	pypkpd_db["parameters"]["param_pt_val"]["bpop"] = bpop_val
-	pypkpd_db["parameters"]["param_pt_val"]["d"] = d_full
-	pypkpd_db["parameters"]["param_pt_val"]["docc"] = docc_full
-	pypkpd_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
+    d_val = d_val # for package check
+    covd_val = covd_val
+    docc_val = docc_val
+    covdocc_val = covdocc_val
+    bpop_val = bpop_val
+    d_full = getfulld(d_val, covd_val)
+    docc_full = getfulld(docc_val, covdocc_val)
+    sigma_full = pypkpd_db["parameters"]["sigma"]
     
-	"""
-    #     downsize.list = downsizing_general_design(pypkpd_db)
-    #     tmp.names = names(downsize.list)
-    #     model_switch = c()
-    #     ni = c()
-    #     xt = c()
-    #     x = c()
-    #     a = c()
-    #     eval(parse(text=paste(tmp.names,"=","downsize.list$",tmp.names,sep="")))
-    #     pypkpd_db$downsized.design$model_switch = model_switch
-    #     pypkpd_db$downsized.design$ni = ni
-    #     pypkpd_db$downsized.design$xt = xt
-    #     pypkpd_db$downsized.design$x = x
-    #     pypkpd_db$downsized.design$a = a
-    #     pypkpd_db$downsized.design$groupsize = pypkpd_db["design"]groupsize
+    pypkpd_db["parameters"]["param_pt_val"]["bpop"] = bpop_val
+    pypkpd_db["parameters"]["param_pt_val"]["d"] = d_full
+    pypkpd_db["parameters"]["param_pt_val"]["docc"] = docc_full
+    pypkpd_db["parameters"]["param_pt_val"]["sigma"] = sigma_full
 
     retargs = fileparts(pypkpd_db["settings"]["output_file"])
     pypkpd_db["settings"]["strOutputFilePath"] = list(retargs.values())[0]

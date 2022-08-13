@@ -36,7 +36,6 @@ import numpy as np
 # from scipy.linalg import norm
 from project.size import size
 from matpy.matrix import Matrix
-from project.zeros import zeros
 from project.feval import feval
 from project.getTruncatedNormal import getTruncatedNormal
 
@@ -104,39 +103,39 @@ def pargen (par: Matrix,
                 
                 if bUserSpecifiedDistribution:
                     if len(sample_number) == 0:
-                        ret.data[k, :] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],t,k,pypkpd_db) + ")")
+                        ret.data[k, :] = eval(str(user_dist_pointer) + "(" + str(ret[k, :],t,k,pypkpd_db) + ")")
                     else:
-                        ret.data[k,:] = eval(str(user_dist_pointer) + "(" + str(ret[k,:],t,sample_number,pypkpd_db) + ")")
+                        ret.data[k, :] = eval(str(user_dist_pointer) + "(" + str(ret[k, :],t,sample_number,pypkpd_db) + ")")
 
     elif nvar != 0: #LHS
         ran = np.random.rand(sample_size, nvar)
         # method of Stein
         for j in range(0, nvar):
             idx = np.random.random_sample(sample_size)
-            P = (idx - ran[:,j])/sample_size 
+            P = (idx - ran[:, j])/sample_size 
                   # probability of the cdf
-            returnArgs_list = [par.get_one_data([j,1]),  #point
-                                par.get_one_data([j,1]) + norm.ppf(P)*np.sqrt(par.get_one_data([j,3])), # normal
-                                par.get_one_data([j,1]) - par.get_one_data([j,3])/2 + P*par.get_one_data([j,3]), #uniform
-                                ret.get_data()[:,j], #Do nothing
-                                np.exp((np.log(par.get_one_data([j,2])^2/np.sqrt(par.get_one_data([j,3])+par.get_one_data([j,2])^2)))+norm.ppf(P)*(np.sqrt(np.log(par.get_one_data([j,3])/par.get_one_data([j,2])^2+1))))] #log-normal 
+            returnArgs_list = [par.get_one_data([j, 1]),  #point
+                                par.get_one_data([j, 1]) + norm.ppf(P)*np.sqrt(par.get_one_data([j, 3])), # normal
+                                par.get_one_data([j, 1]) - par.get_one_data([j, 3])/2 + P*par.get_one_data([j, 3]), #uniform
+                                ret.get_data()[:, j], #Do nothing
+                                np.exp((np.log(par.get_one_data([j, 2])^2/np.sqrt(par.get_one_data([j, 3])+par.get_one_data([j, 2])^2)))+norm.ppf(P)*(np.sqrt(np.log(par.get_one_data([j, 3])/par.get_one_data([j, 2])^2+1))))] #log-normal 
                                 #par[j,2]*exp(qnorm(P)*sqrt(par[j,3])) #log-normal
-            returnArgs = returnArgs_list[par.get_one_data([j,0]) + 1]
+            returnArgs = returnArgs_list[par.get_one_data([j, 0]) + 1]
             
         
         if returnArgs is None:
             raise Exception("Unknown distribution for the inverse probability function used in Latin Hypercube Sampling")
         
-        ret.data[:,j] = returnArgs
+        ret.data[:, j] = returnArgs
         
-        bUserSpecifiedDistribution = sum(par.get_data()[:,0] == 3) >= 1 #If at least one user specified distribution
+        bUserSpecifiedDistribution = sum(par.get_data()[:, 0] == 3) >= 1 #If at least one user specified distribution
         
         if bUserSpecifiedDistribution is True:
             for k in range(0, sample_size):
                 if len(sample_number) == 0:
-                    ret.data[k,:] = eval(str(user_dist_pointer) + "(" + str(ret.get_data()[k,:],par.get_data()[:,0],k,pypkpd_db) + ")")
+                    ret.data[k, :] = eval(str(user_dist_pointer) + "(" + str(ret.get_data()[k, :],par.get_data()[:, 0],k,pypkpd_db) + ")")
                 else:
-                    ret.data[k,:] = eval(str(user_dist_pointer) + "(" + str(ret.get_data()[k,:],par.get_data()[:,0],sample_number,pypkpd_db) + ")")
+                    ret.data[k, :] = eval(str(user_dist_pointer) + "(" + str(ret.get_data()[k, :],par.get_data()[:, 0],sample_number,pypkpd_db) + ")")
     
     #return type: Matrix
     return ret

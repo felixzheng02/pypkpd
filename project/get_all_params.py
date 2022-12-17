@@ -21,10 +21,9 @@
 ## Author: Caiya Zhang, Yuchen Zheng
 """
 
-
+import path
 import numpy as np
 from project.size import size
-from project.zeros import zeros
 from matpy.matrix import Matrix
 from project.diag_matlab import diag_matlab
 
@@ -39,7 +38,7 @@ def get_all_params (poped_db):
     covd = poped_db["parameters"]["covd"].get_all_data()
     covdocc = poped_db["parameters"]["covdocc"].get_all_data()
     sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_all_data()
-    covsigma = zeros(1,(sigma.size)*(sigma.size-1)/2).get_all_data()
+    covsigma = np.zeros(1,(sigma.size)*(sigma.size-1)/2).get_all_data()
 
     k = 1
 

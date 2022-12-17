@@ -24,7 +24,6 @@ Author: Caiya Zhang, Yuchen Zheng
 
 import numpy as np
 from project.size import size
-from project.zeros import zeros
 from matpy.matrix import Matrix
 from project.diag_matlab import diag_matlab
 
@@ -40,7 +39,7 @@ def get_unfixed_params(poped_db,params=None):
         docc = poped_db["parameters"]["docc"].get_all_data()[:,1]
         covdocc = poped_db["parameters"]["covdocc"].get_all_data()
         sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_all_data()
-        covsigma = zeros(1, (sigma.size)*((sigma.size)-1)/2).get_all_data()
+        covsigma = np.zeros(1, (sigma.size)*((sigma.size)-1)/2).get_all_data()
         k = 1
         for i in range(0, size(poped_db["parameters"]["sigma"])[0]):
             for j in range(0, size(poped_db["parameters"]["sigma"])[1]):

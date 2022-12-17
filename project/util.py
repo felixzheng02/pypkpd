@@ -169,6 +169,6 @@ def get_dict_value(input_dict: dict, *argv):
 			elif index == len(list(argv)) - 1:
 				return cur_dict[cur_key]
 			else:
-				raise Exception("'dict chain' breaks")
+				return None
 		else:
-			raise Exception("a key is not in a dict")
+			return None

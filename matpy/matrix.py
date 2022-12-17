@@ -22,7 +22,7 @@ class Matrix:
 		@parameters:
 			data: int, float, [int], [float], np.ndarray
 			datanam: [str]
-			axisnam: [str]
+			axisnam: [[rowname], [colname]]
 		"""
 
 		# data field:

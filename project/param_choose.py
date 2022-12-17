@@ -5,15 +5,14 @@ Author: Caiya Zhang, Yuchen Zheng
 """
 
 
-from project.util import get_dict_value
+from project.pypkpd_choose import pypkpd_choose
 
 
-def param_choose(param, pypkpdInput, replace, *argv):
-    if param is not None:
-        return param
-    if pypkpdInput is not None:
-        output = get_dict_value(pypkpdInput, argv)
-        if output is None:
-            return replace
-        return output
-    raise Exception("Must provide pypkpdInput dict.")
+def param_choose(param, default, alternative):
+    """
+    if param is defined (param is not None), return param
+    otherwise, pypkpd_choose(default, alternative)
+    """
+    if param is None:
+        return pypkpd_choose(default, alternative)
+    return param

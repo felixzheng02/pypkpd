@@ -67,6 +67,7 @@ from project.test_mat_size import test_mat_size
 from project.cell import cell
 from project.util import default_if_none
 from project.size import size
+from project.length import length
 
 
 def create_design_space(design_,
@@ -540,7 +541,7 @@ def create_design_space(design_,
 					grouped_xt.set_one_data(val, index=[i, j])
 					val += 1
 
-	if size(grouped_xt) == 1: # grouped_xt is int or float
+	if length(grouped_xt) == 1: # grouped_xt is int or float
 		grouped_xt = Matrix(np.ones(tuple(xt.get_shape())) * grouped_xt)
 		use_grouped_xt = True
 	if type(grouped_xt) is not Matrix:
@@ -596,7 +597,7 @@ def create_design_space(design_,
 			grouped_cells_xt = xt_space.get_data()[np.logical_and(grouped_xt.get_data() == i, ~np.isnan(xt.get_data()))]
 			for j in range(0, grouped_cells_xt.shape[0]):
 				for k in range(j, grouped_cells_xt.shape[1]):
-					if ((np.array(size(grouped_cells_xt[j, 0])) != np.array(size(grouped_cells_xt[k, 0]))).any() or
+					if ((np.array(length(grouped_cells_xt[j, 0])) != np.array(length(grouped_cells_xt[k, 0]))).any() or
 						(grouped_cells_xt[j, 0] != grouped_cells_xt[k, 0]).any()):
 						raise Exception("xt values grouped with value % g from grouped_xt do not have the same allowed discrete values (xt_space).\n" % i)
 
@@ -619,7 +620,7 @@ def create_design_space(design_,
 						grouped_a.set_one_data(val, index=[i, j])
 						val += 1
 
-		if size(grouped_a) == 1:
+		if length(grouped_a) == 1:
 			if type(grouped_a) is Matrix:
 				grouped_a = grouped_a.get_one_data(index=[0, 0])
 			grouped_a = Matrix(np.ones(tuple(a.get_shape())) * grouped_a)
@@ -688,7 +689,7 @@ def create_design_space(design_,
 							grouped_x.set_one_data(val, index=[i, j])
 							val += 1
 
-			if size(grouped_x) == 1:
+			if length(grouped_x) == 1:
 				if type(grouped_x) is Matrix:
 					grouped_x = grouped_x.get_one_data(index=[0, 0])
 				grouped_x = Matrix(np.ones(tuple(x.get_shape())) * grouped_x)

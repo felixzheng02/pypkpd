@@ -8,7 +8,7 @@
 import re
 import inspect
 import numpy as np
-from project.sfg import sfg
+from project.sfg import Sfg
 
 
 def find_largest_index(func_str="sfg",lab="bpop",mat=False,mat_row=True):

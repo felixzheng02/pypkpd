@@ -3,17 +3,26 @@
 
 """
 
+import path
 import numpy as np
-from matpy.num import num
+from matpy.num import Num
 from matpy.matrix import Matrix
 
-def sfg(x,a,bpop,b,bocc):
-    parameters = Matrix(np.array([bpop.get_by_index(0)*np.exp(b.get_by_index(0)), 
-                                bpop.get_by_index(1)*np.exp(b.get_by_index(1)),
-                                bpop.get_by_index(2)*np.exp(b.get_by_index(2)),
-                                bpop.get_by_index(3),
-                                a.get_by_index(0)]),
-                        (1,5),
-                        ["CL", "V", "KA", "Favail", "DOSE"],
-                        None, None)
-    return parameters
+class Sfg:
+    def __init__(self) -> None:
+        pass
+
+    def sfg(x, a, bpop, b, bocc):
+        if type(bpop) == int:
+            bpop = [bpop] * 4
+        if type(b) == int:
+            b = [b] * 3
+        parameters = Matrix(np.array([bpop[0]*np.exp(b[0]), 
+                                    bpop[1]*np.exp(b[1]),
+                                    bpop[2]*np.exp(b[2]),
+                                    bpop[3],
+                                    a]),
+                            [1,5],
+                            None,
+                            [None, ["CL", "V", "KA", "Favail", "DOSE"]])
+        return parameters

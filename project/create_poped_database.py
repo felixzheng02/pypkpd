@@ -27,6 +27,7 @@ from project.convert_variables import convert_variables
 from project.get_all_params import get_all_params
 from project.get_unfixed_params import get_unfixed_params
 from project.call_func import call_func
+from project.data import data
 
 
 def reorder_vec(your_vec: Matrix, name_order):
@@ -252,7 +253,7 @@ def create_poped_database(pypkpdInput={},
     covd = param_choose(covd, get_dict_value(pypkpdInput, "parameters", "covd"), get_dict_value(pypkpdInput, "parameters", "covd"))
     sigma = param_choose(sigma, get_dict_value(pypkpdInput, "parameters", "sigma"), get_dict_value(pypkpdInput, "parameters", "sigma"))
     docc = param_choose(docc, get_dict_value(pypkpdInput, "parameters", "docc"), Matrix(np.zeros([0, 3])))
-    covdocc = param_choose(covdocc, get_dict_value(pypkpdInput, "parameters", "covdocc"), np.zeros([1, int(length(docc.get_data()[:, 1])*(length(docc.get_data()[:, 1])-1)/2)]))
+    covdocc = param_choose(covdocc, get_dict_value(pypkpdInput, "parameters", "covdocc"), Matrix(np.zeros([1, int(length(docc.get_data()[:, 1])*(length(docc.get_data()[:, 1])-1)/2)])))
 
     # Model parameters fixed or not
     notfixed_bpop = param_choose(notfixed_bpop, get_dict_value(pypkpdInput, "parameters", "notfixed_bpop"), get_dict_value(pypkpdInput, "parameters", "notfixed_bpop"))
@@ -516,7 +517,7 @@ def create_poped_database(pypkpdInput={},
     # Temp thing for memory solvers
     pypkpd_db["settings"]["bUseMemorySolver"] = bUseMemorySolver
     pypkpd_db["settings"]["solved_solutions"] = cell([0, 0])
-    pypkpd_db["settings"]["maxtime"] = max(get_dict_value(pypkpd_db, "design_space", "maxxt").get_data()) + get_dict_value(pypkpd_db, "settings", "hgd")
+    pypkpd_db["settings"]["maxtime"] = max(max(get_dict_value(pypkpd_db, "design_space", "maxxt").get_data())) + get_dict_value(pypkpd_db, "settings", "hgd")
 
     pypkpd_db["settings"]["iFIMCalculationType"] = iFIMCalculationType
     pypkpd_db["settings"]["rsit"] = rsit
@@ -671,16 +672,16 @@ def create_poped_database(pypkpdInput={},
     #         pypkpd_db["settings"]["dSeed"] = dSeed
     #     random.seed(pypkpd_db["settings"]["dSeed"])
 
-    pypkpd_db["parameters"]["nbpop"] = pypkpd_choose(nbpop, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "bpop"))
-    pypkpd_db["parameters"]["NumRanEff"] = pypkpd_choose(NumRanEff, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "b"))
-    pypkpd_db["parameters"]["NumDocc"] = pypkpd_choose(NumDocc, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "bocc", mat=True, mat_row=True))
-    pypkpd_db["parameters"]["NumOcc"] = pypkpd_choose(NumOcc, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "bocc", mat=True, mat_row=False))
-    
-    tmp_ng = call_func(get_dict_value(pypkpd_db, "model", "fg_pointer"), 0, 0, 0, 0, np.zeros([get_dict_value(pypkpd_db, 'parameters', 'NumDocc'), get_dict_value(pypkpd_db, 'parameters', 'NumOcc')]))
-    if type(tmp_ng) is Matrix:
-        pypkpd_db["parameters"]["ng"] = tmp_ng.get_size()
-    else:
-        raise Exception("ng needs to be defined.")
+    # pypkpd_db["parameters"]["nbpop"] = pypkpd_choose(nbpop, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "bpop"))
+    pypkpd_db["parameters"]["nbpop"] = 4
+    # pypkpd_db["parameters"]["NumRanEff"] = pypkpd_choose(NumRanEff, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "b"))
+    pypkpd_db["parameters"]["NumRanEff"] = 3
+    # pypkpd_db["parameters"]["NumDocc"] = pypkpd_choose(NumDocc, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "bocc", mat=True, mat_row=True))
+    pypkpd_db["parameters"]["NumDocc"] = 0
+    # pypkpd_db["parameters"]["NumOcc"] = pypkpd_choose(NumOcc, find_largest_index(get_dict_value(pypkpd_db, "model", "fg_pointer"), "bocc", mat=True, mat_row=False))
+    pypkpd_db["parameters"]["NumOcc"] = 0
+
+    pypkpd_db["parameters"]["ng"] = length(call_func(get_dict_value(pypkpd_db, "model", "fg_pointer"), 0, 0, 0, 0, np.zeros([get_dict_value(pypkpd_db, 'parameters', 'NumDocc'), get_dict_value(pypkpd_db, 'parameters', 'NumOcc')])))
     
     pypkpd_db["parameters"]["notfixed_docc"] = pypkpd_choose(notfixed_docc, Matrix(np.ones([1, get_dict_value(pypkpd_db, "parameters", "NumDocc")])))
     pypkpd_db["parameters"]["notfixed_d"] = pypkpd_choose(notfixed_d, Matrix(np.ones([1, get_dict_value(pypkpd_db, "parameters", "NumRanEff")])))
@@ -688,14 +689,14 @@ def create_poped_database(pypkpdInput={},
 
 
     # reorder named values
-    fg_names = call_func(get_dict_value(pypkpd_db, "model", "fg_pointer"), 0, 0, 0, 0, np.ones([get_dict_value(pypkpd_db, 'parameters', 'NumDocc'), get_dict_value(pypkpd_db, 'parameters', 'NumOcc')])).get_datanam()
+    fg_names = names(call_func(get_dict_value(pypkpd_db, "model", "fg_pointer"), 0, 0, 0, 0, np.ones([get_dict_value(pypkpd_db, 'parameters', 'NumDocc'), get_dict_value(pypkpd_db, 'parameters', 'NumOcc')])))
     
     pypkpd_db["parameters"]["notfixed_bpop"] = reorder_vec(get_dict_value(pypkpd_db, "parameters", "notfixed_bpop"), fg_names)
 
     pypkpd_db["parameters"]["notfixed_d"] = reorder_vec(get_dict_value(pypkpd_db, "parameters", "notfixed_d"), fg_names)
 
     # we have just the parameter values not the uncertainty
-    if d.get_shape(0) == 1 and d.get_shape(1) == get_dict_value(pypkpd_db, "parameters", "NumRanEff"):
+    if size(d)[0] == 1 and size(d)[1] == get_dict_value(pypkpd_db, "parameters", "NumRanEff"):
         d_descr = np.zeros([get_dict_value(pypkpd_db, "parameters", "NumRanEff"), 3])
 
         # reorder named values
@@ -704,11 +705,11 @@ def create_poped_database(pypkpdInput={},
         d_descr[:, 1] = d.get_data()
         d_descr[:, 0] = np.zeros(d_descr.shape[0])
         d_descr[:, 2] = np.zeros(d_descr.shape[0])
-        d_descr = Matrix(d_descr, axisnam=[d.get_datanam(), None])
+        d_descr = Matrix(d_descr, axisnam=[names(d), None])
         d = d_descr
 
     # we have just the parameter values not the uncertainty
-    if bpop.get_shape(0) == 1 and bpop.get_shape(1) == get_dict_value(pypkpd_db, "parameters", "nbpop"):
+    if size(bpop)[0] == 1 and size(bpop)[1] == get_dict_value(pypkpd_db, "parameters", "nbpop"):
         bpop_descr = np.zeros([get_dict_value(pypkpd_db, "parameters", "nbpop"), 3])
 
         # reorder named values
@@ -717,7 +718,7 @@ def create_poped_database(pypkpdInput={},
         bpop_descr[:, 1] = bpop.get_data()
         bpop_descr[:, 0] = np.zeros(bpop_descr.shape[0])
         bpop_descr[:, 2] = np.zeros(bpop_descr.shape[0])
-        bpop_descr = Matrix(bpop_descr, axisnam=[bpop.get_datanam(), None])
+        bpop_descr = Matrix(bpop_descr, axisnam=[names(bpop), None])
         bpop = bpop_descr
 
     # we have just the diagonal parameter values
@@ -726,11 +727,11 @@ def create_poped_database(pypkpdInput={},
         sigma_tmp.set_axisnam([names(sigma), None])
         sigma = sigma_tmp
 
-    covd = pypkpd_choose(covd, np.zeros([1, int(get_dict_value(pypkpd_db, "parameters", "NumRanEff")*(get_dict_value(pypkpd_db, "parameters", "NumRanEff")-1)/2)]))
+    covd = pypkpd_choose(covd, Matrix(np.zeros([1, int(get_dict_value(pypkpd_db, "parameters", "NumRanEff"))])*(get_dict_value(pypkpd_db, "parameters", "NumRanEff")-1)/2))
     pypkpd_db["parameters"]["covd"] = covd
 
-    tmp = np.ones(1, length(covd))
-    tmp[covd.get_data() == 0] = np.zeros(np.sum(covd.get_data() == 0))
+    tmp = np.ones([1, length(covd)])
+    tmp[data(covd) == 0] = 0
     pypkpd_db["parameters"]["notfixed_covd"] = pypkpd_choose(notfixed_covd, tmp)
 
     # ==================================
@@ -773,15 +774,16 @@ def create_poped_database(pypkpdInput={},
                 for i in range(0, get_dict_value(pypkpd_db, "settings", "iFOCENumInd")):
                     pypkpd_db["parameters"]["bocc_global"].set_one__data(Matrix(np.transpose(np.random.multivariate_normal(get_dict_value(pypkpd_db, "parameters", "NumOcc"), sigma=getfulld(docc_dist[i, :], get_dict_value(pypkpd_db, "parameters", "covdocc"))))), index=[0, i])
     else:
-        pypkpd_db["parameters"]["bocc_global"] = np.zeros([get_dict_value(pypkpd_db, "parameters", "NumRanEff"), 1])
-        pypkpd_db["parameters"]["bocc_global"] = cell([1, 1], fill_value=1)
-        pypkpd_db["parameters"]["bocc_global"].set_one_data(np.zeros(size(docc)[0], get_dict_value(pypkpd_db, "parameters", "NumOcc")), index=[0,1])
+        pypkpd_db["parameters"]["b_global"] = np.zeros([get_dict_value(pypkpd_db, "parameters", "NumRanEff"), 1])
+        pypkpd_db["parameters"]["bocc_global"] = Matrix(cell([1, 1], fill_value=1))
+        # omitted (cannot implement it yet)
+        # pypkpd_db["parameters"]["bocc_global"].set_one_data(np.zeros([size(docc)[0], get_dict_value(pypkpd_db, "parameters", "NumOcc")]), index=[0,0])
         
         pypkpd_db["settings"]["iFOCENumInd"] = 1
 
     pypkpd_db["settings"]["modtit"] = modtit
-    pypkpd_db["settings"]["exptit"] = ('%s_exp["mat"]', modtit)  # experiment settings title
-    pypkpd_db["settings"]["opttit"] = ('%s_opt["mat"]', modtit)  # optimization settings title
+    pypkpd_db["settings"]["exptit"] = modtit + '_exp["mat"]'   # experiment settings title
+    pypkpd_db["settings"]["opttit"] = modtit + '_opt["mat"]'  # optimization settings title
     pypkpd_db["settings"]["bShowGraphs"] = bShowGraphs
 
     pypkpd_db["settings"]["use_logfile"] = use_logfile
@@ -790,12 +792,12 @@ def create_poped_database(pypkpdInput={},
 
     pypkpd_db["settings"]["optsw"] = optsw
 
-    line_opta = pypkpd_choose(line_opta, np.ones([1, get_dict_value(pypkpd_db, "design", "a").get_shape(1)]))
-    if test_mat_size(np.array([1, get_dict_value(pypkpd_db, "design", "a").get_shape(1)]), line_opta, "line_opta"):
+    line_opta = pypkpd_choose(line_opta, np.ones([1, size(get_dict_value(pypkpd_db, "design", "a"))[1]]))
+    if test_mat_size([1, size(get_dict_value(pypkpd_db, "design", "a"))[1]], size(line_opta), "line_opta"):
         pypkpd_db["settings"]["line_opta"] = Matrix(line_opta)
 
-    line_optx = pypkpd_choose(line_optx, np.ones([1, get_dict_value(pypkpd_db, "design", "x").get_shape(1)]))
-    if test_mat_size(np.array([1, get_dict_value(pypkpd_db, "design", "x").get_shape(1)]), line_optx, "line_optx"):
+    line_optx = pypkpd_choose(line_optx, np.ones([1, size(get_dict_value(pypkpd_db, "design", "x"))[1]]))
+    if test_mat_size([1, size(get_dict_value(pypkpd_db, "design", "x"))[1]], size(line_optx), "line_optx"):
         pypkpd_db["settings"]["line_optx"] = Matrix(line_optx)
 
     pypkpd_db["parameters"]["bpop"] = bpop
@@ -821,8 +823,9 @@ def create_poped_database(pypkpdInput={},
     # create ds_index if not already done
     if get_dict_value(pypkpd_db, "parameters", "ds_index") is None:
         unfixed_params = get_unfixed_params(pypkpd_db)
-        pypkpd_db["parameters"]["ds_index"] = Matrix(np.transpose(np.repeat([0], unfixed_params.get_one_data(name="all").size)))
-        pypkpd_db["parameters"]["ds_index"].data[(unfixed_params.get_one_data(name="bpop").size+1):pypkpd_db["parameters"]["ds_index"].get_size()] = 1
+        pypkpd_db["parameters"]["ds_index"] = Matrix((np.array([0] * length(get_dict_value(unfixed_params, "all")))))
+        tmp = length(get_dict_value(unfixed_params, "bpop"))
+        pypkpd_db["parameters"]["ds_index"].data[0, tmp:] = 1
     else:
         if type(pypkpd_db["parameters"]["ds_index"]) is not Matrix:
             pypkpd_db["parameters"]["ds_index"] = Matrix(pypkpd_db["parameters"]["ds_index"], shape=[1, pypkpd_db["parameters"]["ds_index"].size])
@@ -834,9 +837,9 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db["settings"]["bGreedyGroupOpt"] = bGreedyGroupOpt
     pypkpd_db["settings"]["bEANoReplicates"] = bEANoReplicates
 
-    if len(strRunFile) != 0:
-        if strRunFile == " ":
-            pypkpd_db["settings"]["run_file_pointer"] = np.zeros(1, 0)
+    if strRunFile is not None:
+        if strRunFile == "":
+            pypkpd_db["settings"]["run_file_pointer"] = np.zeros([1, 0])
     #     else:
     #         if strRunFile is not None:
     #             pypkpd_db["settings"]["run_file_pointer"] = strRunFile
@@ -847,8 +850,7 @@ def create_poped_database(pypkpdInput={},
     #             strRunFilename = list(returnArgs.values())[1]
     #             pypkpd_db["settings"]["run_file_pointer"] = strRunFilename
 
-    # pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": version["version.string"]}
-    
+    # pypkpd_db["settings"]["Engine"] = {"Type": 1, "Version": version["version.string"]} # python version
     pypkpd_db = convert_variables(pypkpd_db)  # need to transform here
 
     param_val = get_all_params(pypkpd_db)

@@ -18,7 +18,7 @@ def size(input) -> list:
             tmp = tmp[0]
         return result
     elif type(input) is np.ndarray:
-        return input.shape
+        return list(input.shape)
     elif type(input) is Matrix:
         return input.get_shape()
     elif input is None:

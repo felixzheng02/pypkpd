@@ -32,5 +32,5 @@ def diag_matlab(mat: Matrix):
             if np.any((np.array(dim_mat) != 1)): # mat is 1*n
                 return Matrix(np.diag(mat.get_data().reshape(mat.get_size(),)))
             else: # mat is 1*1
-                return Matrix(np.diag([1] * mat.get_data()[0, 0]))
+                return Matrix(np.diagonal(mat.get_data()))
     return Matrix(np.diag(mat.get_data()))

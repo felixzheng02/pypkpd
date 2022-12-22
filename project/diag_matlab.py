@@ -24,13 +24,16 @@
 
 import numpy as np
 from matpy.matrix import Matrix
+from project.size import size
+from project.data import data
+from project.length import length
 
-def diag_matlab(mat: Matrix):
-    dim_mat = mat.get_shape()
+def diag_matlab(mat):
+    dim_mat = size(mat)
     if dim_mat is not None:
         if 1 in dim_mat:
             if np.any((np.array(dim_mat) != 1)): # mat is 1*n
-                return Matrix(np.diag(mat.get_data().reshape(mat.get_size(),)))
+                return Matrix(np.diag(data(mat).reshape(length(mat),)))
             else: # mat is 1*1
                 return Matrix(np.diagonal(mat.get_data()))
-    return Matrix(np.diag(mat.get_data()))
+    return Matrix(np.diag(data(mat)))

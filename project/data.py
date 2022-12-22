@@ -9,5 +9,9 @@ def data(input):
         return input.get_value
     elif type(input) is np.ndarray:
         if len(input.shape) == 1:
-            input = input.reshape([1, input.shape[0]])
+            if input.shape[0] == 0: # for shape [0,]
+                reshape = [0, 1]
+            else:
+                reshape = [1, input.shape[0]]
+            input = input.reshape(reshape)
         return input

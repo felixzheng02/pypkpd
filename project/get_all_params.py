@@ -26,33 +26,48 @@ import numpy as np
 from project.size import size
 from matpy.matrix import Matrix
 from project.diag_matlab import diag_matlab
+from project.util import get_dict_value
+from project.data import data
+from project.length import length
 
 
-def get_all_params (poped_db):
+def get_all_params (pypkpd_db):
     #Return all params (in a vector all) with the specified order above
 
-    #type: Matrix to ndarray
-    bpop = poped_db["parameters"]["bpop"].get_all_data()[:,1]
-    d = poped_db["parameters"]["d"].get_all_data()[:,1]
-    docc = poped_db["parameters"]["docc"].get_all_data()[:,1]
-    covd = poped_db["parameters"]["covd"].get_all_data()
-    covdocc = poped_db["parameters"]["covdocc"].get_all_data()
-    sigma = diag_matlab(poped_db["parameters"]["sigma"]).get_all_data()
-    covsigma = np.zeros(1,(sigma.size)*(sigma.size-1)/2).get_all_data()
 
+    bpop = Matrix(data(data(get_dict_value(pypkpd_db, "parameters", "bpop"))[:,1]))
+    d = Matrix(data(data(get_dict_value(pypkpd_db, "parameters", "d"))[:,1]))
+    docc = Matrix(data(data(get_dict_value(pypkpd_db, "parameters", "docc"))[:,1]))
+    covd = Matrix(data(get_dict_value(pypkpd_db, "parameters", "covd")))
+    sigma = Matrix(data(diag_matlab(get_dict_value(pypkpd_db, "parameters", "sigma"))))
+    covsigma = Matrix(data(np.zeros([1, int(length(sigma)*(length(sigma)-1)/2)])))
     k = 1
-
-    for i in range(0, size(poped_db["parameters"]["sigma"])[0]):
-        for j in range(0, size(poped_db["parameters"]["sigma"])[1]):
+    for i in range(0, size(get_dict_value(pypkpd_db, "parameters", "sigma"))[0]):
+        for j in range(0, size(get_dict_value(pypkpd_db, "parameters", "sigma"))[1]):
             if i < j:
-                covsigma[k] = poped_db["parameters"]["sigma"][i,j]
+                covsigma[k] = data(get_dict_value(pypkpd_db, "parameters", "sigma"))[i,j]
                 k = k + 1
     
-    all = Matrix(np.array([[bpop], [d], [np.transpose(covd)], [docc], [np.transpose(covdocc)], [sigma], [np.transpose(covsigma)]]))
-    
-    all_mat = Matrix(np.array([[bpop], [d], [covd], [docc], [covdocc], [sigma], [covsigma], [all]]))
-    all_mat.set_datanam(["bpop", "d", "covd", "docc", "covdocc", "sigma", "covsigma", "all"])
-    
+    covdocc = data(get_dict_value(pypkpd_db, "parameters", "covdocc"))
 
+    all_mat = {"bpop": bpop,
+                    "d": d,
+                    "covd": covd,
+                    "docc": docc,
+                    "covdocc": covdocc,
+                    "sigma": sigma,
+                    "covsigma": covsigma}
+
+    included_in_all = []
+    for value in all_mat.values():
+        if length(value) != 0:
+            if size(value)[1] != 1:
+                included_in_all.append(np.transpose(data(value)))
+            else:
+                included_in_all.append(data(value))
+
+    all = Matrix(np.concatenate(tuple(included_in_all)))
+
+    all_mat["all"] = all
 
     return all_mat

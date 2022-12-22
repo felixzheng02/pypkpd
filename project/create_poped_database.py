@@ -854,18 +854,17 @@ def create_poped_database(pypkpdInput={},
     pypkpd_db = convert_variables(pypkpd_db)  # need to transform here
 
     param_val = get_all_params(pypkpd_db)
-    tmp_names = param_val.get_datanam()
-    eval('%s.val = param.val["%s"]' % (tmp_names, tmp_names))
     
-    d_val = d_val # for package check
-    covd_val = covd_val
-    docc_val = docc_val
-    covdocc_val = covdocc_val
-    bpop_val = bpop_val
+    d_val = param_val["d"] # for package check
+    covd_val = param_val["covd"]
+    docc_val = param_val["docc"]
+    covdocc_val = param_val["covdocc"]
+    bpop_val = param_val["bpop"]
     d_full = getfulld(d_val, covd_val)
     docc_full = getfulld(docc_val, covdocc_val)
     sigma_full = pypkpd_db["parameters"]["sigma"]
     
+    pypkpd_db["parameters"]["param_pt_val"] = {}
     pypkpd_db["parameters"]["param_pt_val"]["bpop"] = bpop_val
     pypkpd_db["parameters"]["param_pt_val"]["d"] = d_full
     pypkpd_db["parameters"]["param_pt_val"]["docc"] = docc_full

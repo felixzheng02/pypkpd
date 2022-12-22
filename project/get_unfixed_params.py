@@ -68,17 +68,10 @@ def get_unfixed_params(pypkpd_db, params=None):
     bpop = Matrix(bpop[data(get_dict_value(pypkpd_db, "parameters", "notfixed_bpop")) == 1])
     d = Matrix(d[data(get_dict_value(pypkpd_db, "parameters", "notfixed_d")) == 1])
     covd = Matrix(covd[data(get_dict_value(pypkpd_db, "parameters", "notfixed_covd")) == 1])
-    docc = Matrix(docc[data(get_dict_value(pypkpd_db, "parameters", "notfixed_docc")) == 1])
+    docc = Matrix(docc.flatten()[data(get_dict_value(pypkpd_db, "parameters", "notfixed_docc")).flatten() == 1].reshape(docc.shape))
     covdocc = Matrix(covdocc[data(get_dict_value(pypkpd_db, "parameters", "notfixed_covdocc")) == 1])
     sigma = Matrix(sigma[data(get_dict_value(pypkpd_db, "parameters", "notfixed_sigma")) == 1])
     covsigma = Matrix(covsigma[data(get_dict_value(pypkpd_db, "parameters", "notfixed_covsigma")) == 1])
-    
-    all = Matrix(np.concatenate((data(bpop), data(d), data(covd), data(docc), data(covdocc), data(sigma), data(covsigma)), axis=1))
-    
-    if pypkpd_db["settings"]["iFIMCalculationType"] != 4:
-        var_derivative = Matrix(np.ones(size(all)))
-    else:
-        var_derivative = np.array([[np.repeat(1, bpop.size)], [np.repeat(1, d.size)], [np.repeat(1, covd.size)], [np.repeat(1, docc.size)], [np.repeat(1, covdocc.size)], [np.repeat(0, sigma.size)], [np.repeat(1,covsigma.size)]])
     
     unfixed_mat = {"bpop": bpop,
                     "d": d,
@@ -86,9 +79,21 @@ def get_unfixed_params(pypkpd_db, params=None):
                     "docc": docc,
                     "covdocc": covdocc,
                     "sigma": sigma,
-                    "covsigma": covsigma,
-                    "all": all,
-                    "var_derivative": var_derivative}
+                    "covsigma": covsigma}
+    included_in_all = []
+    for value in unfixed_mat.values():
+        if length(value) != 0:
+            included_in_all.append(data(value))
+    
+    all = Matrix(np.concatenate(tuple(included_in_all), axis=1))
+    
+    if pypkpd_db["settings"]["iFIMCalculationType"] != 4:
+        var_derivative = Matrix(np.ones(size(all)))
+    else:
+        var_derivative = np.array([[np.repeat(1, bpop.size)], [np.repeat(1, d.size)], [np.repeat(1, covd.size)], [np.repeat(1, docc.size)], [np.repeat(1, covdocc.size)], [np.repeat(0, sigma.size)], [np.repeat(1,covsigma.size)]])
+    
+    unfixed_mat["all"] = all
+    unfixed_mat["var_derivative"] = var_derivative
     
     return unfixed_mat
 

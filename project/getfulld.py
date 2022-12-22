@@ -21,14 +21,16 @@ import numpy as np
 from matpy.matrix import Matrix
 from project.diag_matlab import diag_matlab
 from project.lower_tri import lower_tri
+from project.length import length
 
 
-def getfulld(variance_vector: Matrix, covariance_vector: Matrix = None):
-    if variance_vector.get_size() == 1:
+def getfulld(variance_vector, covariance_vector = None):
+    if length(variance_vector) == 1:
         return variance_vector
 
     d = diag_matlab(variance_vector)
-    if covariance_vector is not None:
+    # below omitted, not tested
+    if covariance_vector is not None and length(covariance_vector) != 0:
         if covariance_vector.get_size() > 0 and np.sum(covariance_vector.get_data() != 0) > 0:
 
             d.data[lower_tri(d)] = covariance_vector.get_data().reshape(covariance_vector.get_size(),)

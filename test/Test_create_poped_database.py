@@ -13,12 +13,15 @@ from project.sfg import Sfg
 from matpy.matrix import Matrix
 from project.models import Models
 from project.create_poped_database import create_poped_database
+from project.visualization import Visualization
 
 
 ## -- Define initial design  and design space
 sfg = Sfg()
-models = Models
-poped_db = create_poped_database(
+models = Models()
+visualization = Visualization()
+
+pypkpd_db = create_poped_database(
                                  ff_file=Models.ff_PK_1_comp_oral_sd_CL,
                                  fg_file=Sfg.sfg,
                                  fError_file=Models.feps_prop,
@@ -31,7 +34,10 @@ poped_db = create_poped_database(
                                  minxt=0,
                                  maxxt=120,
                                  a=70)
-print(poped_db)
+
+
+visualization.dict_visualization(pypkpd_db)
+
 #> Warning: cannot open file 'sfg': No such file or directory#> Error in file(filename, "r", encoding = encoding): cannot open the connection
 
 ## find the parameters that are needed to define from the structural model

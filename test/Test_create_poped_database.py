@@ -22,8 +22,8 @@ models = Models()
 visualization = Visualization()
 
 pypkpd_db = create_poped_database(
-                                 ff_file=Models.ff_PK_1_comp_oral_sd_CL,
-                                 fg_file=Sfg.sfg,
+                                 ff_file=models.ff_PK_1_comp_oral_sd_CL,
+                                 fg_file=sfg.sfg_1,
                                  fError_file=Models.feps_prop,
                                  bpop=Matrix(np.array([0.15, 8, 1.0, 1]), (1, 4), None, [None, ["CL", "V", "KA", "Favail"]]), 
                                  notfixed_bpop=Matrix(np.array([1,1,1,0]), (1, 4), None, None),
